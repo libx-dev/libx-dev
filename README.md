@@ -36,7 +36,7 @@ libx-dev/
 
 1. リポジトリのクローン：
    ```bash
-   git clone https://github.com/dolphilia/libx-dev.git
+   git clone https://github.com/libx-dev/libx-dev.git
    cd libx-dev
    ```
 

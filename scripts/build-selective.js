@@ -174,13 +174,13 @@ function updateBasePath(filePath, oldBasePath, newBasePath) {
     // canonical URLを修正
     if (!isLocalBuild) {
       content = content.replace(
-        new RegExp(`href="https://dolphilia.github.io${oldBasePath}/([v0-9]+)/([a-z]+)/"`, 'g'),
-        `href="https://dolphilia.github.io${newBasePath}/$1/$2/"`
+        new RegExp(`href="https://libx.dev${oldBasePath}/([v0-9]+)/([a-z]+)/"`, 'g'),
+        `href="https://libx.dev${newBasePath}/$1/$2/"`
       );
     } else {
       const localPort = process.env.PORT || 8080;
       content = content.replace(
-        new RegExp(`href="https://dolphilia.github.io${oldBasePath}/([v0-9]+)/([a-z]+)/"`, 'g'),
+        new RegExp(`href="https://libx.dev${oldBasePath}/([v0-9]+)/([a-z]+)/"`, 'g'),
         `href="http://localhost:${localPort}/$1/$2/"`
       );
     }

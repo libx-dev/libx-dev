@@ -224,7 +224,7 @@ pnpm build:selective:local --projects=top-page
 
 **プロダクション環境**:
 - ベースパス: `/libx`
-- URL例: `https://dolphilia.github.io/libx/docs/sample-docs/v2/ja/`
+- URL例: `https://libx.dev/docs/sample-docs/v2/ja/`
 
 **ローカル開発環境**:
 - ベースパスなし

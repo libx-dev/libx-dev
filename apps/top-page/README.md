@@ -83,7 +83,7 @@ pnpm --filter=top-page build
     "baseUrl": "",
     "supportedLangs": ["en", "ja", ...],
     "defaultLang": "en",
-    "repository": "https://github.com/dolphilia",
+    "repository": "https://github.com/libx-dev/libx-dev",
     "siteName": "Libx"
   },
   "content": {
@@ -119,7 +119,7 @@ pnpm --filter=top-page build
 
 このプロジェクトはGitHub Pagesのルートパス（`/`）にデプロイされます：
 
-- **本番URL**: `https://dolphilia.github.io/`
+- **本番URL**: `https://libx.dev/`
 - **ベースパス**: 空文字（ルート配置）
 - **ビルド出力**: `dist/`
 

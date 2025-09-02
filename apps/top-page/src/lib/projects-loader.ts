@@ -151,7 +151,7 @@ function getFailsafeConfig(): TopPageConfig {
     baseUrl: '',
     supportedLangs: ['en', 'ja'],
     defaultLang: 'en',
-    repository: 'https://github.com/dolphilia',
+    repository: 'https://github.com/libx-dev/libx-dev',
     siteName: 'Libx',
     siteDescription: {
       en: 'Documentation site built with Astro',
