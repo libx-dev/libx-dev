@@ -1,0 +1,96 @@
+{
+  "siteConfig": {
+    "baseUrl": "",
+    "supportedLangs": [
+      "en",
+      "ja",
+      "zh-Hans",
+      "zh-Hant",
+      "es",
+      "pt-BR",
+      "ko",
+      "de",
+      "fr",
+      "ru",
+      "ar",
+      "id",
+      "tr",
+      "hi",
+      "vi"
+    ],
+    "defaultLang": "en",
+    "repository": "https://github.com/dolphilia",
+    "siteName": "Libx"
+  },
+  "content": {
+    "siteDescription": {
+      "en": "Documentation site built with Astro",
+      "ja": "Astroで構築されたドキュメントサイト",
+      "zh-Hans": "使用 Astro 构建的文档站点",
+      "zh-Hant": "使用 Astro 構建的文檔站點",
+      "es": "Sitio de documentación construido con Astro",
+      "pt-BR": "Site de documentação construído com Astro",
+      "ko": "Astro로 구축된 문서 사이트",
+      "de": "Dokumentations-Website erstellt mit Astro",
+      "fr": "Site de documentation construit avec Astro",
+      "ru": "Сайт документации, созданный с помощью Astro",
+      "ar": "موقع التوثيق المبني باستخدام Astro",
+      "id": "Situs dokumentasi yang dibangun dengan Astro",
+      "tr": "Astro ile oluşturulmuş dokümantasyon sitesi",
+      "hi": "Astro के साथ निर्मित दस्तावेज़ीकरण साइट",
+      "vi": "Trang tài liệu được xây dựng với Astro"
+    },
+    "heroTitle": {
+      "en": "Documentation Hub",
+      "ja": "ドキュメントハブ",
+      "zh-Hans": "文档中心",
+      "zh-Hant": "文檔中心",
+      "es": "Centro de Documentación",
+      "pt-BR": "Centro de Documentação",
+      "ko": "문서 허브",
+      "de": "Dokumentations-Hub",
+      "fr": "Hub de Documentation",
+      "ru": "Центр документации",
+      "ar": "مركز التوثيق",
+      "id": "Hub Dokumentasi",
+      "tr": "Dokümantasyon Merkezi",
+      "hi": "दस्तावेज़ीकरण केंद्र",
+      "vi": "Trung tâm Tài liệu"
+    },
+    "heroDescription": {
+      "en": "Find all the documentation you need in one place",
+      "ja": "必要なすべてのドキュメントを一箇所で見つけることができます",
+      "zh-Hans": "在一个地方找到您需要的所有文档",
+      "zh-Hant": "在一個地方找到您需要的所有文檔",
+      "es": "Encuentra toda la documentación que necesitas en un solo lugar",
+      "pt-BR": "Encontre toda a documentação que você precisa em um só lugar",
+      "ko": "필요한 모든 문서를 한 곳에서 찾을 수 있습니다",
+      "de": "Finden Sie die gesamte Dokumentation, die Sie benötigen, an einem Ort",
+      "fr": "Trouvez toute la documentation dont vous avez besoin en un seul endroit",
+      "ru": "Найдите всю необходимую документацию в одном месте",
+      "ar": "اعثر على جميع الوثائق التي تحتاجها في مكان واحد",
+      "id": "Temukan semua dokumentasi yang Anda butuhkan dalam satu tempat",
+      "tr": "İhtiyacınız olan tüm dokümantasyonu tek yerde bulun",
+      "hi": "आपको आवश्यक सभी दस्तावेज़ एक ही स्थान पर खोजें",
+      "vi": "Tìm tất cả tài liệu bạn cần ở một nơi"
+    }
+  },
+  "projectDecorations": {
+    "sample-docs": {
+      "icon": "file-text",
+      "tags": [
+        "sample",
+        "documentation",
+        "example"
+      ],
+      "isNew": false
+    },
+    "test-verification": {
+      "icon": "file-text",
+      "tags": [
+        "documentation"
+      ],
+      "isNew": true
+    }
+  }
+}

@@ -1,0 +1,25 @@
+---
+interface Props {
+  label: string;
+  icon?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const {
+  label,
+  icon,
+  class: className = '',
+  ...attrs
+} = Astro.props;
+---
+
+<docs-tab-item data-label={label} data-icon={icon} class:list={['tab-item', className]} {...attrs}>
+  <slot />
+</docs-tab-item>
+
+<style>
+  .tab-item {
+    display: block;
+  }
+</style>

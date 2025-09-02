@@ -1,0 +1,158 @@
+---
+interface Props {
+  title?: string;
+  class?: string;
+  variant?: 'default' | 'bordered' | 'image' | 'link';
+  href?: string;
+  icon?: string;
+  [key: string]: any;
+}
+
+const { 
+  title, 
+  class: className = '', 
+  variant = 'default', 
+  href, 
+  icon,
+  ...rest 
+} = Astro.props;
+
+const classes = [
+  'card',
+  `card-${variant}`,
+  href && 'card-interactive',
+  className
+];
+
+const Tag = href ? 'a' : 'div';
+const linkProps = href ? { href } : {};
+---
+
+<Tag class:list={classes} {...linkProps} {...rest}>
+  <div class="card-body">
+    {title && (
+      <div class="card-header">
+        {icon && <span class="card-icon" set:html={icon} />}
+        <h2 class="card-title">{title}</h2>
+      </div>
+    )}
+    <div class="card-content">
+      <slot />
+    </div>
+    {Astro.slots.has('footer') && (
+      <div class="card-footer">
+        <slot name="footer" />
+      </div>
+    )}
+  </div>
+  {href && variant === 'link' && (
+    <div class="card-cta">
+      <span class="card-cta-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </span>
+    </div>
+  )}
+</Tag>
+
+<style>
+  .card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--color-bg-secondary); /* Updated */
+    border: 1px solid var(--color-border-default); /* Updated */
+    box-shadow: var(--shadow-sm); /* Updated */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+  }
+
+  .card-interactive {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md); /* Updated */
+    border-color: var(--color-border-dark); /* Updated */
+  }
+
+  .card-bordered {
+    border: 1px solid var(--color-border-default); /* Updated */
+  }
+
+  .card-image {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding-right: 1rem;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--color-text-secondary); /* Updated */
+  }
+
+  .card-title {
+    font-size: var(--font-size-xl); /* Updated */
+    font-weight: 600;
+    color: var(--color-text-primary); /* Updated */
+    margin: 0;
+  }
+
+  .card-content {
+    color: var(--color-text-secondary); /* Updated */
+  }
+
+  .card-footer {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .card-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .card-cta-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-brand-primary); /* Updated */
+    transition: transform 0.2s ease;
+  }
+
+  .card-interactive:hover .card-cta-icon {
+    transform: translateX(4px);
+  }
+
+  /* ThemeToggleによるテーマ切り替え対応 */
+  /* No need for media query or :global(.dark) / :global(:not(.dark)) specific overrides */
+  /* if variables.css is correctly set up and global variables are used. */
+</style>

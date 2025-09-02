@@ -1,0 +1,526 @@
+---
+// Sidebar.astro - Starlightスタイルに基づいたサイドバーコンポーネント
+import SidebarPersister from './SidebarPersister.astro';
+import SidebarRestorePoint from './SidebarRestorePoint.astro';
+import SidebarResizer from './SidebarResizer.astro';
+import Icon from './icons/Icon.astro';
+
+interface SidebarItem {
+  title: string;
+  href?: string;
+  items?: SidebarItem[];
+  isCurrent?: boolean;
+  badge?: {
+    text: string;
+    variant?: 'default' | 'success' | 'caution' | 'danger' | 'note';
+    class?: string;
+  };
+}
+
+interface Props {
+  items: SidebarItem[];
+  title?: string;
+  class?: string;
+  hash?: string;
+}
+
+const { items, title, class: className = '', hash = 'sidebar-hash' } = Astro.props;
+
+// 現在のページかどうかを判定するヘルパー関数
+function isCurrentPage(item: SidebarItem): boolean {
+  return item.isCurrent || false;
+}
+
+// サイドバー内のアイテムが開いているかどうかを判定するヘルパー関数
+function shouldBeOpen(section: SidebarItem): boolean {
+  if (!section.items) return false;
+  return section.items.some(item => isCurrentPage(item) || (item.items && shouldBeOpen(item)));
+}
+
+// サイドバー内のすべてのアイテムをフラット化するヘルパー関数
+function flattenSidebar(items: SidebarItem[]): SidebarItem[] {
+  return items.flatMap(item => [item, ...(item.items ? flattenSidebar(item.items) : [])]);
+}
+
+// サイドバーのハッシュを生成するヘルパー関数
+function getSidebarHash(items: SidebarItem[]): string {
+  return hash || 'sidebar-' + Math.random().toString(36).substring(2, 9);
+}
+
+const sidebarHash = getSidebarHash(items);
+---
+
+<aside 
+  class:list={['sidebar', className]}
+  role="complementary"
+  aria-label={title || 'サイドナビゲーション'}
+  id="sidebar"
+  style="position: relative;"
+>
+  <SidebarResizer />
+  {title && (
+    <h3 class="sidebar-title" id="sidebar-title">
+      {title}
+    </h3>
+  )}
+  
+  <nav aria-labelledby="sidebar-title">
+    <SidebarPersister hash={sidebarHash}>
+      <ul class="top-level">
+        {items.map((section) => (
+          <li>
+            {section.href ? (
+              <a 
+                href={section.href}
+                aria-current={isCurrentPage(section) ? 'page' : undefined}
+                class:list={["large", { active: isCurrentPage(section) }]}
+              >
+                <span>{section.title}</span>
+                {section.badge && (
+                  <span class:list={["badge", section.badge.variant || 'default', section.badge.class]}>
+                    {section.badge.text}
+                  </span>
+                )}
+              </a>
+            ) : (
+              <details open={shouldBeOpen(section)}>
+                <SidebarRestorePoint />
+                <summary>
+                  <div class="group-label">
+                    <span class="large">{section.title}</span>
+                    {section.badge && (
+                      <span class:list={["badge", section.badge.variant || 'default', section.badge.class]}>
+                        {section.badge.text}
+                      </span>
+                    )}
+                  </div>
+                  <span class="caret-container">
+                    <span class="caret-wrapper">
+                      <Icon name="chevron-right" size="1.25rem" />
+                    </span>
+                  </span>
+                </summary>
+                
+                {section.items && (
+                  <ul>
+                    {section.items.map((item) => (
+                      <li>
+                        {item.href ? (
+                          <a 
+                            href={item.href}
+                            aria-current={isCurrentPage(item) ? 'page' : undefined}
+                            class:list={[{ active: isCurrentPage(item) }]}
+                          >
+                            <span>{item.title}</span>
+                            {item.badge && (
+                              <span class:list={["badge", item.badge.variant || 'default', item.badge.class]}>
+                                {item.badge.text}
+                              </span>
+                            )}
+                          </a>
+                        ) : (
+                          <details open={shouldBeOpen(item)}>
+                            <SidebarRestorePoint />
+                            <summary>
+                              <div class="group-label">
+                                <span>{item.title}</span>
+                                {item.badge && (
+                                  <span class:list={["badge", item.badge.variant || 'default', item.badge.class]}>
+                                    {item.badge.text}
+                                  </span>
+                                )}
+                              </div>
+                              <span class="caret-container">
+                                <span class="caret-wrapper">
+                                  <Icon name="chevron-right" size="1rem" />
+                                </span>
+                              </span>
+                            </summary>
+                            
+                            {item.items && (
+                              <ul>
+                                {item.items.map((subItem) => (
+                                  <li>
+                                    <a 
+                                      href={subItem.href}
+                                      aria-current={isCurrentPage(subItem) ? 'page' : undefined}
+                                      class:list={[{ active: isCurrentPage(subItem) }]}
+                                    >
+                                      <span>{subItem.title}</span>
+                                      {subItem.badge && (
+                                        <span class:list={["badge", subItem.badge.variant || 'default', subItem.badge.class]}>
+                                          {subItem.badge.text}
+                                        </span>
+                                      )}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </details>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </details>
+            )}
+          </li>
+        ))}
+      </ul>
+    </SidebarPersister>
+  </nav>
+</aside>
+
+<style>
+  /* Starlightスタイルに基づくサイドバースタイル */
+  .sidebar {
+    width: 100%; /* コンテナの幅に合わせる */
+    max-width: 280px; /* 最大幅を制限 */
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 0.5rem 0 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sl-color-gray-5) transparent;
+    transition: width 0.2s ease-in-out;
+    box-sizing: border-box;
+  }
+  
+  /* 折りたたみ状態のスタイル */
+  .sidebar.sidebar-collapsed {
+    width: 50px;
+    max-width: 50px;
+    overflow-x: hidden;
+  }
+  
+  .sidebar.sidebar-collapsed .sidebar-title,
+  .sidebar.sidebar-collapsed nav {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 0.25rem;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: var(--sl-color-gray-5);
+    border-radius: 0.125rem;
+  }
+
+  .sidebar-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    font-size: var(--sl-text-lg);
+    color: var(--sl-color-white);
+    padding-left: 0;
+  }
+
+  ul {
+    --sl-sidebar-item-padding-inline: 0.5rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    overflow-wrap: anywhere;
+  }
+
+  ul ul li {
+    margin-inline-start: var(--sl-sidebar-item-padding-inline);
+    border-inline-start: 1px solid var(--sl-color-hairline-light);
+    /* padding-inline-start: var(--sl-sidebar-item-padding-inline); */
+  }
+
+  .large {
+    font-size: var(--sl-text-lg);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .top-level > li + li {
+    margin-top: 0.75rem;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 0.25rem;
+    margin-bottom: 1.0rem;
+  }
+  summary::marker,
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover {
+    background-color: var(--sl-color-gray-7, rgba(255, 255, 255, 0.05));
+  }
+  
+  
+  .caret-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem; /* アイコンサイズに合わせる */
+    height: 1.25rem; /* アイコンサイズに合わせる */
+  }
+
+  .caret-wrapper {
+    display: inline-flex;
+    transition: transform 0.3s ease-in-out;
+    transform: rotate(0deg);
+  }
+
+  .caret-wrapper.rotated {
+    transform: rotate(90deg);
+  }
+
+  /* RTLの場合の調整（必要であれば） */
+  [dir='rtl'] .caret-wrapper {
+    transform: rotate(180deg);
+  }
+  [dir='rtl'] .caret-wrapper.rotated {
+    transform: rotate(270deg);
+  }
+
+  a {
+    display: block;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    color: var(--sl-color-gray-2);
+    padding: 0.3em var(--sl-sidebar-item-padding-inline);
+    line-height: 1.4;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+  }
+
+  a:hover,
+  a:focus {
+    color: var(--sl-color-white);
+    background-color: var(--sl-color-gray-7, rgba(255, 255, 255, 0.05));
+  }
+
+  [aria-current='page'],
+  [aria-current='page']:hover,
+  [aria-current='page']:focus,
+  .active,
+  .active:hover,
+  .active:focus {
+    font-weight: 600;
+    /* color: var(--sl-color-text-invert, #ffffff); */
+    /* background-color: var(--sl-color-gray-7, rgba(255, 255, 255, 0.05)); */
+    /* box-shadow: 0 0 0 1px var(--sl-color-accent-high, #3b82f6); */
+    position: relative;
+    transition: all 0.2s ease-in-out;
+  }
+
+  html.dark .active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  html:not(.dark) .active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  [aria-current='page']::before,
+  .active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    /* background-color: var(--sl-color-accent-high, #3b82f6); */
+    border-radius: 0 2px 2px 0;
+    animation: slideIn 0.2s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  a > *:not(:last-child),
+  .group-label > *:not(:last-child) {
+    margin-inline-end: 0.25em;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.75em;
+    padding: 0.1em 0.5em;
+    border-radius: 1em;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-1);
+  }
+
+  .badge.success {
+    background-color: var(--sl-color-green-high);
+    color: var(--sl-color-green-low);
+  }
+
+  .badge.caution {
+    background-color: var(--sl-color-orange-high);
+    color: var(--sl-color-orange-low);
+  }
+
+  .badge.danger {
+    background-color: var(--sl-color-red-high);
+    color: var(--sl-color-red-low);
+  }
+
+  .badge.note {
+    background-color: var(--sl-color-blue-high);
+    color: var(--sl-color-blue-low);
+  }
+
+  /* モバイル表示の最適化 - オーバーレイサイドバー */
+  @media (max-width: 48em) {
+    .sidebar.mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+      background-color: rgba(0, 0, 0, 0.5);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      border-radius: 0;
+    }
+
+    .sidebar.mobile-overlay .sidebar-content {
+      width: min(320px, 80vw);
+      height: 100%;
+      background-color: var(--sl-color-bg-sidebar);
+      border-right: 1px solid var(--sl-color-hairline);
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .sidebar.mobile-visible {
+      transform: translateX(0);
+    }
+  }
+
+    .sidebar-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      color: var(--sl-color-text);
+      cursor: pointer;
+      padding: 0.5rem;
+      margin: -0.5rem;
+    }
+  }
+
+  /* デスクトップ表示の最適化 */
+  @media (min-width: 48em) {
+    .sidebar {
+      border-radius: 0.5rem;
+    }
+  }
+
+  @media (min-width: 75em) {
+    .top-level > li + li {
+      margin-top: 0.5rem;
+    }
+    .large {
+      font-size: var(--sl-text-base);
+    }
+    a {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<script>
+  // モバイルメニューの開閉処理
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('sidebar');
+    const toggleButton = document.getElementById('sidebar-toggle');
+    const closeButton = document.getElementById('sidebar-close');
+
+    if (toggleButton) {
+      toggleButton.addEventListener('click', () => {
+        sidebar?.classList.add('mobile-visible');
+        document.body.style.overflow = 'hidden'; // スクロール防止
+      });
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        sidebar?.classList.remove('mobile-visible');
+        document.body.style.overflow = ''; // スクロール許可
+      });
+    }
+
+    // 画面外クリックでメニューを閉じる
+    document.addEventListener('click', (e) => {
+      if (
+        sidebar?.classList.contains('mobile-visible') &&
+        e.target instanceof Node &&
+        !sidebar.contains(e.target) &&
+        e.target !== toggleButton
+      ) {
+        sidebar.classList.remove('mobile-visible');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // details要素の開閉を監視してsummaryに属性を付与
+    const detailsElements = document.querySelectorAll<HTMLDetailsElement>('.sidebar details');
+    detailsElements.forEach(details => {
+      const summary = details.querySelector('summary');
+      const caretWrapper = summary?.querySelector('.caret-wrapper');
+      
+      if (summary) {
+        // 初期状態を設定
+        summary.setAttribute('data-open', details.open.toString());
+        
+        // アイコンラッパーの回転を初期状態に合わせて設定
+        if (caretWrapper && details.open) {
+          caretWrapper.classList.add('rotated');
+        }
+
+        details.addEventListener('toggle', () => {
+          summary.setAttribute('data-open', details.open.toString());
+          
+          // アイコンラッパーの回転をトグル状態に合わせて設定
+          if (caretWrapper) {
+            if (details.open) {
+              caretWrapper.classList.add('rotated');
+            } else {
+              caretWrapper.classList.remove('rotated');
+            }
+          }
+        });
+      }
+    });
+  });
+</script>

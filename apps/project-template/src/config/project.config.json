@@ -1,0 +1,40 @@
+{
+  "basic": {
+    "baseUrl": "/docs/project-template",
+    "supportedLangs": [
+      "en",
+      "ja"
+    ],
+    "defaultLang": "en"
+  },
+  "languageNames": {
+    "en": "English",
+    "ja": "日本語"
+  },
+  "translations": {
+    "en": {
+      "displayName": "Project Template",
+      "displayDescription": "Template for creating new documentation projects",
+      "categories": {
+        "guide": "Guide"
+      }
+    },
+    "ja": {
+      "displayName": "プロジェクトテンプレート",
+      "displayDescription": "新しいドキュメントプロジェクト作成用のテンプレート",
+      "categories": {
+        "guide": "ガイド"
+      }
+    }
+  },
+  "versioning": {
+    "versions": [
+      {
+        "id": "v1",
+        "name": "Version 1.0",
+        "date": "2024-01-01T00:00:00.000Z",
+        "isLatest": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "common": {
+    "home": "ホーム",
+    "search": "検索",
+    "menu": "メニュー",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "warning": "警告",
+    "info": "情報",
+    "new": "新着",
+    "updated": "更新済"
+  },
+  "navigation": {
+    "docs": "ドキュメント",
+    "api": "API",
+    "examples": "サンプル",
+    "blog": "ブログ",
+    "community": "コミュニティ",
+    "github": "GitHub"
+  },
+  "footer": {
+    "copyright": "© {year} All rights reserved.",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "contact": "お問い合わせ",
+    "contributeText": "して、ドキュメントの改善にご協力ください。",
+    "contributeLink": "プロジェクトに貢献"
+  },
+  "docs": {
+    "onThisPage": "このページの内容",
+    "editThisPage": "このページを編集",
+    "lastUpdated": "最終更新日: {date}",
+    "version": "バージョン",
+    "versions": "バージョン一覧",
+    "language": "言語",
+    "languages": "言語一覧",
+    "toc": "目次",
+    "documentation": "ドキュメント",
+    "latest": "最新",
+    "showLatest": "最新バージョンを表示",
+    "showDiff": "バージョン間の差分を表示",
+    "current": "現在"
+  },
+  "search": {
+    "placeholder": "ドキュメントを検索...",
+    "noResults": "'{query}'に一致する結果が見つかりませんでした",
+    "oneResult": "'{query}'の検索結果: 1件",
+    "manyResults": "'{query}'の検索結果: {count}件",
+    "searchResults": "検索結果",
+    "searchIn": "検索対象",
+    "searching": "検索中...",
+    "closeSearch": "閉じる",
+    "error": "検索エラー",
+    "label": "検索",
+    "ctrlKey": "Ctrl"
+  },
+  "error": {
+    "notFound": "ページが見つかりません",
+    "notFoundDescription": "お探しのページは存在しないか、移動された可能性があります。",
+    "goHome": "ホームに戻る"
+  },
+  "projects": {
+    "title": "プロジェクト一覧",
+    "description": "利用可能なすべてのドキュメントプロジェクトを閲覧する"
+  },
+  "contribute": {
+    "title": "貢献する",
+    "description": "プロジェクトに貢献して、ドキュメントの改善にご協力ください",
+    "button": "GitHubで貢献する"
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ"
+  }
+}

@@ -1,0 +1,266 @@
+/tmp/*
+
+# ログファイル
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 診断レポート (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# ランタイムデータ
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# jscoverage/JSCover で生成されたライブラリディレクトリ
+lib-cov
+
+# istanbul などのカバレッジツールディレクトリ
+coverage
+*.lcov
+
+# nyc テストカバレッジ
+.nyc_output
+
+# Grunt 中間ストレージ (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower 依存関係ディレクトリ (https://bower.io/)
+bower_components
+
+# node-waf 設定
+.lock-wscript
+
+# コンパイル済みバイナリアドオン (https://nodejs.org/api/addons.html)
+build/Release
+
+# 依存関係ディレクトリ
+node_modules/
+jspm_packages/
+
+# Snowpack 依存関係ディレクトリ (https://snowpack.dev/)
+web_modules/
+
+# TypeScript キャッシュ
+*.tsbuildinfo
+
+# npm キャッシュディレクトリ（オプション）
+.npm
+
+# ESLint キャッシュ（オプション）
+.eslintcache
+
+# Stylelint キャッシュ（オプション）
+.stylelintcache
+
+# Microbundle キャッシュ
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# REPL 履歴（オプション）
+.node_repl_history
+
+# 'npm pack' の出力
+*.tgz
+
+# Yarn 整合性ファイル
+.yarn-integrity
+
+# dotenv 環境変数ファイル
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Parcel バンドラーキャッシュ (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js ビルド出力
+.next
+out
+
+# Nuxt.js ビルド / 生成出力
+.nuxt
+dist
+
+# Gatsby ファイル
+.cache/
+# プロジェクトが Next.js ではなく Gatsby を使用している場合は public の行をコメントイン
+# https://nextjs.org/blog/next-9-1#public-directory-support
+# public
+
+# VuePress ビルド出力
+.vuepress/dist
+
+# VuePress v2.x 一時・キャッシュディレクトリ
+.temp
+.cache
+
+# VitePress ビルド出力
+**/.vitepress/dist
+
+# VitePress キャッシュディレクトリ
+**/.vitepress/cache
+
+# Docusaurus キャッシュ・生成ファイル
+.docusaurus
+
+# Serverless ディレクトリ
+.serverless/
+
+# FuseBox キャッシュ
+.fusebox/
+
+# DynamoDB ローカルファイル
+.dynamodb/
+
+# TernJS ポートファイル
+.tern-port
+
+# VSCode 拡張機能テスト用の VSCode バージョン保存
+.vscode-test
+
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Astro
+.astro/
+
+# ビルド出力
+dist/
+.output/
+
+# 生成された型定義
+.astro/
+
+# ===================================
+# プロジェクト固有の設定
+# ===================================
+
+# macOS システムファイル
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows システムファイル  
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+ehthumbs.db
+Thumbs.db
+
+# IDE設定ファイル
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# その他のエディタ
+.fleet/
+.zed/
+
+# Cloudflare Wrangler
+.wrangler/
+wrangler.toml
+
+# 開発ツール
+# Turbo
+.turbo/
+
+# pnpm 追加設定
+.pnpm-store/
+
+# 一時ファイル
+*.tmp
+*.temp
+.temp/
+temp/
+
+# Astro 追加設定
+**/.astro/
+
+# AI開発支援ファイル
+# バックアップディレクトリ
+.backups/
+
+# Claude Code関連
+.claude/
+
+# AI設定ファイル
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+
+# Cursor AI エディタ
+.cursorrules
+.cursor/
+cursor.yaml
+
+# GitHub Copilot
+.copilot/
+copilot.yml
+copilot.yaml
+
+# Codeium
+.codeium/
+codeium.json
+
+# Tabnine
+.tabnine/
+tabnine.toml
+tabnine.json
+
+# Amazon CodeWhisperer
+.aws-codewhisperer/
+codewhisperer.json
+
+# Supermaven
+.supermaven/
+supermaven.toml
+
+# Continue.dev
+.continue/
+continue.json
+
+# その他のAI関連設定
+.aiconfig/
+.ai/
+ai-config.json
+ai-config.yaml
+ai-config.yml
+
+# AI生成ファイル・ログ
+ai-prompts/
+.ai-prompts/
+ai-generated/
+.ai-generated/
+*.ai.log
+*.copilot.log

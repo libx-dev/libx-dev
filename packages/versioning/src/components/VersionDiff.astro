@@ -1,0 +1,549 @@
+---
+import { Card, Icon } from '@docs/ui/components';
+import type { Version } from '../utils/version';
+import { diffLines, createHtmlDiff } from '../utils/diff';
+
+interface Props {
+  versions: Version[];
+  oldVersionId: string;
+  newVersionId: string;
+  oldContent: string;
+  newContent: string;
+  title?: string;
+  className?: string;
+}
+
+const {
+  versions,
+  oldVersionId,
+  newVersionId,
+  oldContent,
+  newContent,
+  title = 'バージョン間の差分',
+  className = ''
+} = Astro.props;
+
+// バージョン情報を取得
+const oldVersion = versions.find(v => v.id === oldVersionId);
+const newVersion = versions.find(v => v.id === newVersionId);
+
+// 差分を計算
+const diffResults = diffLines(oldContent, newContent, { context: 3 });
+const diffHtml = createHtmlDiff(diffResults);
+
+// 変更の統計情報
+const addedLines = diffResults.filter(r => r.type === 'added').length;
+const removedLines = diffResults.filter(r => r.type === 'removed').length;
+const unchangedLines = diffResults.filter(r => r.type === 'unchanged').length;
+---
+
+<div class={`version-diff ${className}`}>
+  <Card>
+    <div slot="title" class="diff-title-container">
+      <h2 class="diff-title">
+        <Icon name="code" class="diff-title-icon" />
+        {title}
+      </h2>
+      <div class="diff-version-info">
+        <span class="diff-version-old">{oldVersion?.name || oldVersionId}</span>
+        <Icon name="right-arrow" class="diff-arrow-icon" />
+        <span class="diff-version-new">{newVersion?.name || newVersionId}</span>
+      </div>
+    </div>
+    
+    <div slot="content">
+      <div class="diff-stats">
+        <div class="diff-stat-item diff-stat-removed">
+          <Icon name="error" class="diff-stat-icon" />
+          <span>削除: {removedLines}行</span>
+        </div>
+        <div class="diff-stat-item diff-stat-added">
+          <Icon name="check" class="diff-stat-icon" />
+          <span>追加: {addedLines}行</span>
+        </div>
+        <div class="diff-stat-item diff-stat-unchanged">
+          <Icon name="check" class="diff-stat-icon" />
+          <span>変更なし: {unchangedLines}行</span>
+        </div>
+      </div>
+      
+      <div class="version-diff-controls">
+        <div class="diff-control-group">
+          <label class="diff-control-label">
+            <input type="checkbox" id="toggle-context" class="diff-control-checkbox" checked>
+            <span class="diff-control-text">コンテキストを表示</span>
+          </label>
+          
+          <label class="diff-control-label">
+            <input type="checkbox" id="toggle-whitespace" class="diff-control-checkbox">
+            <span class="diff-control-text">空白の変更を無視</span>
+          </label>
+        </div>
+        
+        <div class="diff-version-meta">
+          {oldVersion?.date && newVersion?.date && (
+            <div class="diff-date-range">
+              <Icon name="document" class="diff-meta-icon" />
+              <span>
+                {oldVersion.date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })}
+                から
+                {newVersion.date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })}
+                まで
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div class="diff-scroll-container">
+        <div class="diff-container">
+          <div class="diff-header">
+            <div class="diff-header-old">旧</div>
+            <div class="diff-header-new">新</div>
+            <div class="diff-header-code">コード</div>
+          </div>
+          
+          <div id="diff-content" class="diff-content">
+            <Fragment set:html={diffHtml} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </Card>
+</div>
+
+<style>
+  .diff-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .diff-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .diff-title-icon {
+    color: var(--sl-color-primary, #2563eb);
+  }
+  
+  .diff-version-info {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--sl-color-gray-1, #f9fafb);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--sl-color-gray-2, #e5e7eb);
+  }
+  
+  :global(.dark) .diff-version-info {
+    background-color: var(--sl-color-gray-8, #1f2937);
+    border-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-version-old {
+    color: var(--sl-color-red-7, #b91c1c);
+  }
+  
+  .diff-version-new {
+    color: var(--sl-color-green-7, #047857);
+  }
+  
+  :global(.dark) .diff-version-old {
+    color: var(--sl-color-red-4, #f87171);
+  }
+  
+  :global(.dark) .diff-version-new {
+    color: var(--sl-color-green-4, #4ade80);
+  }
+  
+  .diff-arrow-icon {
+    color: var(--sl-color-gray-5, #6b7280);
+    font-size: 0.875rem;
+  }
+  
+  :global(.dark) .diff-arrow-icon {
+    color: var(--sl-color-gray-4, #9ca3af);
+  }
+  
+  .diff-stats {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    background-color: var(--sl-color-gray-1, #f9fafb);
+    border-radius: 0.375rem;
+    border: 1px solid var(--sl-color-gray-2, #e5e7eb);
+  }
+  
+  :global(.dark) .diff-stats {
+    background-color: var(--sl-color-gray-8, #1f2937);
+    border-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 500;
+  }
+  
+  .diff-stat-icon {
+    font-size: 0.875rem;
+  }
+  
+  .diff-stat-removed {
+    background-color: var(--sl-color-red-2, #fee2e2);
+    color: var(--sl-color-red-8, #991b1b);
+  }
+  
+  .diff-stat-added {
+    background-color: var(--sl-color-green-2, #dcfce7);
+    color: var(--sl-color-green-8, #166534);
+  }
+  
+  .diff-stat-unchanged {
+    background-color: var(--sl-color-gray-2, #f3f4f6);
+    color: var(--sl-color-gray-8, #1f2937);
+  }
+  
+  :global(.dark) .diff-stat-removed {
+    background-color: rgba(153, 27, 27, 0.2);
+    color: var(--sl-color-red-3, #fca5a5);
+  }
+  
+  :global(.dark) .diff-stat-added {
+    background-color: rgba(22, 101, 52, 0.2);
+    color: var(--sl-color-green-3, #86efac);
+  }
+  
+  :global(.dark) .diff-stat-unchanged {
+    background-color: rgba(31, 41, 55, 0.2);
+    color: var(--sl-color-gray-3, #d1d5db);
+  }
+  
+  .version-diff-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  
+  .diff-control-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .diff-control-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--sl-color-gray-1, #f9fafb);
+    border: 1px solid var(--sl-color-gray-2, #e5e7eb);
+    border-radius: 0.25rem;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .diff-control-label:hover {
+    background-color: var(--sl-color-gray-2, #e5e7eb);
+  }
+  
+  :global(.dark) .diff-control-label {
+    background-color: var(--sl-color-gray-8, #1f2937);
+    border-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  :global(.dark) .diff-control-label:hover {
+    background-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-control-checkbox {
+    height: 1rem;
+    width: 1rem;
+    color: var(--sl-color-primary, #2563eb);
+    accent-color: var(--sl-color-primary, #2563eb);
+  }
+  
+  .diff-control-text {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-9, #111827);
+  }
+  
+  :global(.dark) .diff-control-text {
+    color: var(--sl-color-gray-1, #f9fafb);
+  }
+  
+  .diff-version-meta {
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-6, #4b5563);
+  }
+  
+  :global(.dark) .diff-version-meta {
+    color: var(--sl-color-gray-4, #9ca3af);
+  }
+  
+  .diff-date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  
+  .diff-meta-icon {
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-5, #6b7280);
+  }
+  
+  :global(.dark) .diff-meta-icon {
+    color: var(--sl-color-gray-4, #9ca3af);
+  }
+  
+  .diff-scroll-container {
+    overflow-x: auto;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  :global(.dark) .diff-scroll-container {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  .diff-container {
+    border: 1px solid var(--sl-color-gray-2, #e5e7eb);
+    border-radius: 0.375rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875rem;
+    overflow: hidden;
+  }
+  
+  :global(.dark) .diff-container {
+    border-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-header {
+    display: flex;
+    background-color: var(--sl-color-gray-2, #f3f4f6);
+    border-bottom: 1px solid var(--sl-color-gray-3, #e5e7eb);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  :global(.dark) .diff-header {
+    background-color: var(--sl-color-gray-8, #1f2937);
+    border-bottom-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-header-old,
+  .diff-header-new {
+    width: 3rem;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    color: #6b7280;
+    border-right: 1px solid #e5e7eb;
+  }
+  
+  :global(.dark) .diff-header-old,
+  :global(.dark) .diff-header-new {
+    color: #9ca3af;
+    border-right-color: #374151;
+  }
+  
+  .diff-header-code {
+    padding: 0.5rem 0.75rem;
+    color: #6b7280;
+  }
+  
+  :global(.dark) .diff-header-code {
+    color: #9ca3af;
+  }
+</style>
+
+<style>
+  .diff-line {
+    display: flex;
+    white-space: pre;
+    border-bottom: 1px solid var(--sl-color-gray-2, #e5e7eb);
+    line-height: 1.5;
+    transition: background-color 0.1s;
+  }
+  
+  .diff-line:hover {
+    background-color: var(--sl-color-gray-1, #f9fafb);
+  }
+  
+  :global(.dark) .diff-line:hover {
+    background-color: var(--sl-color-gray-7, #374151);
+  }
+  
+  .diff-line:last-child {
+    border-bottom: none;
+  }
+  
+  .diff-line-number {
+    display: inline-block;
+    width: 3rem;
+    padding: 0 0.5rem;
+    text-align: right;
+    color: var(--sl-color-gray-5, #6b7280);
+    user-select: none;
+    border-right: 1px solid var(--sl-color-gray-2, #e5e7eb);
+    background-color: var(--sl-color-gray-1, #f9fafb);
+  }
+  
+  :global(.dark) .diff-line-number {
+    color: var(--sl-color-gray-4, #9ca3af);
+    border-right: 1px solid var(--sl-color-gray-7, #374151);
+    background-color: var(--sl-color-gray-8, #1f2937);
+  }
+  
+  .diff-prefix {
+    display: inline-block;
+    width: 1.5rem;
+    padding: 0 0.5rem;
+    color: var(--sl-color-gray-5, #6b7280);
+    user-select: none;
+    font-weight: bold;
+  }
+  
+  :global(.dark) .diff-prefix {
+    color: var(--sl-color-gray-4, #9ca3af);
+  }
+  
+  .diff-content {
+    flex: 1;
+    padding: 0 0.5rem;
+    overflow-x: auto;
+  }
+  
+  .diff-added {
+    background-color: var(--sl-color-green-1, #ecfdf5);
+  }
+  
+  .diff-added .diff-prefix {
+    color: var(--sl-color-green-7, #047857);
+  }
+  
+  .diff-added:hover {
+    background-color: var(--sl-color-green-2, #d1fae5);
+  }
+  
+  .diff-removed {
+    background-color: var(--sl-color-red-1, #fef2f2);
+  }
+  
+  .diff-removed .diff-prefix {
+    color: var(--sl-color-red-7, #b91c1c);
+  }
+  
+  .diff-removed:hover {
+    background-color: var(--sl-color-red-2, #fee2e2);
+  }
+  
+  /* ダークモード対応 */
+  :global(.dark) .diff-line {
+    border-bottom: 1px solid var(--sl-color-gray-7, #374151);
+  }
+  
+  :global(.dark) .diff-added {
+    background-color: rgba(4, 120, 87, 0.15);
+  }
+  
+  :global(.dark) .diff-added .diff-prefix {
+    color: var(--sl-color-green-4, #4ade80);
+  }
+  
+  :global(.dark) .diff-added:hover {
+    background-color: rgba(4, 120, 87, 0.25);
+  }
+  
+  :global(.dark) .diff-removed {
+    background-color: rgba(185, 28, 28, 0.15);
+  }
+  
+  :global(.dark) .diff-removed .diff-prefix {
+    color: var(--sl-color-red-4, #f87171);
+  }
+  
+  :global(.dark) .diff-removed:hover {
+    background-color: rgba(185, 28, 28, 0.25);
+  }
+  
+  /* アニメーション */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .diff-container {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
+
+<script>
+  // 差分表示の制御
+  const toggleContext = document.getElementById('toggle-context') as HTMLInputElement;
+  const toggleWhitespace = document.getElementById('toggle-whitespace') as HTMLInputElement;
+  const diffContent = document.getElementById('diff-content');
+  
+  // 元のコンテンツを保存
+  let oldContent = '';
+  let newContent = '';
+  
+  if (diffContent) {
+    // 初期コンテンツを保存
+    oldContent = document.getElementById('old-content')?.textContent || '';
+    newContent = document.getElementById('new-content')?.textContent || '';
+  }
+  
+  // コンテキスト表示の切り替え
+  if (toggleContext) {
+    toggleContext.addEventListener('change', () => {
+      const unchangedLines = document.querySelectorAll('.diff-unchanged');
+      unchangedLines.forEach(line => {
+        if (toggleContext.checked) {
+          line.classList.remove('hidden');
+        } else {
+          line.classList.add('hidden');
+        }
+      });
+    });
+  }
+  
+  // 空白の変更を無視する設定
+  if (toggleWhitespace && diffContent) {
+    toggleWhitespace.addEventListener('change', async () => {
+      // 実際の実装では、サーバーサイドで再計算するか、
+      // クライアントサイドでdiffライブラリを使用して再計算する
+      console.log('空白の変更を無視する設定が変更されました:', toggleWhitespace.checked);
+      
+      // この例では、設定変更のメッセージのみ表示
+      const notification = document.createElement('div');
+      notification.className = 'p-2 mb-2 text-sm text-primary-700 bg-primary-100 rounded-md dark:bg-primary-800 dark:text-primary-200';
+      notification.textContent = '空白の変更を無視する設定は、実際の実装ではサーバーサイドで処理されます。';
+      
+      // 通知を表示
+      diffContent.parentNode?.insertBefore(notification, diffContent);
+      
+      // 3秒後に通知を削除
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
+  }
+</script>

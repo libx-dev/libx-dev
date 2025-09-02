@@ -1,0 +1,126 @@
+---
+import { processPanels, getTabsScript } from './utils';
+
+interface Props {
+  class?: string;
+  syncKey?: string;
+  [key: string]: any;
+}
+
+const { class: className, syncKey, ...attrs } = Astro.props;
+const panelHtml = await Astro.slots.render('default');
+const { html, panels } = processPanels(panelHtml);
+
+// 同期タブの状態を復元するためのスクリプトを含めるかどうかを判断
+const isSynced = syncKey !== undefined;
+const didRenderTabsScriptSymbol = Symbol.for('docs:did-render-tabs-script');
+// @ts-expect-error - シンボルを使用して状態を追跡
+const shouldRenderTabsScript = Astro.locals[didRenderTabsScriptSymbol] !== true;
+
+// スクリプトが一度だけ読み込まれるようにフラグを設定
+if (shouldRenderTabsScript) {
+  // @ts-expect-error - シンボルを使用して状態を追跡
+  Astro.locals[didRenderTabsScriptSymbol] = true;
+}
+---
+
+{/* タブコンポーネントのスクリプト */}
+{shouldRenderTabsScript && <script is:inline set:html={getTabsScript()} />}
+
+<docs-tabs class:list={['tabs', className]} data-sync-key={syncKey} {...attrs}>
+  {
+    panels && (
+      <div class="tablist-wrapper not-content">
+        <ul role="tablist">
+          {panels.map(({ icon, label, panelId, tabId }, idx) => (
+            <li role="presentation" class="tab">
+              <a
+                role="tab"
+                href={'#' + panelId}
+                id={tabId}
+                aria-selected={idx === 0 ? 'true' : 'false'}
+                tabindex={idx !== 0 ? -1 : 0}
+              >
+                {icon && <span class="tab-icon" set:html={icon} />}
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+  <Fragment set:html={html} />
+</docs-tabs>
+
+<style>
+  .tabs {
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+
+  .tablist-wrapper {
+    overflow-x: auto;
+  }
+
+  [role='tablist'] {
+    display: flex;
+    list-style: none;
+    border-bottom: 2px solid var(--border-color, #e5e7eb);
+    padding: 0;
+    margin: 0;
+  }
+
+  .tab {
+    margin-bottom: -2px;
+  }
+
+  .tab > [role='tab'] {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-bottom: 2px solid var(--border-color, #e5e7eb);
+    color: var(--text-color, #4b5563);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    outline-offset: var(--outline-offset-inside, 2px);
+    overflow-wrap: initial;
+  }
+
+  .tab [role='tab'][aria-selected='true'] {
+    color: var(--accent-color, #2563eb);
+    border-color: var(--accent-color, #2563eb);
+    font-weight: 600;
+  }
+
+  .tab-icon {
+    display: flex;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .tablist-wrapper ~ :global([role='tabpanel']) {
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+
+  /* ダークモード対応 */
+  @media (prefers-color-scheme: dark) {
+    [role='tablist'] {
+      border-bottom-color: var(--dark-border-color, #374151);
+    }
+
+    .tab > [role='tab'] {
+      border-bottom-color: var(--dark-border-color, #374151);
+      color: var(--dark-text-color, #9ca3af);
+    }
+
+    .tab [role='tab'][aria-selected='true'] {
+      color: var(--dark-accent-color, #60a5fa);
+      border-color: var(--dark-accent-color, #60a5fa);
+    }
+  }
+</style>
