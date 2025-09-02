@@ -18,6 +18,8 @@
     "build:deploy": "node scripts/build-sidebar.js && node scripts/build-integrated.js && node scripts/copy-to-docs.js",
     "build:deploy-selective": "node scripts/build-sidebar-selective.js && node scripts/build-selective.js && node scripts/copy-to-docs.js",
     "create:project": "node scripts/create-project.js",
+    "copy:libx-core": "node scripts/copy-to-libx-core.js",
+    "copy:libx-core:dry-run": "node scripts/copy-to-libx-core.js --dry-run",
     "deploy": "pnpm build && pnpm deploy:pages",
     "deploy:pages": "wrangler pages deploy dist --project-name libx"
   },

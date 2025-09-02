@@ -187,6 +187,49 @@ pnpm build:deploy
 pnpm copy:docs
 ```
 
+## libx-coreリポジトリへのコピー
+
+このプロジェクトの主要な部分のみを抽出してlibx-coreリポジトリにコピーするためのスクリプトが用意されています。
+
+### コピー対象
+
+**含まれるもの:**
+- `packages/` - 全共有パッケージ（ui, theme, i18n, versioning）
+- `apps/project-template/` - プロジェクトテンプレート
+- `apps/top-page/` - トップページアプリ
+- `config/` - 共通設定ファイル
+- `scripts/` - 自動化スクリプト
+- 設定ファイル（package.json, pnpm-workspace.yaml, .eslintrc.cjs等）
+
+**除外されるもの:**
+- `node_modules/`, `dist/` 等のビルド成果物
+- 不要なapps（sample-docs, test-verification）
+- 開発専用ファイル（pnpm-lock.yaml, .github/workflows/）
+- AI開発支援ファイル（CLAUDE.md, .claude/ 等）
+- 既存のREADME.mdとLICENSEは保護（上書きしない）
+
+### 使用方法
+
+```bash
+# ドライラン（実際にはコピーしない、確認用）
+pnpm copy:libx-core:dry-run
+
+# 実際にコピーを実行
+pnpm copy:libx-core
+
+# 直接スクリプトを実行
+node scripts/copy-to-libx-core.js --dry-run
+node scripts/copy-to-libx-core.js
+
+# ヘルプを表示
+node scripts/copy-to-libx-core.js --help
+```
+
+**重要な注意事項:**
+- 事前に `../libx-core/` ディレクトリが存在する必要があります
+- 必ず最初にドライランで確認してからコピーを実行してください
+- 既存のlibx-coreのREADME.mdとLICENSEファイルは保護されます
+
 ## 自動プロジェクト検出機能
 
 `apps/top-page`では自動プロジェクト検出機能を使用しており、`apps/`ディレクトリ内のプロジェクトを自動的に検出してトップページに表示します。
