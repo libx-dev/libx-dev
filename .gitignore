@@ -264,3 +264,6 @@ ai-generated/
 .ai-generated/
 *.ai.log
 *.copilot.log
+
+# 自動生成されるサイドバーファイル（scripts/build-sidebar.js で生成）
+#apps/*/public/sidebar/

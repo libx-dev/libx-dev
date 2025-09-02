@@ -20,6 +20,9 @@
     "create:project": "node scripts/create-project.js",
     "copy:libx-core": "node scripts/copy-to-libx-core.js",
     "copy:libx-core:dry-run": "node scripts/copy-to-libx-core.js --dry-run",
+    "sync:libx-core": "node scripts/sync-to-libx-core.js",
+    "sync:libx-core:dry-run": "node scripts/sync-to-libx-core.js --dry-run",
+    "sync:libx-core:verbose": "node scripts/sync-to-libx-core.js --verbose",
     "deploy": "pnpm build && pnpm deploy:pages",
     "deploy:pages": "wrangler pages deploy dist --project-name libx"
   },

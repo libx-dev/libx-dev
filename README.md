@@ -210,6 +210,36 @@ pnpm copy:docs
 
 ### 使用方法
 
+#### 推奨：選択的同期スクリプト（sync-to-libx-core.js）
+Gitの履歴をすっきり保つため、必要なファイルのみを明示的に同期します：
+
+```bash
+# ドライラン（実際には同期しない、確認用）
+pnpm sync:libx-core:dry-run
+
+# 実際に選択的同期を実行
+pnpm sync:libx-core
+
+# 詳細ログ付きで実行
+pnpm sync:libx-core:verbose
+
+# 直接スクリプトを実行
+node scripts/sync-to-libx-core.js --dry-run --verbose
+node scripts/sync-to-libx-core.js
+
+# ヘルプを表示
+node scripts/sync-to-libx-core.js --help
+```
+
+**選択的同期の特徴:**
+- ✅ 必要なファイル・ディレクトリのみを明示的に指定
+- ✅ Gitの履歴に不要な削除記録が残らない
+- ✅ README.mdとLICENSEファイルを自動保護
+- ✅ Git状態の自動確認とレポート
+
+#### 従来方式：全体コピースクリプト（copy-to-libx-core.js）
+除外ルールベースでファイルをコピーします：
+
 ```bash
 # ドライラン（実際にはコピーしない、確認用）
 pnpm copy:libx-core:dry-run
@@ -219,16 +249,14 @@ pnpm copy:libx-core
 
 # 直接スクリプトを実行
 node scripts/copy-to-libx-core.js --dry-run
-node scripts/copy-to-libx-core.js
-
-# ヘルプを表示
 node scripts/copy-to-libx-core.js --help
 ```
 
 **重要な注意事項:**
-- 事前に `../libx-core/` ディレクトリが存在する必要があります
-- 必ず最初にドライランで確認してからコピーを実行してください
+- 事前に `../libx-core/` ディレクトリが存在し、Gitリポジトリである必要があります
+- 必ず最初にドライランで確認してからコピー/同期を実行してください
 - 既存のlibx-coreのREADME.mdとLICENSEファイルは保護されます
+- **推奨**: Gitの履歴をクリーンに保つため、`sync-to-libx-core.js`を使用してください
 
 ## 自動プロジェクト検出機能
 
