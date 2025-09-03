@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://libx.dev/schemas/libx-docs-config.schema.json",
+  "title": "libx-docs Config Schema",
+  "description": "libx-docsリポジトリのプロジェクト設定スキーマ",
+  "type": "object",
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "description": "プロジェクト名（ディレクトリ名と一致）",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "displayName": {
+      "type": "object",
+      "description": "各言語での表示名",
+      "patternProperties": {
+        "^[a-z]{2}(-[A-Z][a-z]{3})?$": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "description": {
+      "type": "object",
+      "description": "各言語での説明文",
+      "patternProperties": {
+        "^[a-z]{2}(-[A-Z][a-z]{3})?$": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "supportedLangs": {
+      "type": "array",
+      "description": "サポートされている言語コード",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]{2}(-[A-Z][a-z]{3})?$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "defaultLang": {
+      "type": "string",
+      "description": "デフォルト言語",
+      "pattern": "^[a-z]{2}(-[A-Z][a-z]{3})?$"
+    },
+    "versions": {
+      "type": "array",
+      "description": "利用可能なバージョン",
+      "items": {
+        "type": "string",
+        "pattern": "^v[0-9]+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "latestVersion": {
+      "type": "string",
+      "description": "最新バージョン",
+      "pattern": "^v[0-9]+$"
+    },
+    "categories": {
+      "type": "object",
+      "description": "カテゴリの翻訳マッピング",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z]{2}(-[A-Z][a-z]{3})?$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "minProperties": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "icon": {
+      "type": "string",
+      "description": "プロジェクトアイコン名",
+      "default": "file-text"
+    },
+    "tags": {
+      "type": "array",
+      "description": "プロジェクトタグ",
+      "items": {
+        "type": "string"
+      },
+      "default": ["documentation"]
+    },
+    "baseUrl": {
+      "type": "string",
+      "description": "プロジェクトのベースURL",
+      "pattern": "^/docs/[a-z0-9-]+$"
+    },
+    "repository": {
+      "type": "string",
+      "description": "ソースリポジトリURL",
+      "format": "uri"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "最終更新日時",
+      "format": "date-time"
+    },
+    "syncMetadata": {
+      "type": "object",
+      "description": "同期用メタデータ",
+      "properties": {
+        "lastSyncCommit": {
+          "type": ["string", "null"],
+          "description": "最後に同期したコミットハッシュ"
+        },
+        "lastSyncTime": {
+          "type": ["string", "null"],
+          "description": "最終同期日時",
+          "format": "date-time"
+        },
+        "contentHash": {
+          "type": ["string", "null"],
+          "description": "コンテンツのハッシュ値（変更検出用）"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "projectName",
+    "displayName",
+    "description",
+    "supportedLangs",
+    "defaultLang",
+    "versions",
+    "latestVersion",
+    "categories",
+    "baseUrl"
+  ],
+  "additionalProperties": false
+}
