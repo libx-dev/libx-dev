@@ -92,40 +92,51 @@ libx-docs コンテンツバリデーションツール
 `);
 }
 
+// グローバルなスキーマキャッシュ
+let schemaValidator = null;
+
 /**
  * JSONスキーマバリデーターを初期化
- * @returns {Ajv} バリデーター
+ * @returns {Promise<Function>} バリデーター関数
  */
-function initializeSchemaValidator() {
-  const ajv = new Ajv({ allErrors: true });
-  addFormats(ajv);
+async function initializeSchemaValidator() {
+  if (schemaValidator) {
+    return schemaValidator;
+  }
   
-  return ajv;
+  try {
+    const ajv = new Ajv({ allErrors: true });
+    addFormats(ajv);
+    
+    const schemaPath = path.join(__dirname, 'schemas', 'libx-docs-config.schema.json');
+    const schemaContent = await fs.readFile(schemaPath, 'utf8');
+    const schema = JSON.parse(schemaContent);
+    
+    schemaValidator = ajv.compile(schema);
+    return schemaValidator;
+  } catch (error) {
+    throw new Error(`スキーマファイル読み込みエラー: ${error.message}`);
+  }
 }
 
 /**
  * config.jsonのスキーマバリデーション
  * @param {Object} config 設定オブジェクト
- * @param {Ajv} validator バリデーター
+ * @param {Function} validator バリデーター関数
  * @returns {Object} バリデーション結果
  */
 async function validateConfigSchema(config, validator) {
   try {
-    const schemaPath = path.join(__dirname, 'schemas', 'libx-docs-config.schema.json');
-    const schemaContent = await fs.readFile(schemaPath, 'utf8');
-    const schema = JSON.parse(schemaContent);
-    
-    const validate = validator.compile(schema);
-    const valid = validate(config);
+    const valid = validator(config);
     
     return {
       valid,
-      errors: validate.errors || []
+      errors: validator.errors || []
     };
   } catch (error) {
     return {
       valid: false,
-      errors: [{ message: `スキーマファイル読み込みエラー: ${error.message}` }]
+      errors: [{ message: `バリデーションエラー: ${error.message}` }]
     };
   }
 }
@@ -482,7 +493,7 @@ async function main() {
   }
   
   // スキーマバリデーターを初期化
-  const validator = initializeSchemaValidator();
+  const validator = await initializeSchemaValidator();
   
   // 処理対象プロジェクトの決定
   let projectsToValidate;
