@@ -11,8 +11,9 @@ libx-docs コンテンツ同期システムは、コンテンツ専用リポジ�
 - **自動コンテンツ同期**: libx-docsからlibx-devへのコンテンツの自動コピー
 - **構造バリデーション**: 言語間でのディレクトリ構造整合性チェック
 - **設定ファイル管理**: プロジェクト設定の一元管理と自動更新
-- **変更検知**: コンテンツハッシュベースの効率的な変更検知
+- **変更検知**: 構造とファイル内容の両方に対応した高精度な変更検知
 - **新規プロジェクト自動作成**: libx-docsで新規プロジェクトが追加された場合の自動作成
+- **パフォーマンス最適化**: 高速な構造検知と正確な内容検知の選択可能
 
 ## アーキテクチャ
 
@@ -100,11 +101,14 @@ node scripts/validate-content.js --strict
 ### 2. コンテンツの同期
 
 ```bash
-# 全プロジェクトを同期
+# 全プロジェクトを同期（高速な構造検知）
 node scripts/sync-content.js
 
 # 特定プロジェクトを同期
 node scripts/sync-content.js sample-docs
+
+# ファイル内容も含めた詳細な変更検知（低速だが正確）
+node scripts/sync-content.js sample-docs --content-hash
 
 # バリデーションのみ実行
 node scripts/sync-content.js --validate-only
@@ -114,6 +118,9 @@ node scripts/sync-content.js --force
 
 # ドライラン（実際の変更なし）
 node scripts/sync-content.js --dry-run --verbose
+
+# パフォーマンステスト実行
+node scripts/sync-content.js sample-docs --benchmark
 ```
 
 ## バリデーションルール
@@ -183,12 +190,40 @@ node scripts/sync-content.js --dry-run --verbose
 3. コンテンツをコピーまたは翻訳
 4. バリデーション・同期実行
 
+## 変更検知システム
+
+### 2種類の検知モード
+
+#### 1. 構造のみ検知（デフォルト）
+- **対象**: ファイル・ディレクトリの追加/削除/リネーム
+- **速度**: 高速（数十ミリ秒）
+- **用途**: 日常的な同期チェック
+
+#### 2. ファイル内容検知（`--content-hash`オプション）
+- **対象**: ファイル内容の変更、メタデータの更新
+- **対象拡張子**: `.mdx`, `.md`, `.json`, `.yml`, `.yaml`, `.txt`
+- **速度**: やや低速（ファイル数に依存）
+- **用途**: 正確な変更検知が必要な場合
+
+### パフォーマンス比較
+
+```bash
+# ベンチマークテストで性能差を確認
+node scripts/sync-content.js [project] --benchmark
+```
+
+**典型的な結果例:**
+- 構造のみ: 1-10ms
+- 内容込み: 5-20ms
+- 性能差: 1-5倍程度（プロジェクト規模に依存）
+
 ## トラブルシューティング
 
 ### パフォーマンス問題
 
-- **大量ファイル**: `--dry-run` で事前確認
-- **頻繁な同期**: 変更検知により無駄な同期は回避される
+- **大量ファイル**: `--dry-run` で事前確認、`--benchmark`でパフォーマンステスト
+- **頻繁な同期**: デフォルトの構造検知は高速
+- **正確性が必要**: `--content-hash`オプションでファイル内容も検知
 
 ### データ整合性
 
@@ -221,7 +256,10 @@ node scripts/sync-content.js --dry-run --verbose
 主要な関数：
 
 - `validateProjectStructure(projectPath, supportedLangs, versions)`: プロジェクト構造の検証
-- `calculateDirectoryHash(dirPath)`: ディレクトリのハッシュ計算
+- `calculateDirectoryHash(dirPath, includeContent?)`: ディレクトリのハッシュ計算（ファイル内容オプション対応）
+- `calculateFileContentHash(filePath)`: 個別ファイル内容のハッシュ計算
+- `shouldIncludeFileContent(fileName)`: ファイル内容検知対象の判定
+- `benchmarkHashCalculation(dirPath, verbose?)`: パフォーマンステスト機能
 - `copyDirectory(srcDir, destDir)`: ディレクトリの再帰的コピー
 - `loadConfig(configPath)` / `saveConfig(configPath, config)`: 設定ファイルの読み書き
 
@@ -233,6 +271,7 @@ node scripts/sync-content.js --dry-run --verbose
 
 - **増分同期**: より効率的な部分同期
 - **並列処理**: 複数プロジェクトの並列同期
+- **Git差分検知**: Git commitハッシュベースの変更検知
 - **Webhook対応**: Git hooksとの連携
 - **CI/CD統合**: GitHub ActionsやCloudflare Pagesとの統合
 
@@ -249,4 +288,8 @@ node scripts/sync-content.js --dry-run --verbose
 
 ## 変更履歴
 
-- **2025-09-03**: 初回リリース - 基本的な同期機能とバリデーション機能
+- **2025-09-03**: 
+  - 初回リリース - 基本的な同期機能とバリデーション機能
+  - ファイル内容変更検知機能追加（`--content-hash`オプション）
+  - パフォーマンステスト機能追加（`--benchmark`オプション）
+  - 構造検知と内容検知の選択可能な2段階システム実装

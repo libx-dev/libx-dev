@@ -32,7 +32,8 @@ import {
   copyDirectory,
   removeDirectory,
   projectExistsInLibxDev,
-  displayValidationIssues
+  displayValidationIssues,
+  benchmarkHashCalculation
 } from './sync-utils.js';
 
 // ESモジュールで__dirnameを取得
@@ -51,7 +52,9 @@ function parseArguments() {
     validateOnly: false,
     force: false,
     verbose: false,
-    dryRun: false
+    dryRun: false,
+    contentHash: false,
+    benchmark: false
   };
 
   for (const arg of args) {
@@ -63,6 +66,10 @@ function parseArguments() {
       options.verbose = true;
     } else if (arg === '--dry-run') {
       options.dryRun = true;
+    } else if (arg === '--content-hash') {
+      options.contentHash = true;
+    } else if (arg === '--benchmark') {
+      options.benchmark = true;
     } else if (arg === '--help' || arg === '-h') {
       showHelp();
       process.exit(0);
@@ -90,6 +97,8 @@ libx-docs コンテンツ同期ツール
 オプション:
   --validate-only  バリデーションのみ実行（同期は行わない）
   --force          変更検知を無視して強制同期
+  --content-hash   ファイル内容もハッシュに含めて変更検知（より正確だが低速）
+  --benchmark      ハッシュ計算のパフォーマンステストを実行
   --verbose        詳細ログを出力
   --dry-run        実際の変更は行わず、実行予定の操作を表示
   --help, -h       このヘルプを表示
@@ -99,6 +108,7 @@ libx-docs コンテンツ同期ツール
   node scripts/sync-content.js sample-docs
   node scripts/sync-content.js --validate-only
   node scripts/sync-content.js sample-docs --force --verbose
+  node scripts/sync-content.js sample-docs --content-hash
 `);
 }
 
@@ -193,8 +203,31 @@ async function processProject(projectName, options) {
     };
   }
   
-  // 3. 変更検知
-  const currentHash = await calculateDirectoryHash(projectPath);
+  // 3. ベンチマーク実行（オプション）
+  if (options.benchmark) {
+    console.log(`   🔧 パフォーマンステスト実行中...`);
+    const benchmarkResult = await benchmarkHashCalculation(projectPath, options.verbose);
+    
+    console.log(`   📊 ベンチマーク結果:`);
+    console.log(`      構造のみ: ${benchmarkResult.structureOnly.time}ms`);
+    console.log(`      内容込み: ${benchmarkResult.withContent.time}ms`);
+    console.log(`      性能差: ${benchmarkResult.comparison.timesSlower.toFixed(2)}倍遅い`);
+    console.log(`      対象ファイル: ${benchmarkResult.structureOnly.fileCount}個`);
+    
+    return {
+      success: true,
+      projectName,
+      action: 'benchmark',
+      benchmarkResult
+    };
+  }
+
+  // 4. 変更検知
+  if (options.verbose && options.contentHash) {
+    console.log(`   🔍 ファイル内容も含めた詳細な変更検知を実行中...`);
+  }
+  
+  const currentHash = await calculateDirectoryHash(projectPath, options.contentHash);
   const needsSync = options.force || 
                    !config.syncMetadata?.contentHash || 
                    config.syncMetadata.contentHash !== currentHash;
@@ -224,10 +257,10 @@ async function processProject(projectName, options) {
     };
   }
   
-  // 4. libx-devでの処理
+  // 5. libx-devでの処理
   const syncResult = await syncToLibxDev(projectName, config, projectPath, options);
   
-  // 5. 同期メタデータの更新
+  // 6. 同期メタデータの更新
   if (syncResult.success) {
     config.lastUpdated = new Date().toISOString();
     config.syncMetadata = {

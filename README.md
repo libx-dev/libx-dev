@@ -278,6 +278,38 @@ node scripts/copy-to-libx-core.js --help
 }
 ```
 
+## libx-docs コンテンツ同期
+
+このプロジェクトでは、libx-docsリポジトリからのコンテンツ自動同期機能を提供しています。
+
+### 基本的な同期
+
+```bash
+# 全プロジェクトを同期（高速な構造検知）
+node scripts/sync-content.js
+
+# 特定プロジェクトを同期
+node scripts/sync-content.js sample-docs
+
+# ファイル内容も含めた詳細な変更検知
+node scripts/sync-content.js sample-docs --content-hash
+```
+
+### その他のオプション
+
+```bash
+# バリデーションのみ実行
+node scripts/sync-content.js --validate-only
+
+# パフォーマンステスト
+node scripts/sync-content.js sample-docs --benchmark
+
+# ドライラン（変更を実行せず確認のみ）
+node scripts/sync-content.js --dry-run --verbose
+```
+
+詳細は `docs/LIBX_DOCS_SYNC.md` を参照してください。
+
 ## ドキュメント管理
 
 ### プロジェクト作成

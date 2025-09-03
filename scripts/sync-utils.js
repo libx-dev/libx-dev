@@ -32,6 +32,18 @@ export function isValidFileName(fileName) {
 }
 
 /**
+ * ファイル内容をハッシュ計算に含めるべきかどうかをチェック
+ * @param {string} fileName ファイル名
+ * @returns {boolean} 含めるべき場合true
+ */
+export function shouldIncludeFileContent(fileName) {
+  // MDXファイル、JSONファイル、設定ファイルなどコンテンツに影響するファイルのみ対象
+  const contentExtensions = ['.mdx', '.md', '.json', '.yml', '.yaml', '.txt'];
+  const ext = path.extname(fileName).toLowerCase();
+  return contentExtensions.includes(ext);
+}
+
+/**
  * カテゴリディレクトリ名が適切な形式かどうかをチェック
  * @param {string} categoryName カテゴリ名
  * @returns {boolean} 適切な形式の場合true
@@ -306,25 +318,52 @@ function validateNamingConventions(structure, version, lang) {
 }
 
 /**
+ * ファイル内容のハッシュ値を計算
+ * @param {string} filePath ファイルパス
+ * @returns {Promise<string>} ファイル内容のハッシュ値
+ */
+export async function calculateFileContentHash(filePath) {
+  try {
+    const stat = await fs.stat(filePath);
+    const content = await fs.readFile(filePath, 'utf8');
+    
+    // ファイルサイズ、最終更新日時、内容を組み合わせてハッシュ化
+    const combinedData = `${stat.size}:${stat.mtime.getTime()}:${content}`;
+    return crypto.createHash('md5').update(combinedData).digest('hex');
+  } catch (error) {
+    // ファイル読み取りエラーの場合はファイルパスのハッシュを返す
+    return crypto.createHash('md5').update(`error:${filePath}:${error.message}`).digest('hex');
+  }
+}
+
+/**
  * ディレクトリのハッシュ値を計算（変更検出用）
  * @param {string} dirPath ディレクトリパス
+ * @param {boolean} includeContent ファイル内容もハッシュに含めるか（デフォルト: false）
  * @returns {Promise<string>} ハッシュ値
  */
-export async function calculateDirectoryHash(dirPath) {
+export async function calculateDirectoryHash(dirPath, includeContent = false) {
   const structure = await scanDirectoryStructure(dirPath);
   
-  function getStructureString(node) {
+  async function getStructureString(node) {
     if (node.type === 'directory') {
-      const childStrings = node.children
-        .sort((a, b) => a.path.localeCompare(b.path))
-        .map(getStructureString);
+      const childStrings = [];
+      for (const child of node.children.sort((a, b) => a.path.localeCompare(b.path))) {
+        childStrings.push(await getStructureString(child));
+      }
       return `${node.path}:dir:[${childStrings.join(',')}]`;
     } else {
-      return `${node.path}:file`;
+      if (includeContent && shouldIncludeFileContent(node.name)) {
+        const filePath = path.join(dirPath, node.path);
+        const contentHash = await calculateFileContentHash(filePath);
+        return `${node.path}:file:${contentHash}`;
+      } else {
+        return `${node.path}:file`;
+      }
     }
   }
   
-  const structureString = getStructureString(structure);
+  const structureString = await getStructureString(structure);
   return crypto.createHash('md5').update(structureString).digest('hex');
 }
 
@@ -489,4 +528,82 @@ function getIssueTypeLabel(issueType) {
   };
   
   return labels[issueType] || issueType;
+}
+
+/**
+ * パフォーマンステスト用のベンチマーク関数
+ * @param {string} dirPath テスト対象ディレクトリ
+ * @param {boolean} verbose 詳細出力
+ * @returns {Promise<Object>} ベンチマーク結果
+ */
+export async function benchmarkHashCalculation(dirPath, verbose = false) {
+  const results = {
+    structureOnly: { time: 0, hash: null, fileCount: 0 },
+    withContent: { time: 0, hash: null, fileCount: 0 },
+    comparison: { speedDifference: 0, timesSlower: 0 }
+  };
+  
+  if (verbose) {
+    console.log(`🔧 パフォーマンステスト開始: ${dirPath}`);
+  }
+  
+  // ファイル数を事前カウント
+  const structure = await scanDirectoryStructure(dirPath);
+  const fileCount = countFiles(structure);
+  
+  // 構造のみのハッシュ計算
+  const structureStart = Date.now();
+  const structureHash = await calculateDirectoryHash(dirPath, false);
+  const structureTime = Date.now() - structureStart;
+  
+  results.structureOnly.time = structureTime;
+  results.structureOnly.hash = structureHash;
+  results.structureOnly.fileCount = fileCount;
+  
+  if (verbose) {
+    console.log(`   📁 構造のみ: ${structureTime}ms (${fileCount}ファイル)`);
+  }
+  
+  // ファイル内容も含むハッシュ計算
+  const contentStart = Date.now();
+  const contentHash = await calculateDirectoryHash(dirPath, true);
+  const contentTime = Date.now() - contentStart;
+  
+  results.withContent.time = contentTime;
+  results.withContent.hash = contentHash;
+  results.withContent.fileCount = fileCount;
+  
+  if (verbose) {
+    console.log(`   📄 内容込み: ${contentTime}ms`);
+  }
+  
+  // パフォーマンス比較
+  results.comparison.speedDifference = contentTime - structureTime;
+  results.comparison.timesSlower = contentTime / structureTime;
+  
+  if (verbose) {
+    console.log(`   📊 性能差: ${results.comparison.speedDifference}ms (${results.comparison.timesSlower.toFixed(2)}倍)`);
+    console.log(`   🏷️  ハッシュ変化: ${structureHash === contentHash ? '同じ' : '異なる'}`);
+  }
+  
+  return results;
+}
+
+/**
+ * 構造内のファイル数を再帰的にカウント
+ * @param {Object} structure ディレクトリ構造
+ * @returns {number} ファイル数
+ */
+function countFiles(structure) {
+  let count = 0;
+  
+  for (const child of structure.children) {
+    if (child.type === 'file') {
+      count++;
+    } else if (child.type === 'directory') {
+      count += countFiles(child);
+    }
+  }
+  
+  return count;
 }
