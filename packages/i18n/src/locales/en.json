@@ -76,5 +76,18 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next"
+  },
+  "license": {
+    "templates": {
+      "minimal": "This document is a translation of \"{title}\" by {author}.",
+      "cc-by": "Based on \"{title}\" by {author}. Attribution required.",
+      "cc-by-sa": "Based on \"{title}\" by {author}. Attribution required. Derivative works must be shared under the same license.",
+      "copyleft": "This document is a translation of \"{title}\" by {author}. Derivative works must comply with the same license.",
+      "public-domain": "This translation is based on public domain / CC0 content: \"{title}\" by {author}."
+    },
+    "links": {
+      "original": "Original",
+      "license": "License"
+    }
   }
 }

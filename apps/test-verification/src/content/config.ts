@@ -35,6 +35,12 @@ const docsSchema = z.object({
     text: z.string(),
     link: z.string()
   }).optional(),
+  // ライセンス情報（オプション、指定しない場合はプロジェクトデフォルト使用）
+  licenseSource: z.string().optional(),
+  // カスタム帰属表示（オプション）
+  customAttribution: z.string().optional(),
+  // 帰属表示を無効化（オプション）
+  hideAttribution: z.boolean().optional().default(false),
 });
 
 // コレクションの定義

@@ -30,3 +30,6 @@ export { Tabs, TabItem } from './Tabs';
 export { Icon, Icons, type IconName } from './icons';
 export { Dropdown, DropdownItem } from './Dropdown';
 
+// ライセンス関連コンポーネント
+export { default as LicenseAttribution } from './LicenseAttribution.astro';
+

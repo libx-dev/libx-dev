@@ -76,5 +76,18 @@
   "pagination": {
     "previous": "前へ",
     "next": "次へ"
+  },
+  "license": {
+    "templates": {
+      "minimal": "この文書は {author} による「{title}」を翻訳したものです。",
+      "cc-by": "「{title}」を基に翻訳・作成しました。帰属表示: {author}。",
+      "cc-by-sa": "「{title}」を基に翻訳・作成しました。帰属表示: {author}。※CC BY-SA の場合、派生物も同ライセンスで配布してください。",
+      "copyleft": "「{title}」を翻訳しました。派生物は同一ライセンスで配布する必要があります。",
+      "public-domain": "本翻訳はパブリックドメイン（またはCC0）で提供された「{title}」を基にしています。"
+    },
+    "links": {
+      "original": "原文",
+      "license": "ライセンス"
+    }
   }
 }

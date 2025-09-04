@@ -165,39 +165,140 @@ libx-devプロジェクトは、主にOSSのドキュメントを翻訳し、技
 
 ## 実装上の注意点
 
-### 帰属表示の方法
+### i18nベース自動ライセンス表示システム（現在の方式）
 
-各文書には以下の情報を含める必要があります：
+libx-devプロジェクトでは、ライセンス情報を`project.config.json`で管理し、`packages/i18n`の多言語テンプレートシステムを使用して自動的に適切なライセンス表示を生成します。
+
+#### project.config.jsonでの設定（簡素化版）
+
+```json
+{
+  "licensing": {
+    "sources": [
+      {
+        "id": "source-id",
+        "name": "Original Documentation",
+        "author": "Original Author",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT",
+        "sourceUrl": "https://github.com/example/original-repo"
+      }
+    ],
+    "defaultSource": "source-id",
+    "showAttribution": true
+  }
+}
+```
+
+#### ライセンス別自動テンプレート選択
+
+システムは`license`フィールドの値に基づいて適切なテンプレートを自動選択します：
+
+- **MIT/Apache/BSD** → `minimal`テンプレート（1行のシンプル表示）
+- **CC BY** → `cc-by`テンプレート（帰属要件を明記）
+- **CC BY-SA** → `cc-by-sa`テンプレート（継承要件も含む）
+- **GPL/GFDL** → `copyleft`テンプレート（コピーレフト注意書き）
+- **CC0/Public Domain** → `public-domain`テンプレート（最小限の表示）
+
+#### 個別文書でのオーバーライド（オプション）
+
+特別なケースのみ、MDXフロントマターで設定をオーバーライド可能：
 
 ```markdown
 ---
-original_source: "[元文書のURL]"
-original_author: "[元の著作者]"
-original_license: "[元のライセンス]"
-translation_date: "[翻訳日]"
-translator: "[翻訳者]"
+title: "文書タイトル"
+licenseSource: "other-source-id"  # 別のソースを使用
+customAttribution: "カスタム帰属表示"  # 固有の帰属表示
+hideAttribution: true  # この文書のみ帰属表示を無効化
 ---
 ```
 
 ### フォルダ構造での管理
 
 ```
-project/
-├── config.json          # ライセンス情報を含む
-└── v1/
-    └── ja/
-        └── 01-guide/
-            └── LICENSE   # 各セクションのライセンス情報
+apps/[project]/
+├── src/
+│   ├── config/
+│   │   └── project.config.json   # ライセンス情報を含む
+│   └── content/
+│       └── docs/
+│           └── [version]/
+│               └── [lang]/
+│                   └── 01-guide/
+│                       └── 01-getting-started.mdx
+└── LICENSE  # プロジェクトライセンス（オプション）
 ```
 
 ### 自動化ツールの活用
 
-- ライセンス検出ツールの使用
-- 定期的なライセンス状況の監査
-- コンプライアンス確認の自動化
+#### i18nベース自動ライセンス表示システム
+
+libx-devプロジェクトでは以下の高度な自動化機能を提供します：
+
+- **自動ライセンス判定**: ライセンス名から適切なテンプレートを自動選択
+- **多言語テンプレート**: `packages/i18n`で一元管理された15言語対応
+- **法的適合性**: ライセンス種別に応じた適切な帰属表記の自動生成
+- **設定の簡素化**: 最小限の情報でプロフェッショナルな表示
+
+#### サポートされるライセンス・テンプレート
+
+| ライセンス種別 | 自動選択テンプレート | 特徴 |
+|---------------|---------------------|------|
+| MIT、Apache、BSD | `minimal` | シンプルな1行表示 |
+| CC BY | `cc-by` | 帰属要件を明記 |
+| CC BY-SA | `cc-by-sa` | 継承要件も含む |
+| GPL、GFDL | `copyleft` | コピーレフト注意書き |
+| CC0、Public Domain | `public-domain` | 最小限の表示 |
+
+#### 使用方法
+
+```astro
+<!-- フッターでの自動表示（推奨） -->
+<Footer 
+  showLicenseAttribution={true}
+  projectConfig={projectConfig}
+  lang={currentLang}
+/>
+
+<!-- 個別ページでの表示 -->
+<LicenseAttribution 
+  projectConfig={projectConfig}
+  lang={currentLang}
+  licenseSource="specific-source"
+/>
+```
+
+#### 新システムのメリット
+
+- **完全自動化**: ライセンス名を指定するだけで適切な表示を生成
+- **法的正確性**: ライセンス種別に応じた適切な帰属表記
+- **国際化対応**: 15言語での正確な翻訳を提供
+- **保守性向上**: 設定ファイルの大幅簡素化
+- **拡張性**: 新しいライセンスやテンプレートの追加が容易
 
 ## 結論
 
-このガイドラインに従うことで、libx-devプロジェクトは法的リスクを最小限に抑えながら、多様な技術文書の翻訳・提供を継続できます。ライセンス遵守は単なる法的義務ではなく、オープンソースコミュニティへの貢献と尊重の表れでもあります。
+このガイドラインとi18nベース自動ライセンス表示システムにより、libx-devプロジェクトは以下を実現できます：
 
-疑問がある場合は、保守的な判断を行い、必要に応じて法的助言を求めることを推奨します。
+### 🎯 **達成される目標**
+- **法的コンプライアンス**: ライセンス種別に応じた適切な帰属表記の自動生成
+- **開発効率**: 設定ファイルでライセンス名を指定するだけの簡単運用
+- **国際化対応**: 15言語での正確で一貫したライセンス表示
+- **保守性**: 中央集権的なテンプレート管理による容易なメンテナンス
+
+### 📋 **運用の簡素化**
+従来の複雑な設定から、以下のシンプルな設定のみでプロフェッショナルなライセンス表示が可能：
+
+```json
+{
+  "licensing": {
+    "sources": [{"license": "MIT", "author": "作成者名", ...}],
+    "showAttribution": true
+  }
+}
+```
+
+### 🌟 **オープンソースへの貢献**
+ライセンス遵守は単なる法的義務ではなく、オープンソースコミュニティへの貢献と尊重の表れです。このシステムにより、開発者は技術的詳細を気にせず、適切な法的表記を維持できます。
+
+**疑問がある場合は、保守的な判断を行い、必要に応じて法的助言を求めることを推奨します。**

@@ -36,5 +36,19 @@
         "isLatest": true
       }
     ]
+  },
+  "licensing": {
+    "sources": [
+      {
+        "id": "project-template-default",
+        "name": "Project Template Documentation",
+        "author": "libx-dev Team",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT",
+        "sourceUrl": "https://github.com/libx-dev/libx-dev"
+      }
+    ],
+    "defaultSource": "project-template-default",
+    "showAttribution": true
   }
 }

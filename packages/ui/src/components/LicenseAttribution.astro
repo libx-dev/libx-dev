@@ -1,0 +1,186 @@
+---
+/**
+ * ライセンス帰属表示コンポーネント - i18nベース
+ * project.config.jsonのlicensing設定とi18nテンプレートを使用して自動的にライセンス情報を表示
+ */
+import type { LocaleKey } from '@docs/i18n/locales';
+import { getLicenseTemplate, translate } from '@docs/i18n/utils';
+
+interface Props {
+  // プロジェクト設定（project.config.json）
+  projectConfig: any;
+  // 現在の言語
+  lang?: LocaleKey;
+  // カスタムソースID（オプション）
+  licenseSource?: string;
+  // カスタム帰属表示（オプション）
+  customAttribution?: string;
+  // 帰属表示を隠す（オプション）
+  hideAttribution?: boolean;
+  // 追加のCSSクラス
+  class?: string;
+}
+
+const {
+  projectConfig,
+  lang = 'ja',
+  licenseSource,
+  customAttribution,
+  hideAttribution = false,
+  class: className = ''
+} = Astro.props;
+
+// ライセンス設定を取得
+const licensing = projectConfig.licensing;
+if (!licensing || hideAttribution) {
+  // ライセンス設定がないか、表示を無効化している場合は何も表示しない
+  return;
+}
+
+// 使用するソースを決定
+const sourceId = licenseSource || licensing.defaultSource;
+const source = licensing.sources?.find((s: any) => s.id === sourceId);
+
+if (!source) {
+  // ソースが見つからない場合は何も表示しない
+  return;
+}
+
+// 帰属表示テキストを生成
+let attributionText: string;
+
+if (customAttribution) {
+  // カスタム帰属表示が指定されている場合はそれを使用
+  attributionText = customAttribution;
+} else {
+  // i18nライセンステンプレートシステムを使用
+  try {
+    const licenseInfo = {
+      name: source.name,
+      title: source.name, // titleとnameを同じ値に設定
+      author: source.author,
+      license: source.license,
+      licenseUrl: source.licenseUrl,
+      sourceUrl: source.sourceUrl
+    };
+    
+    attributionText = getLicenseTemplate(licenseInfo, lang);
+  } catch (error) {
+    // フォールバック：シンプルな表示
+    console.warn('License template generation failed, using fallback:', error);
+    attributionText = `Based on ${source.name} by ${source.author}`;
+  }
+}
+---
+
+{licensing.showAttribution && (
+  <div class:list={['license-attribution', className]}>
+    <div class="attribution-content">
+      <p class="attribution-text">{attributionText}</p>
+      <div class="attribution-links">
+        {source.sourceUrl && (
+          <a href={source.sourceUrl} class="attribution-link" target="_blank" rel="noopener">
+            {translate('license.links.original', lang)}
+          </a>
+        )}
+        {source.sourceUrl && source.licenseUrl && (
+          <span class="link-separator"> / </span>
+        )}
+        {source.licenseUrl && (
+          <a href={source.licenseUrl} class="attribution-link" target="_blank" rel="noopener">
+            {source.license} {translate('license.links.license', lang)}
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .license-attribution {
+    background-color: var(--sl-color-bg-sidebar);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.375rem;
+    padding: 0.875rem 1rem;
+    margin: 1.5rem 0;
+    font-size: var(--sl-text-sm);
+  }
+
+  .attribution-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .attribution-text {
+    color: var(--sl-color-gray-1);
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .attribution-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .attribution-link {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+    font-size: var(--sl-text-xs);
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .attribution-link:hover {
+    color: var(--sl-color-accent);
+    text-decoration: underline;
+  }
+
+  .link-separator {
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+
+  .attribution-link:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 1px;
+  }
+
+  /* コンパクトモード用のスタイル */
+  .license-attribution.compact {
+    padding: 0.75rem;
+    margin: 0;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+
+  .compact .attribution-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .compact .attribution-text {
+    font-size: var(--sl-text-xs);
+    margin: 0;
+  }
+
+  .compact .attribution-links {
+    gap: 0.5rem;
+  }
+
+  /* レスポンシブ対応 */
+  @media (max-width: 50em) {
+    .compact .attribution-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+</style>

@@ -51,5 +51,19 @@
         "isLatest": true
       }
     ]
+  },
+  "licensing": {
+    "sources": [
+      {
+        "id": "test-verification-original",
+        "name": "Test Verification Documentation",
+        "author": "libx-dev Team",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT",
+        "sourceUrl": "https://github.com/libx-dev/libx-dev"
+      }
+    ],
+    "defaultSource": "test-verification-original",
+    "showAttribution": true
   }
 }

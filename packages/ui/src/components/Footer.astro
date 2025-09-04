@@ -4,7 +4,7 @@
  * 改善: ソーシャルアイコンのサポート、レスポンシブデザインの強化、スティッキーフッターオプション
  */
 import Icon from './icons/Icon.astro';
-import { Pagination } from './index';
+import { Pagination, LicenseAttribution } from './index';
 import { translate } from '@docs/i18n/utils';
 import type { LocaleKey } from '@docs/i18n/locales';
 
@@ -26,6 +26,12 @@ interface Props {
   showContribute?: boolean;
   contributeUrl?: string;
   lang?: LocaleKey;
+  // ライセンス表示関連
+  projectConfig?: any;
+  showLicenseAttribution?: boolean;
+  licenseSource?: string;
+  customAttribution?: string;
+  hideAttribution?: boolean;
 }
 
 const { 
@@ -38,7 +44,13 @@ const {
   class: className = '',
   showContribute = false,
   contributeUrl = '',
-  lang = 'ja'
+  lang = 'ja',
+  // ライセンス表示関連
+  projectConfig,
+  showLicenseAttribution = false,
+  licenseSource,
+  customAttribution,
+  hideAttribution = false
 } = Astro.props;
 ---
 
@@ -46,7 +58,6 @@ const {
   <div class="footer-container">
     <div class="footer-content">
       {showPagination && <Pagination prev={prevPage} next={nextPage} />}
-      
       
       <div class="footer-bottom">
         <div class="footer-meta">
@@ -78,6 +89,18 @@ const {
           </div>
         )}
       </div>
+      
+      {/* ライセンス帰属表示 - 貢献エリアの下に配置 */}
+      {showLicenseAttribution && projectConfig && (
+        <LicenseAttribution 
+          projectConfig={projectConfig}
+          lang={lang}
+          licenseSource={licenseSource}
+          customAttribution={customAttribution}
+          hideAttribution={hideAttribution}
+          class="compact footer-license"
+        />
+      )}
     </div>
   </div>
 </footer>
@@ -229,6 +252,11 @@ const {
     opacity: 0.66;
   }
 
+  /* フッター内のライセンス表示用のマージン */
+  :global(.footer-license.compact) {
+    margin-top: 7.5rem !important;
+  }
+
   @media (min-width: 50em) {
     .footer-bottom {
       flex-direction: column;
@@ -244,6 +272,10 @@ const {
     
     .contribute-section {
       width: 100%;
+    }
+
+    :global(.footer-license.compact) {
+      margin-top: 6rem !important;
     }
   }
 </style>
