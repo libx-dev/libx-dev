@@ -276,11 +276,20 @@ const sidebarHash = getSidebarHash(items);
 
   .caret-wrapper {
     display: inline-flex;
-    transition: transform 0.3s ease-in-out;
     transform: rotate(0deg);
   }
 
+  /* アニメーション準備完了後のみtransitionを有効化 */
+  .sidebar.animations-ready .caret-wrapper {
+    transition: transform 0.3s ease-in-out;
+  }
+
   .caret-wrapper.rotated {
+    transform: rotate(90deg);
+  }
+
+  /* data-open属性に基づく回転制御 */
+  summary[data-open="true"] .caret-wrapper {
     transform: rotate(90deg);
   }
 
@@ -289,6 +298,9 @@ const sidebarHash = getSidebarHash(items);
     transform: rotate(180deg);
   }
   [dir='rtl'] .caret-wrapper.rotated {
+    transform: rotate(270deg);
+  }
+  [dir='rtl'] summary[data-open="true"] .caret-wrapper {
     transform: rotate(270deg);
   }
 
@@ -495,32 +507,26 @@ const sidebarHash = getSidebarHash(items);
 
     // details要素の開閉を監視してsummaryに属性を付与
     const detailsElements = document.querySelectorAll<HTMLDetailsElement>('.sidebar details');
+    
+    // 初期状態を即座に設定（アニメーションなし）
     detailsElements.forEach(details => {
       const summary = details.querySelector('summary');
-      const caretWrapper = summary?.querySelector('.caret-wrapper');
       
       if (summary) {
         // 初期状態を設定
         summary.setAttribute('data-open', details.open.toString());
-        
-        // アイコンラッパーの回転を初期状態に合わせて設定
-        if (caretWrapper && details.open) {
-          caretWrapper.classList.add('rotated');
-        }
 
         details.addEventListener('toggle', () => {
           summary.setAttribute('data-open', details.open.toString());
-          
-          // アイコンラッパーの回転をトグル状態に合わせて設定
-          if (caretWrapper) {
-            if (details.open) {
-              caretWrapper.classList.add('rotated');
-            } else {
-              caretWrapper.classList.remove('rotated');
-            }
-          }
         });
       }
     });
+
+    // 短い遅延後にアニメーションを有効化
+    setTimeout(() => {
+      if (sidebar) {
+        sidebar.classList.add('animations-ready');
+      }
+    }, 100);
   });
 </script>
