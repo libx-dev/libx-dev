@@ -42,6 +42,26 @@ const navItems: NavItem[] = [
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href={`${BASE_URL}/favicon.svg`} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- ダークモードフラッシュ防止スクリプト -->
+    <script is:inline>
+      (function() {
+        const STORAGE_KEY = 'theme-preference';
+        
+        function getThemePreference() {
+          if (typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY)) {
+            return localStorage.getItem(STORAGE_KEY);
+          }
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        
+        const theme = getThemePreference();
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content="Documentation site built with Astro" />
     <title>{title} | Libx</title>
