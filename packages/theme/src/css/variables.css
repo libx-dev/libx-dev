@@ -137,13 +137,13 @@
   --color-text-muted: #9CA3AF;
   --color-text-inverted: #1F2937;
 
-  --color-bg-primary: #111827;
-  --color-bg-secondary: #1F2937;
+  --color-bg-primary: #161618;
+  --color-bg-secondary: #1b1c1f;
   --color-bg-tertiary: #374151;
   --color-bg-inverted: #FFFFFF;
 
   --color-border-light: #374151;
-  --color-border-default: #4B5563;
+  --color-border-default: #3d4147;
   --color-border-dark: #6B7280;
 
   /* Tailwind Typography用の変数（ダークモード） */
