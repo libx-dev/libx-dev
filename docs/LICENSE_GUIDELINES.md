@@ -230,13 +230,169 @@ libx-devプロジェクトでは、ライセンス情報を`project.config.json`
 
 #### ライセンス別自動テンプレート選択
 
-システムは`license`フィールドの値に基づいて適切なテンプレートを自動選択します：
+システムは`license`フィールドの値に基づいて適切なテンプレートを自動選択します。以下は各ライセンスの設定例と推奨`licenseUrl`です：
 
-- **MIT/Apache/BSD** → `minimal`テンプレート（1行のシンプル表示）
-- **CC BY** → `cc-by`テンプレート（帰属要件を明記）
-- **CC BY-SA** → `cc-by-sa`テンプレート（継承要件も含む）
-- **GPL/GFDL** → `copyleft`テンプレート（コピーレフト注意書き）
-- **CC0/Public Domain** → `public-domain`テンプレート（最小限の表示）
+##### Permissive Licenses (minimal テンプレート)
+
+**MIT License**
+```json
+{
+  "license": "MIT",
+  "licenseUrl": "https://opensource.org/licenses/MIT"
+}
+```
+
+**Apache License 2.0**
+```json
+{
+  "license": "Apache License 2.0",
+  "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0"
+}
+```
+
+**BSD-3-Clause**
+```json
+{
+  "license": "BSD-3-Clause",
+  "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause"
+}
+```
+
+**ISC License**
+```json
+{
+  "license": "ISC",
+  "licenseUrl": "https://opensource.org/licenses/ISC"
+}
+```
+
+**Boost Software License**
+```json
+{
+  "license": "BSL-1.0",
+  "licenseUrl": "https://www.boost.org/LICENSE_1_0.txt"
+}
+```
+
+##### Specialized Templates
+
+**Zlib License (zlib テンプレート)**
+```json
+{
+  "license": "Zlib",
+  "licenseUrl": "https://opensource.org/licenses/Zlib"
+}
+```
+
+**Mozilla Public License 2.0 (mpl テンプレート)**
+```json
+{
+  "license": "MPL-2.0",
+  "licenseUrl": "https://www.mozilla.org/en-US/MPL/2.0/"
+}
+```
+
+**Eclipse Public License 2.0 (epl テンプレート)**
+```json
+{
+  "license": "EPL-2.0",
+  "licenseUrl": "https://www.eclipse.org/legal/epl-2.0/"
+}
+```
+
+**LaTeX Project Public License (lppl テンプレート)**
+```json
+{
+  "license": "LPPL",
+  "licenseUrl": "https://www.latex-project.org/lppl/"
+}
+```
+
+##### Creative Commons (cc-by / cc-by-sa テンプレート)
+
+**CC BY 4.0**
+```json
+{
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+}
+```
+
+**CC BY-SA 4.0**
+```json
+{
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+}
+```
+
+##### Copyleft Licenses (copyleft テンプレート)
+
+**GNU GPL v3.0**
+```json
+{
+  "license": "GPL-3.0",
+  "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
+}
+```
+
+**GNU LGPL v3.0**
+```json
+{
+  "license": "LGPL-3.0",
+  "licenseUrl": "https://www.gnu.org/licenses/lgpl-3.0.html"
+}
+```
+
+**GNU AGPL v3.0**
+```json
+{
+  "license": "AGPL-3.0",
+  "licenseUrl": "https://www.gnu.org/licenses/agpl-3.0.html"
+}
+```
+
+**GNU Free Documentation License**
+```json
+{
+  "license": "GFDL",
+  "licenseUrl": "https://www.gnu.org/licenses/fdl-1.3.html"
+}
+```
+
+##### Public Domain (public-domain テンプレート)
+
+**CC0 1.0 Universal**
+```json
+{
+  "license": "CC0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+}
+```
+
+**Public Domain**
+```json
+{
+  "license": "Public Domain",
+  "licenseUrl": ""  // Public Domainの場合はURLなしでも可
+}
+```
+
+**WTFPL**
+```json
+{
+  "license": "WTFPL",
+  "licenseUrl": "http://www.wtfpl.net/"
+}
+```
+
+#### テンプレート選択のロジック
+
+システムは以下の順序でテンプレートを選択します：
+
+1. **完全一致**: `LICENSE_TEMPLATE_MAP`内の完全一致を優先
+2. **部分一致**: ライセンス名の部分文字列による判定
+3. **デフォルト**: 不明な場合は`minimal`テンプレートを使用
 
 #### 個別文書でのオーバーライド（オプション）
 
