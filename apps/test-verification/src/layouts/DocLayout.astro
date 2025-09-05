@@ -106,7 +106,7 @@ const hasToc = true;
           {Astro.slots.has('toc') ? (
             <slot name="toc" />
           ) : (
-            <TableOfContents headings={[]} minLevel={2} maxLevel={3} lang={lang} />
+            <TableOfContents headings={[]} minLevel={2} maxLevel={2} lang={lang} />
           )}
         </div>
       </aside>
