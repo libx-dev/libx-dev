@@ -72,5 +72,26 @@
     "title": "Contribuir",
     "description": "Ayúdanos a mejorar la documentación contribuyendo al proyecto",
     "button": "Contribuir en GitHub"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Este documento es una traducción de \"{title}\" por {author}.",
+      "cc-by": "Basado en \"{title}\" por {author}. Se requiere atribución.",
+      "cc-by-sa": "Basado en \"{title}\" por {author}. Se requiere atribución. Las obras derivadas deben compartirse bajo la misma licencia.",
+      "copyleft": "Este documento es una traducción de \"{title}\" por {author}. Las obras derivadas deben cumplir con la misma licencia.",
+      "public-domain": "Esta traducción se basa en contenido de dominio público / CC0: \"{title}\" por {author}.",
+      "zlib": "Este documento es una traducción de \"{title}\" por {author}. ※Esta documentación derivada de software puede ser modificada y distribuida siempre que se conserven el aviso de copyright y esta licencia.",
+      "mpl": "Este documento es una traducción de \"{title}\" por {author}. ※El código fuente de este archivo se distribuye bajo la licencia MPL-2.0 y los archivos modificados deben estar disponibles bajo los mismos términos de licencia.",
+      "epl": "Este documento es una traducción de \"{title}\" por {author}. ※Esta es documentación traducida de un proyecto distribuido bajo la Eclipse Public License.",
+      "lppl": "Este documento es una traducción de \"{title}\" por {author}. ※Distribuido bajo The LaTeX Project Public License, los archivos modificados deben recibir nuevos nombres."
+    },
+    "links": {
+      "original": "Original",
+      "license": "Licencia"
+    }
   }
 }

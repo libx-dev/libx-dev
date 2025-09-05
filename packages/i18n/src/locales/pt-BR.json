@@ -72,5 +72,26 @@
     "title": "Contribuir",
     "description": "Nos ajude a melhorar a documentação contribuindo para o projeto",
     "button": "Contribuir no GitHub"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Este documento é uma tradução de \"{title}\" por {author}.",
+      "cc-by": "Baseado em \"{title}\" por {author}. Atribuição obrigatória.",
+      "cc-by-sa": "Baseado em \"{title}\" por {author}. Atribuição obrigatória. Obras derivadas devem ser compartilhadas sob a mesma licença.",
+      "copyleft": "Este documento é uma tradução de \"{title}\" por {author}. Obras derivadas devem cumprir a mesma licença.",
+      "public-domain": "Esta tradução é baseada em conteúdo de domínio público / CC0: \"{title}\" por {author}.",
+      "zlib": "Este documento é uma tradução de \"{title}\" por {author}. ※Esta documentação derivada de software pode ser modificada e distribuída desde que o aviso de copyright e esta licença sejam mantidos.",
+      "mpl": "Este documento é uma tradução de \"{title}\" por {author}. ※O código fonte deste arquivo é distribuído sob a licença MPL-2.0 e arquivos modificados devem ser disponibilizados sob os mesmos termos de licença.",
+      "epl": "Este documento é uma tradução de \"{title}\" por {author}. ※Esta é documentação traduzida de um projeto distribuído sob a Eclipse Public License.",
+      "lppl": "Este documento é uma tradução de \"{title}\" por {author}. ※Distribuído sob The LaTeX Project Public License, arquivos modificados devem receber novos nomes."
+    },
+    "links": {
+      "original": "Original",
+      "license": "Licença"
+    }
   }
 }

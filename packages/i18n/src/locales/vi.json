@@ -72,5 +72,26 @@
     "title": "Đóng góp",
     "description": "Giúp chúng tôi cải thiện tài liệu bằng cách đóng góp cho dự án",
     "button": "Đóng góp trên GitHub"
+  },
+  "pagination": {
+    "previous": "Trước",
+    "next": "Tiếp theo"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Tài liệu này là bản dịch của \"{title}\" bởi {author}.",
+      "cc-by": "Dựa trên \"{title}\" bởi {author}. Yêu cầu ghi nguồn.",
+      "cc-by-sa": "Dựa trên \"{title}\" bởi {author}. Yêu cầu ghi nguồn. Các tác phẩm phái sinh phải được chia sẻ dưới cùng giấy phép.",
+      "copyleft": "Tài liệu này là bản dịch của \"{title}\" bởi {author}. Các tác phẩm phái sinh phải tuân thủ cùng giấy phép.",
+      "public-domain": "Bản dịch này dựa trên nội dung thuộc phạm vi công cộng / CC0: \"{title}\" bởi {author}.",
+      "zlib": "Tài liệu này là bản dịch của \"{title}\" bởi {author}. ※Tài liệu phái sinh từ phần mềm này có thể được sửa đổi và phân phối với điều kiện giữ nguyên thông báo bản quyền và giấy phép này.",
+      "mpl": "Tài liệu này là bản dịch của \"{title}\" bởi {author}. ※Mã nguồn của tập tin này được phân phối dưới giấy phép MPL-2.0 và các tập tin đã sửa đổi phải có sẵn dưới cùng điều khoản giấy phép.",
+      "epl": "Tài liệu này là bản dịch của \"{title}\" bởi {author}. ※Đây là tài liệu dịch từ một dự án được phân phối dưới Eclipse Public License.",
+      "lppl": "Tài liệu này là bản dịch của \"{title}\" bởi {author}. ※Được phân phối dưới The LaTeX Project Public License, các tập tin đã sửa đổi phải được đặt tên mới."
+    },
+    "links": {
+      "original": "Bản gốc",
+      "license": "Giấy phép"
+    }
   }
 }

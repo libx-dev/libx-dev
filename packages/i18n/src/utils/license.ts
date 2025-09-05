@@ -15,6 +15,31 @@ const LICENSE_TEMPLATE_MAP: Record<string, string> = {
   'BSD-3-Clause': 'minimal',
   'ISC': 'minimal',
   'Unlicense': 'minimal',
+  'Zlib': 'zlib',
+  'zlib License': 'zlib',
+  'zlib/libpng License': 'zlib',
+  
+  // Mozilla Public License → mpl template
+  'MPL-2.0': 'mpl',
+  'Mozilla Public License 2.0': 'mpl',
+  'Mozilla Public License v2.0': 'mpl',
+  'MPL 2.0': 'mpl',
+  
+  // Eclipse Public License → epl template
+  'EPL-2.0': 'epl',
+  'Eclipse Public License 2.0': 'epl',
+  'Eclipse Public License v2.0': 'epl',
+  'EPL 2.0': 'epl',
+  
+  // Boost Software License → minimal template (permissive)
+  'BSL-1.0': 'minimal',
+  'Boost Software License 1.0': 'minimal',
+  'Boost Software License': 'minimal',
+  
+  // LaTeX Project Public License → lppl template
+  'LPPL': 'lppl',
+  'LaTeX Project Public License': 'lppl',
+  'LPPL-1.3c': 'lppl',
   
   // Creative Commons → specific templates
   'CC BY': 'cc-by',
@@ -74,6 +99,31 @@ export function getLicenseTemplateKey(license: string): string {
   // BSD系の判定
   if (normalizedLicense.includes('bsd')) {
     return 'minimal';
+  }
+  
+  // Zlib系の判定
+  if (normalizedLicense.includes('zlib') || normalizedLicense.includes('libpng')) {
+    return 'zlib';
+  }
+  
+  // Mozilla Public License系の判定
+  if (normalizedLicense.includes('mpl') || normalizedLicense.includes('mozilla public')) {
+    return 'mpl';
+  }
+  
+  // Eclipse Public License系の判定
+  if (normalizedLicense.includes('epl') || normalizedLicense.includes('eclipse public')) {
+    return 'epl';
+  }
+  
+  // Boost Software License系の判定
+  if (normalizedLicense.includes('boost')) {
+    return 'minimal';
+  }
+  
+  // LaTeX Project Public License系の判定
+  if (normalizedLicense.includes('lppl') || normalizedLicense.includes('latex project')) {
+    return 'lppl';
   }
   
   // Creative Commons系の判定
@@ -162,11 +212,13 @@ export function getLicenseCategory(license: string): {
   }
   
   // Copyleft系
-  if (normalizedLicense.includes('gpl') || normalizedLicense.includes('gfdl') || normalizedLicense.includes('agpl')) {
+  if (normalizedLicense.includes('gpl') || normalizedLicense.includes('gfdl') || normalizedLicense.includes('agpl') || 
+      normalizedLicense.includes('mpl') || normalizedLicense.includes('epl') || normalizedLicense.includes('lppl')) {
+    const isWeakCopyleft = normalizedLicense.includes('mpl') || normalizedLicense.includes('epl');
     return {
       category: 'copyleft',
       requiresAttribution: true,
-      requiresShareAlike: true
+      requiresShareAlike: !isWeakCopyleft // MPL/EPLは弱いコピーレフト
     };
   }
   
@@ -180,7 +232,8 @@ export function getLicenseCategory(license: string): {
   }
   
   // Permissive系
-  if (normalizedLicense.includes('mit') || normalizedLicense.includes('apache') || normalizedLicense.includes('bsd')) {
+  if (normalizedLicense.includes('mit') || normalizedLicense.includes('apache') || normalizedLicense.includes('bsd') || 
+      normalizedLicense.includes('zlib') || normalizedLicense.includes('boost') || normalizedLicense.includes('isc')) {
     return {
       category: 'permissive',
       requiresAttribution: true,

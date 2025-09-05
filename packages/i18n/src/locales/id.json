@@ -72,5 +72,26 @@
     "title": "Berkontribusi",
     "description": "Bantu kami meningkatkan dokumentasi dengan berkontribusi ke proyek",
     "button": "Berkontribusi di GitHub"
+  },
+  "pagination": {
+    "previous": "Sebelumnya",
+    "next": "Selanjutnya"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}.",
+      "cc-by": "Berdasarkan \"{title}\" oleh {author}. Atribusi diperlukan.",
+      "cc-by-sa": "Berdasarkan \"{title}\" oleh {author}. Atribusi diperlukan. Karya turunan harus dibagikan di bawah lisensi yang sama.",
+      "copyleft": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}. Karya turunan harus mematuhi lisensi yang sama.",
+      "public-domain": "Terjemahan ini berdasarkan konten domain publik / CC0: \"{title}\" oleh {author}.",
+      "zlib": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}. ※Dokumentasi turunan perangkat lunak ini dapat dimodifikasi dan didistribusikan dengan syarat pemberitahuan hak cipta dan lisensi ini tetap dipertahankan.",
+      "mpl": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}. ※Kode sumber file ini didistribusikan di bawah lisensi MPL-2.0 dan file yang dimodifikasi harus tersedia di bawah ketentuan lisensi yang sama.",
+      "epl": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}. ※Ini adalah dokumentasi terjemahan dari proyek yang didistribusikan di bawah Eclipse Public License.",
+      "lppl": "Dokumen ini adalah terjemahan dari \"{title}\" oleh {author}. ※Didistribusikan di bawah The LaTeX Project Public License, file yang dimodifikasi harus diberi nama baru."
+    },
+    "links": {
+      "original": "Asli",
+      "license": "Lisensi"
+    }
   }
 }

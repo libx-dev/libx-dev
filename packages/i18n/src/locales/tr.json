@@ -72,5 +72,26 @@
     "title": "Katkıda Bulun",
     "description": "Projeye katkıda bulunarak dokümantasyonu geliştirmemize yardım edin",
     "button": "GitHub'da Katkıda Bulun"
+  },
+  "pagination": {
+    "previous": "Önceki",
+    "next": "Sonraki"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir.",
+      "cc-by": "{author} tarafından yazılan \"{title}\" eserini temel alır. Atıf gereklidir.",
+      "cc-by-sa": "{author} tarafından yazılan \"{title}\" eserini temel alır. Atıf gereklidir. Türev eserler aynı lisans altında paylaşılmalıdır.",
+      "copyleft": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir. Türev eserler aynı lisansla uyumlu olmalıdır.",
+      "public-domain": "Bu çeviri kamu malı / CC0 içeriği temel alır: {author} tarafından yazılan \"{title}\".",
+      "zlib": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir. ※Bu yazılım türevi belge, telif hakkı bildirimi ve bu lisans korunduğu sürece değiştirilebilir ve dağıtılabilir.",
+      "mpl": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir. ※Bu dosyanın kaynak kodu MPL-2.0 lisansı altında dağıtılır ve değiştirilen dosyalar aynı lisans şartları altında erişilebilir olmalıdır.",
+      "epl": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir. ※Bu, Eclipse Public License altında dağıtılan bir projeden çevrilmiş belgelerdir.",
+      "lppl": "Bu belge {author} tarafından yazılan \"{title}\" adlı eserin çevirisidir. ※The LaTeX Project Public License altında dağıtılır, değiştirilen dosyalar yeni isimler almalıdır."
+    },
+    "links": {
+      "original": "Orijinal",
+      "license": "Lisans"
+    }
   }
 }

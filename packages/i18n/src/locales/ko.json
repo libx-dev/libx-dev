@@ -76,5 +76,22 @@
   "pagination": {
     "previous": "이전",
     "next": "다음"
+  },
+  "license": {
+    "templates": {
+      "minimal": "이 문서는 {author}의 \"{title}\"을 번역한 것입니다.",
+      "cc-by": "{author}의 \"{title}\"을 기반으로 번역 제작되었습니다. 출처 표기 필요.",
+      "cc-by-sa": "{author}의 \"{title}\"을 기반으로 번역 제작되었습니다. 출처 표기 필요. ※CC BY-SA 라이선스 하의 파생작품은 동일한 라이선스로 배포해야 합니다.",
+      "copyleft": "\"{title}\" 번역본입니다. 파생작품은 동일한 라이선스를 준수해야 합니다.",
+      "public-domain": "이 번역본은 퍼블릭 도메인(또는 CC0) 콘텐츠인 {author}의 \"{title}\"을 기반으로 합니다.",
+      "zlib": "이 문서는 {author}의 \"{title}\"을 번역한 것입니다. ※이 소프트웨어 유래 문서는 저작권 표시와 본 라이선스를 유지하는 조건 하에 수정 및 배포할 수 있습니다.",
+      "mpl": "이 문서는 {author}의 \"{title}\"을 번역한 것입니다. ※이 파일의 소스 코드는 MPL-2.0 라이선스 하에 배포되며, 수정된 파일은 동일한 라이선스 조건 하에 제공되어야 합니다.",
+      "epl": "이 문서는 {author}의 \"{title}\"을 번역한 것입니다. ※이것은 Eclipse Public License 하에 배포된 프로젝트의 번역 문서입니다.",
+      "lppl": "이 문서는 {author}의 \"{title}\"을 번역한 것입니다. ※LaTeX Project Public License 하에 배포되며, 수정된 파일은 새로운 이름을 사용해야 합니다."
+    },
+    "links": {
+      "original": "원문",
+      "license": "라이선스"
+    }
   }
 }

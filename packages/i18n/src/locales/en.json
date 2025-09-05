@@ -83,7 +83,11 @@
       "cc-by": "Based on \"{title}\" by {author}. Attribution required.",
       "cc-by-sa": "Based on \"{title}\" by {author}. Attribution required. Derivative works must be shared under the same license.",
       "copyleft": "This document is a translation of \"{title}\" by {author}. Derivative works must comply with the same license.",
-      "public-domain": "This translation is based on public domain / CC0 content: \"{title}\" by {author}."
+      "public-domain": "This translation is based on public domain / CC0 content: \"{title}\" by {author}.",
+      "zlib": "This document is a translation of \"{title}\" by {author}. ※This software-derived documentation may be modified and distributed provided that the copyright notice and this license are retained.",
+      "mpl": "This document is a translation of \"{title}\" by {author}. ※This file's source code is distributed under MPL-2.0 license and modified files must be made available under the same license terms.",
+      "epl": "This document is a translation of \"{title}\" by {author}. ※This is translated documentation from a project distributed under the Eclipse Public License.",
+      "lppl": "This document is a translation of \"{title}\" by {author}. ※Distributed under The LaTeX Project Public License, modified files must be given new names."
     },
     "links": {
       "original": "Original",

@@ -76,5 +76,22 @@
   "pagination": {
     "previous": "Zurück",
     "next": "Weiter"
+  },
+  "license": {
+    "templates": {
+      "minimal": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}.",
+      "cc-by": "Basierend auf \"{title}\" von {author}. Namensnennung erforderlich.",
+      "cc-by-sa": "Basierend auf \"{title}\" von {author}. Namensnennung erforderlich. Abgeleitete Werke müssen unter derselben Lizenz geteilt werden.",
+      "copyleft": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}. Abgeleitete Werke müssen derselben Lizenz entsprechen.",
+      "public-domain": "Diese Übersetzung basiert auf gemeinfreien / CC0-Inhalten: \"{title}\" von {author}.",
+      "zlib": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}. ※Diese softwareabgeleitete Dokumentation darf modifiziert und verteilt werden, sofern der Copyright-Hinweis und diese Lizenz erhalten bleiben.",
+      "mpl": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}. ※Der Quellcode dieser Datei wird unter der MPL-2.0 Lizenz verteilt und modifizierte Dateien müssen unter denselben Lizenzbedingungen verfügbar gemacht werden.",
+      "epl": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}. ※Dies ist übersetzte Dokumentation aus einem Projekt, das unter der Eclipse Public License verteilt wird.",
+      "lppl": "Dieses Dokument ist eine Übersetzung von \"{title}\" von {author}. ※Verteilt unter The LaTeX Project Public License, modifizierte Dateien müssen neue Namen erhalten."
+    },
+    "links": {
+      "original": "Original",
+      "license": "Lizenz"
+    }
   }
 }

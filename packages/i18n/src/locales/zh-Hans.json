@@ -76,5 +76,22 @@
   "pagination": {
     "previous": "上一页",
     "next": "下一页"
+  },
+  "license": {
+    "templates": {
+      "minimal": "本文档是 {author} 所著《{title}》的翻译版本。",
+      "cc-by": "基于 {author} 的《{title}》翻译制作。需要署名。",
+      "cc-by-sa": "基于 {author} 的《{title}》翻译制作。需要署名。※CC BY-SA 许可证下的衍生作品必须使用相同许可证分发。",
+      "copyleft": "《{title}》翻译版本。衍生作品必须使用相同许可证分发。",
+      "public-domain": "本翻译基于公有领域（或CC0）内容：{author} 的《{title}》。",
+      "zlib": "本文档是 {author} 所著《{title}》的翻译版本。※此软件衍生文档可在保留版权声明和本许可条款的条件下进行修改和分发。",
+      "mpl": "本文档是 {author} 所著《{title}》的翻译版本。※此文件源代码在MPL-2.0许可证下分发，修改的文件必须在相同许可条款下提供。",
+      "epl": "本文档是 {author} 所著《{title}》的翻译版本。※这是来自Eclipse Public License下分发项目的翻译文档。",
+      "lppl": "本文档是 {author} 所著《{title}》的翻译版本。※在LaTeX Project Public License下分发，修改的文件必须使用新的名称。"
+    },
+    "links": {
+      "original": "原文",
+      "license": "许可证"
+    }
   }
 }
