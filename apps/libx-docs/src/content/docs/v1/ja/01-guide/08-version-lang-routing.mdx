@@ -1,0 +1,25 @@
+---
+title: "バージョンと言語のルーティング"
+description: "URL設計とセレクターの動作"
+---
+
+import { Alert } from '@docs/ui';
+
+# バージョンと言語のルーティング
+
+URLは `/<version>/<lang>/...` 形式です。`MainLayout.astro` によりヘッダーでVersion/Languageセレクターが表示されます。
+
+## URL設計
+
+- 例: `/v1/ja/01-guide/01-getting-started`
+- `baseUrl` がある場合はその配下（例: `/docs/libx-docs/v1/ja/...`）
+
+## セレクターの仕組み（要点）
+
+- VersionSelector: `@docs/versioning` を利用
+- LanguageSelector: 現在ページのスラッグを維持したまま言語を切替
+
+<Alert type="info">GitHub Pagesなどで配信する場合は `project.config.json.basic.baseUrl` を必ず合わせてください。</Alert>
+
+次は「ページネーション」へ。
+

@@ -1,0 +1,34 @@
+---
+title: "ページネーション（前へ／次へ）"
+description: "自動生成＋frontmatterでの上書き"
+---
+
+import { Alert } from '@docs/ui';
+
+# ページネーション（前へ／次へ）
+
+前後リンクは基本「ファイル番号順」で自動生成されます（`utils/content-utils.ts`）。必要に応じてfrontmatterで上書きできます。
+
+## 自動生成
+
+- 同一ディレクトリのファイル番号で「前／次」を決定
+- 例: `01-...` → `02-...` → `03-...`
+
+## 手動上書き
+
+```yaml
+---
+title: "ページ"
+prev:
+  text: "前のページ"
+  link: "/v1/ja/01-guide/04-writing-mdx"
+next:
+  text: "次のページ"
+  link: "/v1/ja/01-guide/06-icons"
+---
+```
+
+<Alert type="note">指定した `link` のファイル存在チェックが行われ、存在しない場合はログに警告が出ます。</Alert>
+
+次は「ライセンス表記」へ。
+

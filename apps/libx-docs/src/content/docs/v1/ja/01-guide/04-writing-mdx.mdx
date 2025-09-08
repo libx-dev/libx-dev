@@ -1,0 +1,58 @@
+---
+title: "MDXの基本とfrontmatter"
+description: "最小ルールとよく使う項目"
+---
+
+import { Alert, Icon } from '@docs/ui';
+
+# MDXの基本とfrontmatter
+
+このプロジェクトのMDXは、`apps/libx-docs/src/content/config.ts` のスキーマに従います。最低限は `title` が必須です。
+
+## 最小frontmatter
+
+```yaml
+---
+title: "ページのタイトル"
+---
+```
+
+## よく使う項目一覧
+
+- `description`: 検索やカードに表示される説明
+- `category`: サイドバー上のカテゴリ（未指定ならパスから推定）
+- `categoryOrder`: カテゴリ列の順序（小さいほど上）
+- `order`: カテゴリ内の並び順（小さいほど上）
+- `prev`/`next`: 手動の前後ページ
+- `tags`: 任意のタグ配列
+- `draft`: 下書きフラグ
+- `licenseSource`/`customAttribution`/`hideAttribution`: ライセンス表記
+
+```yaml
+---
+title: "ページ"
+description: "説明文"
+order: 2
+prev:
+  text: "前へ"
+  link: "/v1/ja/01-guide/03-create-and-edit-docs"
+next:
+  text: "次へ"
+  link: "/v1/ja/01-guide/05-ui-components"
+---
+```
+
+## コンポーネントを使う
+
+```mdx
+import { Alert, Icon } from '@docs/ui';
+
+<Alert type="info">
+  <Icon name="info" /> 共有UIはMDXから直接呼べます。
+</Alert>
+```
+
+<Alert type="success"><Icon name="check" /> ここまででMDXの最低限はOKです。</Alert>
+
+次は「共有UIコンポーネント」へ。
+

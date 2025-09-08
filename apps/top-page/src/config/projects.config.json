@@ -91,6 +91,15 @@
         "documentation"
       ],
       "isNew": true
+    },
+    "libx-docs": {
+      "icon": "book",
+      "tags": [
+        "library",
+        "usage",
+        "reference"
+      ],
+      "isNew": true
     }
   }
 }

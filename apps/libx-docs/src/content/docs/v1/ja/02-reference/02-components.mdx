@@ -1,0 +1,55 @@
+---
+title: "コンポーネント リファレンス（抜粋）"
+description: "MDXで使う主要コンポーネントの使い方"
+---
+
+import { Alert, Icon, Button, Card, Tabs, TabItem, TableOfContents, Pagination } from '@docs/ui';
+
+# コンポーネント リファレンス（抜粋）
+
+MDXでよく使うコンポーネントの概要と最小例です。
+
+## Icon
+
+```mdx
+import { Icon } from '@docs/ui';
+<Icon name="info" />
+```
+
+## Alert
+
+```mdx
+import { Alert } from '@docs/ui';
+<Alert type="info">メッセージ</Alert>
+```
+
+## Button
+
+```mdx
+import { Button } from '@docs/ui';
+<Button href="/v1/ja/01-guide/01-getting-started">はじめに</Button>
+```
+
+## Card
+
+```mdx
+import { Card } from '@docs/ui';
+<Card title="MDXの基本" href="/v1/ja/01-guide/04-writing-mdx">説明文</Card>
+```
+
+## Tabs / TabItem
+
+```mdx
+import { Tabs, TabItem } from '@docs/ui';
+<Tabs syncKey="lang">
+  <TabItem label="JS">JavaScript</TabItem>
+  <TabItem label="TS">TypeScript</TabItem>
+</Tabs>
+```
+
+## TableOfContents / Pagination
+
+通常はレイアウト側で使用されます。MDXで直接使うケースは稀です。
+
+より詳細なAPIはコンポーネント実装（`packages/ui/src/components`）を参照ください。
+

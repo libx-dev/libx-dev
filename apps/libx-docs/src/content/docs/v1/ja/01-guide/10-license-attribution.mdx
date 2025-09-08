@@ -1,0 +1,47 @@
+---
+title: "ライセンス表記の扱い"
+description: "プロジェクト既定とページ単位の上書き"
+---
+
+import { Alert } from '@docs/ui';
+
+# ライセンス表記の扱い
+
+フッターの帰属表示は `project.config.json.licensing` の定義に基づき自動表示されます。ページ単位で上書き／非表示も可能です。
+
+## プロジェクト既定
+
+`apps/libx-docs/src/config/project.config.json`
+
+```json
+{
+  "licensing": {
+    "sources": [
+      {
+        "id": "project-template-default",
+        "name": "Project Template Documentation",
+        "author": "libx-dev Team",
+        "license": "MIT"
+      }
+    ],
+    "defaultSource": "project-template-default",
+    "showAttribution": true
+  }
+}
+```
+
+## ページ単位の制御
+
+```yaml
+---
+title: "ページ"
+licenseSource: "project-template-default" # 既定以外を使う
+customAttribution: "原著者: Example, 訳: Team"
+hideAttribution: false                     # trueで非表示
+---
+```
+
+<Alert type="info">詳細なテンプレートは `packages/i18n` のライセンス関連ユーティリティに基づきます。</Alert>
+
+次は「ビルドと運用」へ。
+

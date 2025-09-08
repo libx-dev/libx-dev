@@ -1,0 +1,38 @@
+---
+title: "ビルドと運用"
+description: "ローカル／統合ビルドとCloudflare Pages"
+---
+
+import { Alert } from '@docs/ui';
+
+# ビルドと運用
+
+開発が進んだらビルドして出力を確認します。モノレポの統合ビルドスクリプトも用意されています。
+
+## 単体（libx-docs）のビルド
+
+```bash
+pnpm --filter=libx-docs build
+```
+
+## モノレポ統合ビルド
+
+```bash
+# すべてのアプリを統合して dist/ へ
+pnpm build
+
+# ローカル確認向け（ベースパスなし）
+pnpm build:local
+```
+
+<Alert type="note">ベースパスがある配信（GitHub Pagesなど）の場合は通常の `pnpm build` を使い、`basic.baseUrl` を合わせます。</Alert>
+
+## デプロイ（例）
+
+```bash
+# Cloudflare Pages
+pnpm deploy
+```
+
+CI/CDの前にローカルで `dist/` を静的サーバーで確認するのがおすすめです。
+
