@@ -19,6 +19,12 @@ import { Alert, Icon } from '@docs/ui';
 </Alert>
 ```
 
+例:
+
+<Alert type="info">
+  <Icon name="info" /> 情報メッセージ
+</Alert>
+
 ## Button と Card
 
 ```mdx
@@ -39,6 +45,22 @@ import { Button, Card } from '@docs/ui';
 </div>
 ```
 
+例:
+
+<div style={{ display: 'flex', gap: '1rem' }}>
+  <Button href="/v1/ja/01-guide/01-getting-started">はじめに</Button>
+  <Button variant="outline" href="/v1/ja/01-guide/06-icons">アイコン</Button>
+</div>
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+  <Card title="MDXの基本" href="/v1/ja/01-guide/04-writing-mdx">
+    frontmatter と最小の使い方
+  </Card>
+  <Card title="サイドバー自動生成" href="/v1/ja/01-guide/07-sidebar-generation">
+    番号で並び順を管理
+  </Card>
+</div>
+
 ## Tabs と TabItem（同期キー付き）
 
 ```mdx
@@ -53,6 +75,17 @@ import { Tabs, TabItem } from '@docs/ui';
   </TabItem>
 </Tabs>
 ```
+
+例:
+
+<Tabs syncKey="lang-example">
+  <TabItem label="JavaScript">
+    JS向けの説明やサンプルコード
+  </TabItem>
+  <TabItem label="TypeScript">
+    TS向けの説明やサンプルコード
+  </TabItem>
+</Tabs>
 
 <Alert type="note">`syncKey` を同じにした Tabs 間で選択状態が同期されます。</Alert>
 
