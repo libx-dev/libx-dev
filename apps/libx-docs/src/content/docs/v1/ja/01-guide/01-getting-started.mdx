@@ -7,21 +7,25 @@ import { Alert, Icon } from '@docs/ui';
 
 # Libxをはじめよう
 
-このガイドはLibxでドキュメントを管理するための方法を学べます。
+このガイドではLibxでドキュメントを管理するための方法を学びます。
+
+## Libxとは
+
+Libxは[libx.dev](https://libx.dev)を構築するために作成された、ドキュメントサイトを作成・管理するための静的サイトジェネレーターです。複数のAstroプロジェクトをpnpmで管理することにより、大規模かつ多言語に対応したドキュメントサイトを構築できるように設計されています。
 
 ## リポジトリについて
 
 Libxは `libx-dev`, `libx-core`, `libx-docs` の3つのリポジトリで構成されています。
 
 - **libx-dev**: libx.dev の開発の中心となるリポジトリ
-- **libx-core**: libx-dev からコア機能を抽出したリポジトリ
+- **libx-core**: libx-dev からコア機能を抽出したリポジトリ（MITライセンス）
 - **libx-docs**: libx-dev にドキュメントを提供するためのリポジトリ
 
 ## セットアップ
 
-Libxは[libx.dev](https://libx.dev)のために設計されていますが、libx-coreを使うことで独自のドキュメントサイトを作成することができます。
+libx-coreを使うことで独自のドキュメントサイトを作成することができます。
 
-## 必要なツール
+### 必要なツール
 
 まず、[Node.jsの公式サイト](https://nodejs.org/)から安定版をダウンロードして、インストールしてください。
 
@@ -31,7 +35,7 @@ Libxは[libx.dev](https://libx.dev)のために設計されていますが、lib
 npm install -g pnpm
 ```
 
-## クローンと依存関係
+### クローンと依存関係
 
 リポジトリをクローンし、依存関係をインストールしてください。
 
@@ -41,7 +45,7 @@ cd libx-core
 pnpm install
 ```
 
-## ディレクトリ構成
+### ディレクトリ構成
 
 ディレクトリ構成は以下のような形になっているはずです。
 
@@ -101,7 +105,7 @@ node scripts/create-project.js my-docs "My Documentation" "私のドキュメン
 node scripts/create-project.js api-docs "API Docs" "API文書" --icon=code --tags=api,reference
 ```
 
-## プロジェクトにバージョンを追加する
+## バージョンを追加する
 
 プロジェクトに新しいバージョンを追加するには、次のようにスクリプトを使用します。
 
@@ -127,7 +131,7 @@ node scripts/create-version.js my-docs v3
 node scripts/create-version.js my-docs v2.1 --no-copy
 ```
 
-## プロジェクトに言語を追加する
+## 言語を追加する
 
 プロジェクトに新しい言語を追加するには、次のようにスクリプトを使用します。
 
@@ -160,7 +164,7 @@ node scripts/add-language.js sample-docs ko
 node scripts/add-language.js my-docs zh-Hans "简体中文" "简体中文文档"
 ```
  
-## プロジェクトにドキュメントを追加する
+## ドキュメントを追加する
 
 プロジェクトに新しいドキュメントページを作成するには、次のようにスクリプトを使用します。
 
@@ -188,7 +192,7 @@ node scripts/create-document.js my-docs ja v1 --interactive
 node scripts/create-document.js my-docs ja v1 guide "セットアップ方法"
 ```
 
-## ドキュメントの書き方
+## ドキュメントの基本的な書き方
 
 ドキュメントの拡張子は`.mdx`で、MDX形式で書かれます。
 
@@ -233,7 +237,7 @@ description: "検索結果やカードに使われる説明"
 ---
 ```
 
-## リンクの書き方
+### リンクの書き方
 
 ドキュメント内のリンクは、相対パスまたは絶対パスで指定できます。
 
@@ -252,9 +256,9 @@ description: "検索結果やカードに使われる説明"
 - [同じ言語・バージョン内のリンク](./01-getting-started): `./01-getting-started`
 - [他の言語・バージョンへのリンク](/v1/en/01-guide/01-getting-started): `/v1/en/01-guide/01-getting-started`
 
-## 共有UIコンポーネントを使う
+### Astroコンポーネントを使う
 
-Libxのドキュメントは共有UIコンポーネントを使うができます。
+LibxのドキュメントはAstroコンポーネントを使うことができます。
 
 `@docs/ui` からインポートし、Icon / Alert / Tabsなどを使用できます。
 
@@ -262,12 +266,10 @@ Libxのドキュメントは共有UIコンポーネントを使うができま�
 import { Icon, Alert } from '@docs/ui';
 
 <Alert type="info">
-  <Icon name="info" /> 共有コンポーネントはMDXでもそのまま使えます。
+  <Icon name="info" /> AstroコンポーネントはMDXファイルでも使用できます。
 </Alert>
 ```
 
 ## 次のステップ
 
-次は「[セットアップと構成](./02-setup-and-structure)」へ進み、プロジェクトの全体像とベースパスの扱いを確認しましょう。
-
-
+次は「[ディレクトリ構造と設定](./02-directory-structure-and-configuration)」へ進み、プロジェクトの全体像とベースパスの扱いを確認しましょう。

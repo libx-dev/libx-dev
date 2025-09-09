@@ -1,11 +1,11 @@
 ---
-title: "セットアップと構成"
+title: "ディレクトリ構造と設定"
 description: "プロジェクト構成、URL、baseUrlの基礎"
 ---
 
 import { Alert, Card } from '@docs/ui';
 
-# セットアップと構成
+# ディレクトリ構造と設定
 
 LibxドキュメントはAstroベースのモノレポで、共有UI・i18n・バージョン管理を統合しています。最初に構成とURLの基礎を押さえます。
 
@@ -28,6 +28,29 @@ pnpm --filter=libx-docs dev
     │   │   └── 02-setup-and-structure.mdx
     │   └── 02-reference/
     └── en/
+```
+
+## libx-coreディレクトリ構造
+
+libx-coreプロジェクトの構成：
+
+```text
+../libx-core/
+├── apps/                   # Astroアプリケーション
+│   ├── project-template/   # 新プロジェクト用テンプレート
+│   └── top-page/           # ランディングページ
+├── packages/               # 共有パッケージ
+│   ├── i18n/               # 国際化ユーティリティ
+│   ├── theme/              # 共通テーマシステム
+│   ├── ui/                 # 共有Astroコンポーネント
+│   └── versioning/         # バージョン管理システム
+├── scripts/                # ビルド・管理スクリプト
+│   ├── plugins/            # ビルドプラグイン
+│   ├── schemas/            # 設定スキーマ
+│   └── dev/                # 開発用ツール
+└── config/                 # 共有設定
+    ├── eslint/             # ESLint設定
+    └── tsconfig/           # TypeScript設定
 ```
 
 URLは `/<version>/<lang>/<section>/<nn-file>`。番号付きファイル名（`nn-`）は順序とURLの両方に使われます。
