@@ -58,21 +58,21 @@
       "vi": "Trung tâm Tài liệu"
     },
     "heroDescription": {
-      "en": "Find all the documentation you need in one place",
-      "ja": "必要なすべてのドキュメントを一箇所で見つけることができます",
-      "zh-Hans": "在一个地方找到您需要的所有文档",
-      "zh-Hant": "在一個地方找到您需要的所有文檔",
-      "es": "Encuentra toda la documentación que necesitas en un solo lugar",
-      "pt-BR": "Encontre toda a documentação que você precisa em um só lugar",
-      "ko": "필요한 모든 문서를 한 곳에서 찾을 수 있습니다",
-      "de": "Finden Sie die gesamte Dokumentation, die Sie benötigen, an einem Ort",
-      "fr": "Trouvez toute la documentation dont vous avez besoin en un seul endroit",
-      "ru": "Найдите всю необходимую документацию в одном месте",
-      "ar": "اعثر على جميع الوثائق التي تحتاجها في مكان واحد",
-      "id": "Temukan semua dokumentasi yang Anda butuhkan dalam satu tempat",
-      "tr": "İhtiyacınız olan tüm dokümantasyonu tek yerde bulun",
-      "hi": "आपको आवश्यक सभी दस्तावेज़ एक ही स्थान पर खोजें",
-      "vi": "Tìm tất cả tài liệu bạn cần ở một nơi"
+      "en": "Find the documentation you need in one place",
+      "ja": "必要なドキュメントを一箇所で見つけることができます",
+      "zh-Hans": "在一个地方找到您需要的文档",
+      "zh-Hant": "在一個地方找到您需要的文檔",
+      "es": "Encuentra la documentación que necesitas en un solo lugar",
+      "pt-BR": "Encontre a documentação que você precisa em um só lugar",
+      "ko": "필요한 문서를 한 곳에서 찾을 수 있습니다",
+      "de": "Finden Sie die Dokumentation, die Sie benötigen, an einem Ort",
+      "fr": "Trouvez la documentation dont vous avez besoin en un seul endroit",
+      "ru": "Найдите необходимую документацию в одном месте",
+      "ar": "اعثر على الوثائق التي تحتاجها في مكان واحد",
+      "id": "Temukan dokumentasi yang Anda butuhkan dalam satu tempat",
+      "tr": "İhtiyacınız olan dokümantasyonu tek yerde bulun",
+      "hi": "आपको आवश्यक दस्तावेज़ एक ही स्थान पर खोजें",
+      "vi": "Tìm tài liệu bạn cần ở một nơi"
     }
   },
   "projectDecorations": {
