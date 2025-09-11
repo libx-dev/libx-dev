@@ -93,7 +93,7 @@
       "isNew": true
     },
     "libx-docs": {
-      "icon": "book",
+      "icon": "file-text",
       "tags": [
         "library",
         "usage",
