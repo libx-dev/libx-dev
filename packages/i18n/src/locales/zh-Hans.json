@@ -87,7 +87,8 @@
       "zlib": "本文档是 {author} 所著《{title}》的翻译版本。※此软件衍生文档可在保留版权声明和本许可条款的条件下进行修改和分发。",
       "mpl": "本文档是 {author} 所著《{title}》的翻译版本。※此文件源代码在MPL-2.0许可证下分发，修改的文件必须在相同许可条款下提供。",
       "epl": "本文档是 {author} 所著《{title}》的翻译版本。※这是来自Eclipse Public License下分发项目的翻译文档。",
-      "lppl": "本文档是 {author} 所著《{title}》的翻译版本。※在LaTeX Project Public License下分发，修改的文件必须使用新的名称。"
+      "lppl": "本文档是 {author} 所著《{title}》的翻译版本。※在LaTeX Project Public License下分发，修改的文件必须使用新的名称。",
+      "original-formatted": "本文档是 {author} 所著的《{title}》，已为libx进行格式化。"
     },
     "links": {
       "original": "原文",

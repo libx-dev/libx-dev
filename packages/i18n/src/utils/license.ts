@@ -68,7 +68,12 @@ const LICENSE_TEMPLATE_MAP: Record<string, string> = {
   'CC0': 'public-domain',
   'CC0 1.0': 'public-domain',
   'Public Domain': 'public-domain',
-  'WTFPL': 'public-domain'
+  'WTFPL': 'public-domain',
+
+  // Original formatted → original-formatted template
+  'original-formatted': 'original-formatted',
+  'Original Formatted': 'original-formatted',
+  'ORIGINAL_FORMATTED': 'original-formatted'
 };
 
 /**
@@ -148,16 +153,80 @@ export function getLicenseTemplateKey(license: string): string {
   if (normalizedLicense.includes('cc0') || normalizedLicense.includes('public domain')) {
     return 'public-domain';
   }
-  
+
+  // Original Formatted系の判定
+  if (normalizedLicense.includes('original-formatted') || normalizedLicense.includes('original formatted')) {
+    return 'original-formatted';
+  }
+
   // デフォルト：最小テンプレート
   return 'minimal';
 }
 
 /**
+ * プロジェクト設定とライセンス情報から適切なテンプレートキーを判定する（言語考慮版）
+ *
+ * @param licenseInfo ライセンス情報オブジェクト
+ * @param lang 現在の言語
+ * @param projectConfig プロジェクト設定（オプション）
+ * @param forceOriginalFormatted 強制的に original-formatted テンプレートを使用するかどうか
+ * @returns テンプレートキー
+ */
+export function getLicenseTemplateKeyWithLanguage(
+  licenseInfo: {
+    name: string;
+    author: string;
+    license: string;
+    licenseUrl?: string;
+    sourceUrl?: string;
+    title?: string;
+  },
+  lang: LocaleKey,
+  projectConfig?: {
+    licensing?: {
+      sourceLanguage?: string;
+      languageOverrides?: Record<string, { defaultSource?: string; templateOverride?: string }>;
+    };
+  },
+  forceOriginalFormatted?: boolean
+): string {
+  // 1. フロントマターでの強制指定
+  if (forceOriginalFormatted) {
+    return 'original-formatted';
+  }
+
+  // 2. ライセンス名に "original-formatted" が含まれている場合
+  const normalizedLicense = licenseInfo.license.toLowerCase().trim();
+  if (normalizedLicense.includes('original-formatted') || normalizedLicense.includes('original formatted')) {
+    return 'original-formatted';
+  }
+
+  // 3. プロジェクト設定による言語ベースの判定
+  if (projectConfig?.licensing) {
+    const { sourceLanguage, languageOverrides } = projectConfig.licensing;
+
+    // 言語別の個別設定があるかチェック
+    if (languageOverrides && languageOverrides[lang] && languageOverrides[lang].templateOverride) {
+      return languageOverrides[lang].templateOverride!;
+    }
+
+    // sourceLanguage で指定された言語の場合は original-formatted を使用
+    if (sourceLanguage && lang === sourceLanguage) {
+      return 'original-formatted';
+    }
+  }
+
+  // 4. 通常のライセンス判定にフォールバック
+  return getLicenseTemplateKey(licenseInfo.license);
+}
+
+/**
  * ライセンス情報を基にライセンステンプレートを取得する
- * 
+ *
  * @param licenseInfo ライセンス情報オブジェクト
  * @param lang 言語コード
+ * @param projectConfig プロジェクト設定（オプション）
+ * @param forceOriginalFormatted 強制的に original-formatted テンプレートを使用するかどうか
  * @returns フォーマットされたライセンステキスト
  */
 export function getLicenseTemplate(
@@ -169,9 +238,16 @@ export function getLicenseTemplate(
     sourceUrl?: string;
     title?: string;
   },
-  lang: LocaleKey
+  lang: LocaleKey,
+  projectConfig?: {
+    licensing?: {
+      sourceLanguage?: string;
+      languageOverrides?: Record<string, { defaultSource?: string; templateOverride?: string }>;
+    };
+  },
+  forceOriginalFormatted?: boolean
 ): string {
-  const templateKey = getLicenseTemplateKey(licenseInfo.license);
+  const templateKey = getLicenseTemplateKeyWithLanguage(licenseInfo, lang, projectConfig, forceOriginalFormatted);
   const i18nKey = `license.templates.${templateKey}`;
   
   // テンプレート用のパラメータを準備

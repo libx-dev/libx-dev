@@ -4,7 +4,7 @@
     "items": [
       {
         "title": "インストールガイド",
-        "href": "/docs/test-verification/ja/v2/01-guide/02-new-document"
+        "href": "/docs/test-verification/ja/v2/01-guide/02-installation-guide"
       },
       {
         "title": "プロジェクトテンプレートへようこそ",
@@ -13,11 +13,11 @@
     ]
   },
   {
-    "title": "Troubleshooting",
+    "title": "Api-reference",
     "items": [
       {
-        "title": "トラブルシューティング",
-        "href": "/docs/test-verification/ja/v2/02-troubleshooting/01-new-document"
+        "title": "API概要",
+        "href": "/docs/test-verification/ja/v2/02-api-reference/01-api-overview"
       }
     ]
   }

@@ -1,0 +1,24 @@
+[
+  {
+    "title": "Guide",
+    "items": [
+      {
+        "title": "설치 가이드",
+        "href": "/docs/test-verification/ko/v2/01-guide/02-installation-guide"
+      },
+      {
+        "title": "검증 테스트 v2에 오신 것을 환영합니다",
+        "href": "/docs/test-verification/ko/v2/01-guide/01-getting-started"
+      }
+    ]
+  },
+  {
+    "title": "Api-reference",
+    "items": [
+      {
+        "title": "API 개요",
+        "href": "/docs/test-verification/ko/v2/02-api-reference/01-api-overview"
+      }
+    ]
+  }
+]

@@ -87,7 +87,8 @@
       "zlib": "Este documento é uma tradução de \"{title}\" por {author}. ※Esta documentação derivada de software pode ser modificada e distribuída desde que o aviso de copyright e esta licença sejam mantidos.",
       "mpl": "Este documento é uma tradução de \"{title}\" por {author}. ※O código fonte deste arquivo é distribuído sob a licença MPL-2.0 e arquivos modificados devem ser disponibilizados sob os mesmos termos de licença.",
       "epl": "Este documento é uma tradução de \"{title}\" por {author}. ※Esta é documentação traduzida de um projeto distribuído sob a Eclipse Public License.",
-      "lppl": "Este documento é uma tradução de \"{title}\" por {author}. ※Distribuído sob The LaTeX Project Public License, arquivos modificados devem receber novos nomes."
+      "lppl": "Este documento é uma tradução de \"{title}\" por {author}. ※Distribuído sob The LaTeX Project Public License, arquivos modificados devem receber novos nomes.",
+      "original-formatted": "Este documento é \"{title}\" por {author}, formatado para libx."
     },
     "links": {
       "original": "Original",

@@ -17,6 +17,8 @@ interface Props {
   customAttribution?: string;
   // 帰属表示を隠す（オプション）
   hideAttribution?: boolean;
+  // 強制的に「原文整形」テンプレートを使用（オプション）
+  forceOriginalFormatted?: boolean;
   // 追加のCSSクラス
   class?: string;
 }
@@ -27,6 +29,7 @@ const {
   licenseSource,
   customAttribution,
   hideAttribution = false,
+  forceOriginalFormatted = false,
   class: className = ''
 } = Astro.props;
 
@@ -64,7 +67,7 @@ if (customAttribution) {
       sourceUrl: source.sourceUrl
     };
     
-    attributionText = getLicenseTemplate(licenseInfo, lang);
+    attributionText = getLicenseTemplate(licenseInfo, lang, projectConfig, forceOriginalFormatted);
   } catch (error) {
     // フォールバック：シンプルな表示
     console.warn('License template generation failed, using fallback:', error);

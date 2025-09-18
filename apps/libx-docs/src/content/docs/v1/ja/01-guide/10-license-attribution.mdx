@@ -25,7 +25,8 @@ import { Alert } from '@docs/ui';
       }
     ],
     "defaultSource": "project-template-default",
-    "showAttribution": true
+    "showAttribution": true,
+    "sourceLanguage": "en"
   }
 }
 ```
@@ -38,8 +39,34 @@ title: "ページ"
 licenseSource: "project-template-default" # 既定以外を使う
 customAttribution: "原著者: Example, 訳: Team"
 hideAttribution: false                     # trueで非表示
+forceOriginalFormatted: false              # trueで「原文整形」テンプレートを強制使用
 ---
 ```
+
+## 原文整形機能
+
+新しい機能として、「原文をlibx用に整形したもの」を適切に表示できるようになりました。
+
+### プロジェクト設定での言語指定
+
+`sourceLanguage` を指定することで、特定の言語（多くの場合英語）を「原文整形版」として扱い、他の言語は翻訳版として表示します。
+
+```json
+{
+  "licensing": {
+    "sourceLanguage": "en",
+    "languageOverrides": {
+      "ja": {
+        "templateOverride": "minimal"
+      }
+    }
+  }
+}
+```
+
+### フロントマターでの個別指定
+
+特例的なケースでは、ページ単位で強制的に「原文整形」テンプレートを使用できます。
 
 <Alert type="info">詳細なテンプレートは `packages/i18n` のライセンス関連ユーティリティに基づきます。</Alert>
 

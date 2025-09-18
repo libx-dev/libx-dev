@@ -87,7 +87,8 @@
       "zlib": "「{title}」（{author}）を翻訳したものです。※このソフトウェア由来の文書は、著作権表示と本許諾条項を保持することを条件として、改変・配布することができます。",
       "mpl": "「{title}」（{author}）を翻訳したものです。※このファイルのソースコードはMPL-2.0ライセンスの下で配布され、変更されたファイルは同じライセンス条項の下で公開する必要があります。",
       "epl": "「{title}」（{author}）を翻訳したものです。※Eclipse Public Licenseの下で配布される本プロジェクトからの翻訳文書です。",
-      "lppl": "「{title}」（{author}）を翻訳したものです。※LaTeX Project Public Licenseの下で配布され、変更されたファイルには新しい名前を付ける必要があります。"
+      "lppl": "「{title}」（{author}）を翻訳したものです。※LaTeX Project Public Licenseの下で配布され、変更されたファイルには新しい名前を付ける必要があります。",
+      "original-formatted": "この文書は {author} による「{title}」をlibx用に整形したものです。"
     },
     "links": {
       "original": "原文",

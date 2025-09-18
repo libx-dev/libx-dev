@@ -49,6 +49,7 @@
       }
     ],
     "defaultSource": "project-template-default",
-    "showAttribution": true
+    "showAttribution": true,
+    "sourceLanguage": "en"
   }
 }
