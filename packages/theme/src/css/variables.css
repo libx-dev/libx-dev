@@ -59,6 +59,7 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.625;
   --line-height-loose: 2;
+  --line-height-content: 1.8rem;
 
   --letter-spacing-tighter: -0.05em;
   --letter-spacing-tight: -0.025em;

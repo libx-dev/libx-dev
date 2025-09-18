@@ -135,7 +135,7 @@ body, p, h1, h2, h3, h4, h5, h6, span, div, a, li, td, th, button, input, textar
 }
 
 .article-content p {
-  line-height: var(--sl-line-height);
+  line-height: 1.8rem !important;
   hyphens: auto;
   word-break: break-word;
   orphans: 2;
