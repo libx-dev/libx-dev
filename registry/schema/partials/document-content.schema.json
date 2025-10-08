@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/partials/document-content.schema.json",
+  "title": "DocumentContentEntry",
+  "description": "言語別コンテンツと翻訳メタデータの定義。",
+  "type": "object",
+  "required": [
+    "path",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string",
+      "pattern": "^.+\\.(md|mdx)$",
+      "description": "対象コンテンツファイルの相対パス。`apps/` や `content/` などを含める。"
+    },
+    "status": {
+      "type": "string",
+      "description": "コンテンツの公開状態。",
+      "enum": [
+        "draft",
+        "in-review",
+        "published",
+        "missing"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "description": "翻訳元リポジトリやブランチ情報。",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "syncHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8,64}$",
+      "description": "同期検知に利用するハッシュ値。"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最終更新日時。"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "翻訳やレビュー担当者。"
+    },
+    "wordCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "コンテンツの語数指標。"
+    }
+  }
+}

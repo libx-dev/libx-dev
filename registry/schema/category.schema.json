@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/category.schema.json",
+  "title": "CategoryNode",
+  "description": "カテゴリ階層のノード定義。サイドバーやトップページ構造に利用する。",
+  "type": "object",
+  "required": [
+    "id",
+    "order",
+    "titles"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./partials/common.schema.json#/$defs/entityId",
+      "description": "カテゴリ識別子。URL 生成にも利用する。"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "表示順。昇順で並べ替える。"
+    },
+    "titles": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "カテゴリ名の多言語表記。"
+    },
+    "description": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "カテゴリ説明。任意。"
+    },
+    "docs": {
+      "type": "array",
+      "description": "カテゴリに紐づくドキュメント ID。",
+      "items": {
+        "$ref": "./partials/common.schema.json#/$defs/entityId"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "children": {
+      "type": "array",
+      "description": "サブカテゴリの配列。",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "icon": {
+      "type": "string",
+      "description": "@docs/ui のアイコン識別子。"
+    }
+  }
+}

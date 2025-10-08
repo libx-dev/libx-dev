@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/partials/common.schema.json",
+  "title": "共通定義",
+  "description": "レジストリスキーマ全体で再利用するプリミティブ表現をまとめる。",
+  "$defs": {
+    "languageCode": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Za-z0-9]+)*$",
+      "description": "BCP 47 形式の言語コード。",
+      "examples": [
+        "en",
+        "ja",
+        "zh-Hans"
+      ]
+    },
+    "versionId": {
+      "type": "string",
+      "pattern": "^v[0-9]+(\\.[0-9]+)*$",
+      "description": "バージョン識別子。`v` に数値を続ける。",
+      "examples": [
+        "v1",
+        "v2.1"
+      ]
+    },
+    "entityId": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "ドキュメントやカテゴリで用いる ID。小文字英数字とハイフンのみ許可。",
+      "examples": [
+        "sample-docs",
+        "getting-started"
+      ]
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-_/]+$",
+      "description": "URL 用のスラッグ。ベースパスは含めない。",
+      "examples": [
+        "guide/getting-started",
+        "reference/api/overview"
+      ]
+    },
+    "localeStringMap": {
+      "type": "object",
+      "description": "言語コードをキーにした文言マッピング。最低1言語を含める。",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z]{2}(-[A-Za-z0-9]+)*$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "tagsArray": {
+      "type": "array",
+      "description": "タグやキーワードの配列。重複は不可。",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "visibility": {
+      "type": "string",
+      "description": "公開範囲。ビルド時のフィルタリングやレビュー判定に利用する。",
+      "enum": [
+        "public",
+        "internal",
+        "draft"
+      ]
+    },
+    "documentLifecycleStatus": {
+      "type": "string",
+      "description": "ドキュメント制作・翻訳の進捗状態を表す。",
+      "enum": [
+        "planning",
+        "draft",
+        "in-review",
+        "published",
+        "archived"
+      ]
+    }
+  }
+}

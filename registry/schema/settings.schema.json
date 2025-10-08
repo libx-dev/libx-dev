@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/settings.schema.json",
+  "title": "GlobalSettings",
+  "description": "レジストリ全体に適用される設定値。",
+  "type": "object",
+  "required": [
+    "defaultLocale",
+    "defaultVersion",
+    "build",
+    "deploy"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "defaultLocale": {
+      "$ref": "./partials/common.schema.json#/$defs/languageCode"
+    },
+    "defaultVersion": {
+      "$ref": "./partials/common.schema.json#/$defs/versionId"
+    },
+    "build": {
+      "$ref": "#/$defs/buildSettings"
+    },
+    "deploy": {
+      "$ref": "#/$defs/deploySettings"
+    },
+    "backup": {
+      "$ref": "#/$defs/backupSettings"
+    },
+    "topPage": {
+      "$ref": "#/$defs/topPageSettings"
+    },
+    "search": {
+      "type": "object",
+      "description": "検索設定の追加項目。Algolia 等の導入余地を確保する。",
+      "additionalProperties": true
+    },
+    "experimental": {
+      "type": "object",
+      "description": "実験的なフラグ。後続フェーズで精査する。",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "buildSettings": {
+      "type": "object",
+      "description": "ビルドに関する設定値。",
+      "additionalProperties": false,
+      "properties": {
+        "search": {
+          "type": "string",
+          "description": "採用する検索エンジン。初期は Pagefind のみをサポート。",
+          "enum": [
+            "pagefind",
+            "none"
+          ],
+          "default": "pagefind"
+        },
+        "sitemap": {
+          "type": "boolean",
+          "description": "サイトマップ生成を有効にするか。",
+          "default": true
+        },
+        "sidebar": {
+          "type": "object",
+          "description": "サイドバー生成に関するフラグ。",
+          "additionalProperties": true,
+          "properties": {
+            "autoGenerate": {
+              "type": "boolean"
+            },
+            "includeHidden": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "deploySettings": {
+      "type": "object",
+      "description": "デプロイに関する設定値。",
+      "required": [
+        "provider",
+        "basePath"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "cloudflare-pages"
+          ],
+          "description": "利用するデプロイプロバイダ。"
+        },
+        "basePath": {
+          "type": "string",
+          "pattern": "^/.*$",
+          "description": "デプロイ時のベースパス。"
+        }
+      }
+    },
+    "backupSettings": {
+      "type": "object",
+      "description": "CLI バックアップに関する設定。",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "topPageSettings": {
+      "type": "object",
+      "description": "トップページ向けの表示制御。",
+      "additionalProperties": true,
+      "properties": {
+        "featuredProjects": {
+          "type": "array",
+          "items": {
+            "$ref": "./partials/common.schema.json#/$defs/entityId"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

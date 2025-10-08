@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/version.schema.json",
+  "title": "VersionConfig",
+  "description": "ドキュメントのバージョン設定。",
+  "type": "object",
+  "required": [
+    "id",
+    "name"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./partials/common.schema.json#/$defs/versionId"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "description": "表示用名称。UI やドキュメント一覧で利用する。"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "バージョン公開日。ISO 8601 形式を推奨。"
+    },
+    "isLatest": {
+      "type": "boolean",
+      "description": "既定表示する最新バージョンであれば true。"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "maintenance",
+        "deprecated",
+        "archived"
+      ],
+      "default": "active",
+      "description": "サポート状況。"
+    },
+    "changelog": {
+      "type": "string",
+      "description": "バージョンの変更履歴。Markdown パスやサマリ本文を想定。"
+    }
+  }
+}

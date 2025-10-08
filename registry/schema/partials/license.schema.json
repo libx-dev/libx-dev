@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/partials/license.schema.json",
+  "title": "LicenseMeta",
+  "description": "翻訳元や配布ライセンスに関する情報を定義する。",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./common.schema.json#/$defs/entityId",
+      "description": "ライセンス識別子。`documents[].license` と連携する。"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ライセンス名称。"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "ライセンス本文へのリンク。"
+    },
+    "attribution": {
+      "type": "string",
+      "description": "帰属表示に使用する文面。"
+    },
+    "notes": {
+      "type": "string",
+      "description": "補足事項や注意点。"
+    },
+    "icons": {
+      "type": "array",
+      "description": "ライセンス表示用アイコン。",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  }
+}

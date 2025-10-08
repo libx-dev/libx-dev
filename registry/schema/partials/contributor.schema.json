@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/partials/contributor.schema.json",
+  "title": "ContributorMeta",
+  "description": "翻訳/執筆/レビュー担当者のメタデータ。",
+  "type": "object",
+  "required": [
+    "name",
+    "role"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "氏名またはハンドル名。"
+    },
+    "role": {
+      "type": "string",
+      "description": "担当役割。",
+      "enum": [
+        "author",
+        "translator",
+        "reviewer",
+        "maintainer",
+        "approver"
+      ]
+    },
+    "organization": {
+      "type": "string",
+      "description": "所属やチーム名。"
+    },
+    "link": {
+      "type": "string",
+      "format": "uri",
+      "description": "SNS や GitHub などのリンク。"
+    },
+    "avatar": {
+      "type": "string",
+      "format": "uri",
+      "description": "アバター画像の URL。"
+    }
+  }
+}

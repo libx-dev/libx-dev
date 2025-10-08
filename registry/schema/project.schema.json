@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/project.schema.json",
+  "title": "ProjectEntry",
+  "description": "単一プロジェクトの設定とメタデータ。",
+  "type": "object",
+  "required": [
+    "id",
+    "displayName",
+    "description",
+    "languages",
+    "versions",
+    "categories",
+    "documents"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./partials/common.schema.json#/$defs/entityId"
+    },
+    "displayName": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "プロジェクト名の多言語表記。"
+    },
+    "description": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "プロジェクト概要の多言語説明。"
+    },
+    "icon": {
+      "type": "string",
+      "description": "@docs/ui で提供されるアイコン名。"
+    },
+    "tags": {
+      "$ref": "./partials/common.schema.json#/$defs/tagsArray",
+      "description": "トップページ表示やフィルター用タグ。"
+    },
+    "visibility": {
+      "$ref": "./partials/common.schema.json#/$defs/visibility"
+    },
+    "routes": {
+      "type": "object",
+      "description": "カスタムルーティング設定。キーは任意。",
+      "additionalProperties": true
+    },
+    "options": {
+      "type": "object",
+      "description": "ビルドや UI のオプション。将来の拡張を想定して緩く定義する。",
+      "additionalProperties": true
+    },
+    "languages": {
+      "type": "array",
+      "description": "プロジェクトで利用する言語設定。既定言語は1つまで。",
+      "items": {
+        "$ref": "./language.schema.json"
+      },
+      "minItems": 1
+    },
+    "versions": {
+      "type": "array",
+      "description": "管理するバージョン一覧。",
+      "items": {
+        "$ref": "./version.schema.json"
+      },
+      "minItems": 1
+    },
+    "categories": {
+      "type": "array",
+      "description": "カテゴリツリーのルートノード。",
+      "items": {
+        "$ref": "./category.schema.json"
+      }
+    },
+    "documents": {
+      "type": "array",
+      "description": "ドキュメント定義。",
+      "items": {
+        "$ref": "./document.schema.json"
+      }
+    },
+    "licenses": {
+      "type": "array",
+      "description": "プロジェクト固有のライセンス一覧。",
+      "items": {
+        "$ref": "./partials/license.schema.json"
+      }
+    },
+    "glossary": {
+      "type": "array",
+      "description": "プロジェクト内用語集。",
+      "items": {
+        "$ref": "./partials/glossary.schema.json"
+      }
+    },
+    "contributors": {
+      "type": "array",
+      "description": "プロジェクト全体に紐づくコントリビューター一覧。",
+      "items": {
+        "$ref": "./partials/contributor.schema.json"
+      }
+    }
+  }
+}

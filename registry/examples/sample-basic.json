@@ -1,0 +1,134 @@
+{
+  "$schemaVersion": "1.0.0",
+  "metadata": {
+    "createdAt": "2024-06-01T00:00:00Z",
+    "createdBy": "codex"
+  },
+  "projects": [
+    {
+      "id": "sample-docs",
+      "displayName": {
+        "en": "Sample Docs",
+        "ja": "サンプルドキュメント"
+      },
+      "description": {
+        "en": "Example project for registry schema validation.",
+        "ja": "スキーマ検証用のサンプルプロジェクト。"
+      },
+      "languages": [
+        {
+          "code": "en",
+          "displayName": "English",
+          "default": true,
+          "status": "active"
+        },
+        {
+          "code": "ja",
+          "displayName": "日本語",
+          "fallback": "en",
+          "status": "beta",
+          "reviewer": "translator-team"
+        }
+      ],
+      "versions": [
+        {
+          "id": "v1",
+          "name": "v1.0",
+          "isLatest": true,
+          "status": "active"
+        }
+      ],
+      "categories": [
+        {
+          "id": "guide",
+          "order": 1,
+          "titles": {
+            "en": "Guide",
+            "ja": "ガイド"
+          },
+          "docs": [
+            "getting-started"
+          ]
+        }
+      ],
+      "documents": [
+        {
+          "id": "getting-started",
+          "slug": "guide/getting-started",
+          "title": {
+            "en": "Getting Started",
+            "ja": "はじめに"
+          },
+          "summary": {
+            "en": "Overview of the onboarding flow.",
+            "ja": "オンボーディングの概要。"
+          },
+          "versions": [
+            "v1"
+          ],
+          "status": "published",
+          "visibility": "public",
+          "keywords": [
+            "intro",
+            "setup"
+          ],
+          "tags": [
+            "guide"
+          ],
+          "content": {
+            "en": {
+              "path": "content/getting-started/en.mdx",
+              "status": "published",
+              "lastUpdated": "2024-05-01T00:00:00Z"
+            },
+            "ja": {
+              "path": "content/getting-started/ja.mdx",
+              "status": "in-review",
+              "reviewer": "translator-team"
+            }
+          },
+          "contributors": [
+            {
+              "name": "Alice",
+              "role": "author"
+            },
+            {
+              "name": "Bob",
+              "role": "translator",
+              "organization": "Docs Guild",
+              "link": "https://example.com/bob"
+            }
+          ],
+          "license": "license-origin"
+        }
+      ],
+      "licenses": [
+        {
+          "id": "license-origin",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ],
+      "visibility": "public",
+      "options": {
+        "search": true
+      }
+    }
+  ],
+  "settings": {
+    "defaultLocale": "en",
+    "defaultVersion": "v1",
+    "build": {
+      "search": "pagefind",
+      "sitemap": true
+    },
+    "deploy": {
+      "provider": "cloudflare-pages",
+      "basePath": "/"
+    },
+    "backup": {
+      "enabled": true,
+      "retentionDays": 14
+    }
+  }
+}

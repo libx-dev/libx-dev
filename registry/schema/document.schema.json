@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/document.schema.json",
+  "title": "DocumentEntry",
+  "description": "単一ドキュメントのメタデータを定義する。",
+  "type": "object",
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "versions",
+    "content"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./partials/common.schema.json#/$defs/entityId"
+    },
+    "slug": {
+      "$ref": "./partials/common.schema.json#/$defs/slug"
+    },
+    "title": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "各言語でのタイトル。"
+    },
+    "summary": {
+      "$ref": "./partials/common.schema.json#/$defs/localeStringMap",
+      "description": "カード表示や検索メタ用の要約。"
+    },
+    "keywords": {
+      "$ref": "./partials/common.schema.json#/$defs/tagsArray",
+      "description": "検索キーワード。"
+    },
+    "tags": {
+      "$ref": "./partials/common.schema.json#/$defs/tagsArray",
+      "description": "分類やフィルタ用タグ。"
+    },
+    "related": {
+      "type": "array",
+      "description": "関連ドキュメント ID。",
+      "items": {
+        "$ref": "./partials/common.schema.json#/$defs/entityId"
+      },
+      "uniqueItems": true,
+      "maxItems": 20
+    },
+    "versions": {
+      "type": "array",
+      "description": "対応バージョン ID。最低1件必要。",
+      "items": {
+        "$ref": "./partials/common.schema.json#/$defs/versionId"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "content": {
+      "type": "object",
+      "description": "言語別コンテンツメタ。キーは言語コード。",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "./partials/common.schema.json#/$defs/languageCode"
+      },
+      "patternProperties": {
+        "^[a-z]{2}(-[A-Za-z0-9]+)*$": {
+          "$ref": "./partials/document-content.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "visibility": {
+      "$ref": "./partials/common.schema.json#/$defs/visibility"
+    },
+    "status": {
+      "$ref": "./partials/common.schema.json#/$defs/documentLifecycleStatus"
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "$ref": "./partials/contributor.schema.json"
+      },
+      "description": "寄稿者・レビュー担当の一覧。"
+    },
+    "license": {
+      "$ref": "./partials/common.schema.json#/$defs/entityId",
+      "description": "紐づくライセンス ID。"
+    },
+    "toc": {
+      "type": "object",
+      "description": "目次カスタマイズ用メタ。フェーズ2で仕様確定予定。",
+      "additionalProperties": true
+    },
+    "hero": {
+      "type": "object",
+      "description": "ヒーローコンテンツ設定。フェーズ2以降で定義を追加。",
+      "additionalProperties": true
+    }
+  }
+}

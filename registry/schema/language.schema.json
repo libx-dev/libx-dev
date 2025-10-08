@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/language.schema.json",
+  "title": "LanguageConfig",
+  "description": "プロジェクト内で扱う言語設定。",
+  "type": "object",
+  "required": [
+    "code",
+    "displayName"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "$ref": "./partials/common.schema.json#/$defs/languageCode"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "description": "言語の表示名。ナビゲーションや CLI メッセージで利用する。"
+    },
+    "description": {
+      "type": "string",
+      "description": "言語に関する補足説明。"
+    },
+    "default": {
+      "type": "boolean",
+      "description": "プロジェクト内の既定言語であれば true。"
+    },
+    "fallback": {
+      "$ref": "./partials/common.schema.json#/$defs/languageCode",
+      "description": "翻訳が存在しない場合に参照するフォールバック言語コード。"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "beta",
+        "deprecated"
+      ],
+      "default": "active",
+      "description": "公開状態。"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "設定の最終更新日時。"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "レビュー担当者やメンテナー。"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libx.dev/schemas/partials/glossary.schema.json",
+  "title": "GlossaryEntry",
+  "description": "プロジェクト内で共有する用語集エントリの定義。",
+  "type": "object",
+  "required": [
+    "id",
+    "term",
+    "titles",
+    "definition"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "./common.schema.json#/$defs/entityId"
+    },
+    "term": {
+      "type": "string",
+      "minLength": 1,
+      "description": "用語の原文。"
+    },
+    "titles": {
+      "$ref": "./common.schema.json#/$defs/localeStringMap",
+      "description": "用語の多言語表記。"
+    },
+    "definition": {
+      "$ref": "./common.schema.json#/$defs/localeStringMap",
+      "description": "用語の説明文。"
+    },
+    "aliases": {
+      "type": "array",
+      "description": "同義語や略称。",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "relatedDocs": {
+      "type": "array",
+      "description": "関連ドキュメント ID。",
+      "items": {
+        "$ref": "./common.schema.json#/$defs/entityId"
+      },
+      "uniqueItems": true
+    },
+    "visibility": {
+      "$ref": "./common.schema.json#/$defs/visibility"
+    },
+    "tags": {
+      "$ref": "./common.schema.json#/$defs/tagsArray"
+    }
+  }
+}
