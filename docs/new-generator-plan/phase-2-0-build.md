@@ -29,6 +29,30 @@
 - 新しい共有パッケージの導入パス検証（npm 版ベータ公開 or Git サブモジュール）と互換テスト。
 - 初期パフォーマンステスト（ビルド時間、生成サイズ、Lighthouse + Pagefind サイズ）。
 
+### タスクブレークダウン
+- **ランタイム/ジェネレーター**
+  - `src/generator` でルーティング/サイドバー/サイトマップ生成処理を実装。
+  - Visibility（draft/internal）を考慮したフィルタリングロジック追加。
+  - `documents[].related` を使った関連記事セクションの生成。
+- **UI/テーマ統合**
+  - `@docs/ui`, `@docs/theme`, `@docs/versioning`, `@docs/i18n` の npm 版 or サブモジュール導入検証。
+  - Astro コンポーネントへのスタイル適用とアクセシビリティテスト。
+  - Page レイアウトで Glossary 表示、VersionSelector、Language 切り替えを実装。
+- **検索機能**
+  - Pagefind インデックス生成スクリプト作成、`pnpm build` への統合。
+  - 検索結果 UI 実装（ハイライト、タグ/言語ラベル表示）。
+  - Pagefind 設定（除外パス、同義語、重み付け）のチューニング。
+- **ビルドパイプライン**
+  - `pnpm build` で prebuild → build → postbuild → search index のワークフロー整備。
+  - Cloudflare Pages 用 `_redirects` とヘッダ設定の生成。
+  - ビルド成果物検証（Lighthouse、Pagefind サイズ、パフォーマンスレポート）。
+- **共有パッケージ検証**
+  - npm 発行手順または Git サブモジュール導入手順のドキュメント化。
+  - 既存アプリとの互換試験、Breaking Change リスト作成。
+- **ドキュメント/デモ**
+  - サンプルサイトのスクリーンショット・動画キャプチャ。
+  - 検索・ナビゲーション利用ガイドのドラフト。
+
 ## 体制・ステークホルダー
 - テックリード: 全体設計レビュー、ビルド成果物の品質確認。
 - フロントエンドエンジニア: Astro 実装、UI/テーマ適用。

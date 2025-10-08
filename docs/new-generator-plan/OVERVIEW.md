@@ -16,11 +16,11 @@
 
 ## フェーズ文書一覧
 - `phase-0-inception.md`: 要件定義と資産棚卸し。
-- `phase-1-foundation.md`: レジストリ/CLI 基盤構築。
-- `phase-2-build.md`: Astro ビルドと UI 統合。
-- `phase-3-migration.md`: 既存コンテンツ移行と CI 整備。
-- `phase-4-release.md`: QA・リリース準備。
-- `phase-5-ongoing.md`: リリース後の継続改善。
+- `phase-1-0-foundation.md`: レジストリ/CLI 基盤構築。
+- `phase-2-0-build.md`: Astro ビルドと UI 統合。
+- `phase-3-0-migration.md`: 既存コンテンツ移行と CI 整備。
+- `phase-4-0-release.md`: QA・リリース準備。
+- `phase-5-0-ongoing.md`: リリース後の継続改善。
 
 ## 関連資料
 - `docs/NEW_GENERATOR_PLAN.md`: 全体計画の草案。

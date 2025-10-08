@@ -29,6 +29,29 @@
 - `glossary`, `related`, `visibility` など新フィールドに対応したデータ整形ルールの追加。
 - libx-docs をソースとして維持する場合の運用手順、縮小案比較。
 
+### タスクブレークダウン
+- **データ変換ロジック**
+  - `migrate-from-libx` で project/config JSON を読み込み、レジストリ規定へマッピング。
+  - カテゴリ・ドキュメントの番号付き構造を docId/slug へ変換するアルゴリズム実装。
+  - `content.lang` に `status`, `lastUpdated`, `reviewer`, `source`, `syncHash` を付与。
+- **差分レポート/検証**
+  - HTML/CSV/JSON の差分レポート生成（リンク、有無、翻訳ステータス）。
+  - 旧⇔新ビルド結果比較スクリプト（URL リスト、Pagefind 結果、Glossary）実装。
+  - レポート閲覧用テンプレートとレビュー手順書作成。
+- **互換レイヤー**
+  - 既存スクリプトの CLI ラッパー（例: `node scripts/add-language` → `docs-cli add-language`）実装。
+  - `.backups/` ローテーションとロールバックコマンドの整理。
+- **CI/自動化**
+  - GitHub Actions テンプレート更新（schema → validate → build → link-check）。
+  - `docs/new-generator-plan/examples/ci.md` にサンプル YAML を掲載。
+  - CI での Pagefind インデックス生成と確認ステップ追加。
+- **移行作業計画**
+  - 対象プロジェクトごとの移行順序とタイムライン策定。
+  - libx-docs 維持/縮小案の評価資料作成、意思決定ミーティングの調整。
+- **ドキュメント**
+  - 移行手順書（準備 → 実行 → 検証 → ロールバック）作成。
+  - FAQ / トラブルシューティングセクション追加。
+
 ## 体制・ステークホルダー
 - テックリード: ツール仕様の承認、重大仕様変更の判断。
 - 開発チーム（スクリプト担当）: マイグレーション実装、CI 設定。

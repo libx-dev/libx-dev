@@ -27,6 +27,29 @@
 - フェーズ0 成果物との整合確認（ユースケース網羅性、DECISIONS.md 反映状況レビュー）。
 - `documents[].related`・`glossary` など拡張フィールドのスキーマ定義。
 
+### タスクブレークダウン
+- **レジストリスキーマ**
+  - `registry/docs.schema.json` の基本構造定義と `$schemaVersion` 導入。
+  - `LanguageConfig`, `VersionConfig`, `Document`, `Glossary` の詳細スキーマ作成。
+  - スキーマ変更追跡用の `registry/schema/CHANGELOG.md` 作成。
+- **バリデーションツール**
+  - Ajv ベースのバリデーター実装（コマンドライン/API の双方）。
+  - レジストリと `content/` の整合チェックユーティリティ実装。
+  - エラーコードとメッセージ一覧作成（国際化対応を見据え JSON で管理）。
+- **CLI 基盤**
+  - Commander.js（または同等）で CLI エントリ (`docs-cli`) を構築。
+  - `add-project/add-version/add-language/add-doc/migrate-from-libx/validate` 実装。
+  - ログ出力ポリシーと `.backups/` スナップショット保存処理の共通化。
+  - `.docs-cli/config.json` 読み込みと環境変数優先ルールの実装。
+- **テストと CI**
+  - ユニットテスト（スキーマ検証、CLI コマンド、バックアップ復元）。
+  - Astro ビルド検証のためのミニマムプロジェクト作成。
+  - GitHub Actions（lint → schema → validate → build）ワークフロー整備。
+- **ドキュメント**
+  - レジストリ記述ガイド (`docs/new-generator-plan/guides/registry.md`) のドラフト作成。
+  - CLI 使い方 (`docs/new-generator-plan/guides/docs-cli.md`) の初版執筆。
+  - CI サンプル (`docs/new-generator-plan/examples/ci.md`) の作成。
+
 ## 体制・ステークホルダー
 - テックリード: スキーマ設計レビュー、技術選定承認。
 - CLI 実装担当（2名程度想定）: CLI 基盤とコマンド実装。
