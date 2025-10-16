@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/partials/glossary.schema.json",
+  "$id": "schema/partials/glossary.schema.json",
   "title": "GlossaryEntry",
   "description": "プロジェクト内で共有する用語集エントリの定義。",
   "type": "object",

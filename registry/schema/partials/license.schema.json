@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/partials/license.schema.json",
+  "$id": "schema/partials/license.schema.json",
   "title": "LicenseMeta",
   "description": "翻訳元や配布ライセンスに関する情報を定義する。",
   "type": "object",

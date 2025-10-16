@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/partials/contributor.schema.json",
+  "$id": "schema/partials/contributor.schema.json",
   "title": "ContributorMeta",
   "description": "翻訳/執筆/レビュー担当者のメタデータ。",
   "type": "object",

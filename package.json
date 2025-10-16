@@ -23,6 +23,9 @@
     "sync:libx-core": "node scripts/sync-to-libx-core.js",
     "sync:libx-core:dry-run": "node scripts/sync-to-libx-core.js --dry-run",
     "sync:libx-core:verbose": "node scripts/sync-to-libx-core.js --verbose",
+    "validate": "node scripts/validate-registry.js",
+    "validate:strict": "node scripts/validate-registry.js --strict",
+    "validate:full": "node scripts/validate-registry.js --check-content --check-sync-hash",
     "deploy": "pnpm build && pnpm deploy:pages",
     "deploy:pages": "wrangler pages deploy dist --project-name libx"
   },

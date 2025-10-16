@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/language.schema.json",
+  "$id": "schema/language.schema.json",
   "title": "LanguageConfig",
   "description": "プロジェクト内で扱う言語設定。",
   "type": "object",

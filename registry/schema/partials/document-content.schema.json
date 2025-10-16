@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/partials/document-content.schema.json",
+  "$id": "schema/partials/document-content.schema.json",
   "title": "DocumentContentEntry",
   "description": "言語別コンテンツと翻訳メタデータの定義。",
   "type": "object",

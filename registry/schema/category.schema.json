@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/category.schema.json",
+  "$id": "schema/category.schema.json",
   "title": "CategoryNode",
   "description": "カテゴリ階層のノード定義。サイドバーやトップページ構造に利用する。",
   "type": "object",

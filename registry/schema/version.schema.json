@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/version.schema.json",
+  "$id": "schema/version.schema.json",
   "title": "VersionConfig",
   "description": "ドキュメントのバージョン設定。",
   "type": "object",

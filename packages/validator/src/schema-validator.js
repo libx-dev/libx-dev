@@ -37,32 +37,11 @@ export class SchemaValidator {
       allErrors: true,
       verbose: true,
       validateSchema: false,
-      // ローカルファイルの読み込みを可能にする
-      loadSchema: async (uri) => {
-        return this.loadSchemaByUri(uri);
-      },
     });
     addFormats(this.ajv);
 
     // スキーマをロード
     this.schemas = this.loadSchemas();
-  }
-
-  /**
-   * URI からスキーマをロード（Ajv用）
-   *
-   * @param {string} uri - スキーマURI
-   * @returns {Promise<Object>} スキーマオブジェクト
-   */
-  async loadSchemaByUri(uri) {
-    // 相対パス参照の場合
-    if (uri.startsWith('./schema/')) {
-      const filePath = path.join(this.schemaRootPath, uri);
-      if (fs.existsSync(filePath)) {
-        return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      }
-    }
-    throw new Error(`スキーマが見つかりません: ${uri}`);
   }
 
   /**
@@ -120,14 +99,8 @@ export class SchemaValidator {
       if (fs.existsSync(filePath)) {
         const schema = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
-        // $id があればそれで登録（優先）
-        // なければ相対パスで登録
-        if (schema.$id) {
-          this.ajv.addSchema(schema);
-        } else {
-          const relativeId = `./schema/${file}`;
-          this.ajv.addSchema(schema, relativeId);
-        }
+        // スキーマを$idで登録（$idがスキーマ内に含まれている）
+        this.ajv.addSchema(schema);
       }
     }
   }

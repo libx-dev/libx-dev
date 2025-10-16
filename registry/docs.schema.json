@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/docs.schema.json",
+  "$id": "docs.schema.json",
   "title": "LibX Docs Registry Schema",
   "description": "新ドキュメントジェネレーター用のレジストリ定義。CLI・ビルド・移行ツールの単一ソースを提供する。",
   "type": "object",

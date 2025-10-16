@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/project.schema.json",
+  "$id": "schema/project.schema.json",
   "title": "ProjectEntry",
   "description": "単一プロジェクトの設定とメタデータ。",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/partials/common.schema.json",
+  "$id": "schema/partials/common.schema.json",
   "title": "共通定義",
   "description": "レジストリスキーマ全体で再利用するプリミティブ表現をまとめる。",
   "$defs": {

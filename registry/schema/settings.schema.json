@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/settings.schema.json",
+  "$id": "schema/settings.schema.json",
   "title": "GlobalSettings",
   "description": "レジストリ全体に適用される設定値。",
   "type": "object",

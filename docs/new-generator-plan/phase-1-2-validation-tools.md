@@ -1,7 +1,7 @@
 # フェーズ1-2：バリデーションツール詳細計画
 
-**ステータス**: 🟡 進行中（Week 1-2 実装フェーズ）
-**最終更新**: 2025-10-16
+**ステータス**: 🟢 Week 1完了 / Week 2-3進行中（マイグレーション設計完了）
+**最終更新**: 2025-10-16（セッション2）
 
 ## 目的
 - JSON スキーマと実ファイル構造の整合性を常時検証できるツールチェーンを整備し、フェーズ2以降の自動化基盤を支える。
@@ -44,7 +44,9 @@
 
 ## 完了条件
 - ✅ `packages/validator` が全モジュールを実装完了。
-- 🟡 `scripts/validate-registry.js` がサンプルデータを正常に検証（スキーマ参照問題を解決中）。
+- ✅ `scripts/validate-registry.js` がサンプルデータを正常に検証（**スキーマ参照問題を解決済み**）。
+- ✅ `package.json` にバリデーションコマンドを追加（`pnpm validate` 系統）。
+- ✅ マイグレーションスクリプトの設計完了（`docs/new-generator-plan/migration-design.md`）。
 - ⏳ CI 上での `validate` 実行が安定し、失敗時にエラーログが判読可能。
 - ⏳ 旧スクリプト利用者向けラッパーが用意され、フェーズ3の移行作業で再利用できる。
 
@@ -52,7 +54,74 @@
 
 ## 進捗状況（2025年10月16日更新）
 
-### ✅ 完了した作業
+---
+
+## 📅 Week 1 完了サマリー（2025-10-16）
+
+### 🎯 達成事項
+
+Week 1の最優先タスク「**スキーマ参照問題の解決**」を完了し、バリデーションツールが正常に動作するようになりました。
+
+#### ✅ 完了したタスク
+
+1. **スキーマ参照問題の完全解決**
+   - 全12ファイルのスキーマ`$id`をファイルパスベース形式に統一
+   - `packages/validator/src/schema-validator.js` の参照解決ロジック修正
+   - バリデーション成功を確認（基本モード・strictモード）
+
+2. **package.jsonへのコマンド追加**
+   - `pnpm validate` - 基本バリデーション
+   - `pnpm validate:strict` - 厳格モード（警告もエラー扱い）
+   - `pnpm validate:full` - コンテンツ+syncHashチェック
+
+3. **マイグレーションスクリプトの設計**
+   - `docs/new-generator-plan/migration-design.md` 作成
+   - データマッピング仕様の詳細化
+   - CLIオプション設計完了
+   - テスト計画策定
+
+#### 🔧 技術的な決定
+
+**スキーマ$id形式の最終決定**: ファイルパスベース形式を採用
+
+```json
+// 修正前（URL形式）
+"$id": "https://libx.dev/schemas/docs.schema.json"
+
+// 修正後（ファイルパスベース）
+"$id": "docs.schema.json"
+```
+
+**対象ファイル**:
+- `registry/docs.schema.json` → `$id: "docs.schema.json"`
+- `registry/schema/*.schema.json` (6ファイル) → `$id: "schema/{filename}"`
+- `registry/schema/partials/*.schema.json` (5ファイル) → `$id: "schema/partials/{filename}"`
+
+**理由**:
+- Ajvの相対参照解決と親和性が高い
+- シンプルで確実な実装
+- ファイル構造との整合性が明確
+
+**今後の対応**:
+- スキーマを公開する際は再検討する可能性あり
+- 現時点では内部利用に最適化
+
+#### 📊 バリデーション動作確認
+
+```bash
+# 基本モード - 成功
+$ pnpm validate
+✓ バリデーション成功
+
+# 厳格モード - 成功
+$ pnpm validate:strict
+⚠ 厳格モードが有効です（警告もエラーとして扱います）
+✓ バリデーション成功
+```
+
+---
+
+### ✅ 完了した作業（詳細）
 
 #### 1. `packages/validator` パッケージ基盤構築
 
@@ -188,49 +257,38 @@ node scripts/validate-registry.js [registry-path] [options]
   --help, -h            ヘルプ表示
 ```
 
-### 🟡 進行中の作業
+### ✅ 解決済み: スキーマ参照問題
 
-#### スキーマ参照解決の問題修正
+#### 問題の概要
 
-- **ステータス**: 🟡 技術的問題を調査中
-- **問題**:
-  - ルートスキーマ (`docs.schema.json`) の `$id` が URL形式: `https://libx.dev/schemas/docs.schema.json`
-  - 相対パス参照 `./schema/project.schema.json` が正しく解決されない
-  - Ajvの `loadSchema` オプションで非同期読み込みを実装済みだが、まだエラーが発生
+- **問題**: ルートスキーマの `$id` がURL形式（`https://libx.dev/schemas/docs.schema.json`）のため、相対パス参照（`./schema/project.schema.json`）が正しく解決されない
+- **エラー**: `can't resolve reference ./schema/project.schema.json from id https://libx.dev/schemas/docs.schema.json`
 
-**エラーメッセージ**:
+#### 試行した解決策
 
-```text
-can't resolve reference ./schema/project.schema.json from id https://libx.dev/schemas/docs.schema.json
-```
+1. ✅ `loadSchema` オプションで非同期読み込み実装 → 効果なし
+2. ✅ スキーマ登録順序の調整 → 効果なし
+3. ✅ $idと相対パスの両方で登録 → 部分的成功
 
-**試行した解決策**:
+#### 最終的な解決策
 
-1. ✅ `loadSchema` オプションで非同期読み込み実装
-2. ✅ スキーマ登録順序の調整（参照スキーマを先に登録）
-3. 🟡 $id と相対パスの両方で登録（部分的成功）
+**アプローチ**: スキーマの `$id` をファイルパスベース形式に統一
 
-**次の対策候補**:
+**実装内容**:
+1. 全スキーマファイルの`$id`をファイルパス形式に変更（12ファイル）
+2. `schema-validator.js`で`addSchema(schema)`により`$id`を使用した自動登録
+3. 非同期`loadSchema`オプションを削除し、同期的な事前ロードに統一
 
-1. スキーマの `$id` を相対パス形式に変更（例: `./docs.schema.json`）
-2. Ajv の `loadSchema` を同期処理に変更し、事前に全スキーマをロード
-3. `compileAsync` を使用して非同期コンパイルに完全対応
+**結果**: ✅ バリデーションが正常に動作
 
-### ⏳ 未着手の作業
+**記録日**: 2025-10-16
 
-#### 9. テストスイートの作成
+### ✅ Week 1 で前倒し完了した作業
 
-- **予定**: Week 2
-- **内容**:
-  - 各バリデーターのユニットテスト
-  - 正常系/異常系のテストケース
-  - エラーメッセージのスナップショットテスト
-  - テストフィクスチャの作成
+#### 9. package.json へのコマンド追加
 
-#### 10. package.json へのコマンド追加
-
-- **予定**: Week 2
-- **内容**:
+- **完了日**: 2025-10-16
+- **成果物**: [package.json](../../package.json) への追加
 
 ```json
 {
@@ -242,144 +300,303 @@ can't resolve reference ./schema/project.schema.json from id https://libx.dev/sc
 }
 ```
 
-#### 11. マイグレーションスクリプト実装
+**動作確認**:
+```bash
+$ pnpm validate        # ✅ 成功
+$ pnpm validate:strict # ✅ 成功
+```
 
-- **予定**: Week 3
+#### 10. マイグレーションスクリプト設計
+
+- **完了日**: 2025-10-16
+- **成果物**: [migration-design.md](./migration-design.md)
+- **内容**:
+  - データマッピング仕様（5セクション）
+    1. プロジェクト基本情報
+    2. 言語設定
+    3. バージョン設定
+    4. カテゴリ設定
+    5. ライセンス情報
+  - ドキュメントコンテンツのスキャンロジック
+  - CLIオプション設計
+  - 実行フロー詳細
+  - エラーハンドリング戦略
+  - テスト計画
+
+---
+
+### ⏳ 未着手の作業（Week 2-4）
+
+#### 11. テストスイートの作成
+
+- **予定**: Week 2（任意 - 時間があれば）
+- **内容**:
+  - 各バリデーターのユニットテスト
+  - 正常系/異常系のテストケース
+  - エラーメッセージのスナップショットテスト
+  - テストフィクスチャの作成
+
+#### 12. マイグレーションスクリプト実装
+
+- **予定**: Week 2-3（次のステップ）
+- **優先度**: 🔴 高
 - **内容**:
   - `scripts/migrate-to-registry.js` の作成
   - `apps/*/src/config/project.config.json` からのデータ抽出
   - `registry/docs.json` への変換ロジック
-  - 既存プロジェクト（sample-docs, test-verification）のマッピング
-  - `--dry-run`, `--validate` オプション実装
+  - 既存プロジェクト（sample-docs, test-verification, libx-docs）のマッピング
+  - `--dry-run`, `--validate`, `--project` オプション実装
+  - フロントマター解析（gray-matter使用）
+  - エラーハンドリングとログ出力
 
-#### 12. レジストリデータ初期生成
+**設計文書**: [migration-design.md](./migration-design.md) ✅ 完成
+
+#### 13. レジストリデータ初期生成
 
 - **予定**: Week 3
+- **優先度**: 🔴 高
 - **内容**:
   - `registry/docs.json` の本番用データ生成
   - `registry/examples/sample-docs-full.json` の完全サンプル作成
   - 既存プロジェクトのコンテンツスキャン
+  - バリデーションによる検証
 
-#### 13. CI統合
+#### 14. CI統合
 
 - **予定**: Week 4
+- **優先度**: 🟡 中
 - **内容**:
   - `.github/workflows/validate-registry.yml` の作成
   - プッシュ/プルリクエスト時の自動バリデーション
   - エラーログのフォーマット確認
   - ステータスバッジの追加
+  - レジストリファイル変更時のみ実行するトリガー設定
 
-#### 14. ステークホルダーレビュー準備
+#### 15. Phase 1-2完了報告書作成
 
-- **予定**: Week 4
+- **予定**: Week 4（フェーズ完了時）
+- **優先度**: 🔴 高
 - **内容**:
-  - デモ資料の作成
-  - エラーメッセージ実例集
-  - レビューポイントチェックリスト
-  - フィードバック収集方法の確立
+  - 成果物のまとめ
+  - 技術的な設計判断の記録
+  - 次フェーズへの引き継ぎ事項
+  - リスクと対策の記録
+  - 振り返りとレッスンラーンド
 
 ---
 
-## 次のステップ（優先順位順）
+## 📋 次のステップ（優先順位順）
 
-### 🔴 最優先: スキーマ参照問題の解決（即時対応）
+### ✅ Week 1 完了タスク（振り返り）
 
-#### アプローチ1: スキーマ$idの相対パス化（推奨）
+1. ✅ スキーマ参照問題の完全解決
+2. ✅ package.jsonへのコマンド追加
+3. ✅ マイグレーションスクリプトの設計完了
+4. ✅ バリデーション動作確認（基本・strict）
+
+---
+
+### 🔴 Week 2-3: マイグレーション実装（最優先）
+
+#### タスク12: マイグレーションスクリプト実装
+
+**目標**: `scripts/migrate-to-registry.js` の完全実装
+
+**実装内容**:
+
+1. **CLIインターフェース構築**
+   ```bash
+   node scripts/migrate-to-registry.js [options]
+
+   オプション:
+     --project=<name>   特定プロジェクトのみ移行
+     --dry-run          プレビューのみ
+     --validate         変換後バリデーション実行
+     --output=<path>    出力先指定
+     --force            既存ファイル上書き
+   ```
+
+2. **データ変換ロジック**
+   - プロジェクト基本情報のマッピング
+   - 言語設定の変換
+   - バージョン設定の変換
+   - カテゴリ設定の変換
+   - ライセンス情報の変換
+
+3. **コンテンツスキャン機能**
+   - `src/content/docs/` 配下のMDXファイル検索
+   - フロントマター解析（gray-matter使用）
+   - ドキュメントエントリの自動生成
+   - バージョン・言語の関連付け
+
+4. **エラーハンドリング**
+   - 必須フィールド欠落時の警告とデフォルト値補完
+   - ファイル読み込みエラーの適切な処理
+   - バリデーションエラーの詳細表示
+
+**成果物**:
+- ✅ 設計書: `docs/new-generator-plan/migration-design.md`
+- ⏳ 実装: `scripts/migrate-to-registry.js`
+- ⏳ テスト実行: dry-runモードでの動作確認
+
+**推定工数**: 2-3日
+
+---
+
+#### タスク13: レジストリデータ初期生成
+
+**目標**: 既存プロジェクトからのレジストリ生成
+
+**実行手順**:
+
+1. **dry-runモードでプレビュー**
+   ```bash
+   node scripts/migrate-to-registry.js --dry-run
+   ```
+
+2. **特定プロジェクトでテスト**
+   ```bash
+   node scripts/migrate-to-registry.js --project=sample-docs --validate --output=registry/test-sample-docs.json
+   ```
+
+3. **全プロジェクトの統合**
+   ```bash
+   node scripts/migrate-to-registry.js --validate --output=registry/docs.json
+   ```
+
+4. **バリデーション確認**
+   ```bash
+   pnpm validate
+   pnpm validate:full
+   ```
+
+**成果物**:
+- `registry/docs.json` - 本番用レジストリデータ
+- `registry/examples/sample-docs-full.json` - 完全サンプル
+
+**推定工数**: 1-2日
+
+---
+
+### 🟡 Week 4: CI統合と完了報告（中優先）
+
+#### タスク14: CI統合
+
+**目標**: GitHub ActionsでのバリデーションCI構築
+
+**実装内容**:
+
+**ファイル**: `.github/workflows/validate-registry.yml`
+
+```yaml
+name: Validate Registry
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'packages/validator/**'
+      - 'scripts/validate-registry.js'
+  pull_request:
+    paths:
+      - 'registry/**'
+      - 'packages/validator/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm validate:strict
+```
+
+**推定工数**: 半日
+
+---
+
+#### タスク15: Phase 1-2完了報告書作成
+
+**目標**: フェーズの成果と学びを文書化
+
+**ファイル**: `docs/new-generator-plan/status/phase-1-2-completion-report.md`
+
+**内容**:
+1. エグゼクティブサマリー
+2. タスク完了状況
+3. 成果物詳細
+4. 技術的な設計判断
+5. 承認記録
+6. 次のステップ（フェーズ1-3）
+7. 振り返りとレッスンラーンド
+
+**推定工数**: 1日
+
+---
+
+### ⏸️ 低優先（任意 - 時間があれば）
+
+#### タスク11: テストスイートの作成
+
+- 各バリデーターのユニットテスト
+- 正常系/異常系のテストケース
+- スナップショットテスト
+
+**備考**: CI統合が優先。テストはPhase 2以降で拡充可能。
+
+---
+
+## 🗓️ スケジュール見積もり
+
+| 週 | タスク | 推定工数 | ステータス |
+|----|--------|----------|-----------|
+| Week 1 | スキーマ参照問題解決 + package.json + 設計 | 2-3日 | ✅ 完了 |
+| Week 2 | マイグレーションスクリプト実装 | 2-3日 | ⏳ 次回 |
+| Week 3 | レジストリ初期データ生成 + テスト | 1-2日 | ⏳ 予定 |
+| Week 4 | CI統合 + 完了報告書 | 1.5日 | ⏳ 予定 |
+
+**合計推定**: 約2-3週間
+
+---
+
+## 🎯 次のセッションの推奨作業
+
+### 最優先タスク
+
+1. **マイグレーションスクリプト実装開始**
+   - `scripts/migrate-to-registry.js` の骨格作成
+   - CLIオプション解析の実装
+   - プロジェクト検出ロジックの実装
+
+2. **既存プロジェクトの詳細分析**
+   - `apps/sample-docs/src/config/project.config.json` の構造確認
+   - `apps/sample-docs/src/content/docs/` のディレクトリ構造調査
+   - MDXフロントマターのサンプル収集
+
+3. **データ変換ロジックの実装**
+   - プロジェクト基本情報のマッピング関数
+   - 言語設定の変換関数
+   - バージョン設定の変換関数
+
+### 推奨コマンド
 
 ```bash
-# registry/docs.schema.json の $id を変更
-# 変更前: "$id": "https://libx.dev/schemas/docs.schema.json"
-# 変更後: "$id": "./docs.schema.json" または削除
+# 既存プロジェクト構造の確認
+ls -R apps/sample-docs/src/content/docs/
+cat apps/sample-docs/src/config/project.config.json
+
+# マイグレーションスクリプトの作成開始
+touch scripts/migrate-to-registry.js
+chmod +x scripts/migrate-to-registry.js
 ```
-
-**メリット**:
-
-- シンプルで確実
-- ファイルベースの参照と整合性が高い
-- 他のスキーマも同様に修正可能
-
-**デメリット**:
-
-- スキーマのグローバルIDが失われる
-- 将来的なスキーマ公開時に再変更が必要
-
-#### アプローチ2: Ajv compileAsync の使用
-
-```javascript
-// schema-validator.js を修正
-async validateWithAjv(data, errors) {
-  const validate = await this.ajv.compileAsync(this.schemas.root);
-  // ...
-}
-```
-
-**メリット**:
-
-- 非同期スキーマ読み込みに完全対応
-- URL形式の $id を維持可能
-
-**デメリット**:
-
-- validateRegistry() を async 関数に変更が必要
-- CLI側も async/await に対応が必要
-
-#### アプローチ3: 全スキーマの事前同期ロード（現実的）
-
-```javascript
-// 全スキーマを事前に addSchema() で登録
-// $ref 参照時に自動解決されるようにする
-```
-
-**推奨アクション**: アプローチ1を試し、問題が残ればアプローチ3に移行
-
-### 🟡 高優先: 動作確認とテスト（Week 2前半）
-
-1. **スキーマ参照問題解決後の動作確認**
-
-   ```bash
-   node scripts/validate-registry.js
-   node scripts/validate-registry.js --strict
-   node scripts/validate-registry.js --report=json
-   ```
-
-2. **package.json へのコマンド追加**
-   - `pnpm validate` で実行可能に
-   - `pnpm validate:strict` の追加
-
-3. **基本的なテストケース作成**
-   - 正常系: sample-basic.json のバリデーション成功
-   - 異常系: 意図的なエラーを含むデータでエラー検出
-
-### 🟢 中優先: マイグレーション準備（Week 2後半〜Week 3）
-
-1. **既存プロジェクト構造の分析**
-
-   ```bash
-   # sample-docs の project.config.json を確認
-   # ディレクトリ構造とMDXファイルをスキャン
-   ```
-
-2. **マイグレーションスクリプトの設計**
-   - データマッピングロジックの設計書作成
-   - エッジケースの洗い出し
-
-3. **マイグレーションスクリプトの実装**
-   - `scripts/migrate-to-registry.js` の作成
-   - dry-run モードでの動作確認
-
-### ⚪ 低優先: CI統合とドキュメント（Week 4）
-
-1. **GitHub Actions ワークフロー追加**
-   - `.github/workflows/validate-registry.yml`
-   - プルリクエストでの自動検証
-
-2. **ステークホルダーレビュー準備**
-   - デモ実施
-   - フィードバック収集
-
-3. **フェーズ1-2完了報告書作成**
-   - 成果物のまとめ
-   - 設計判断の記録
 
 ---
 

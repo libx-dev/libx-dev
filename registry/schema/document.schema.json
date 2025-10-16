@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://libx.dev/schemas/document.schema.json",
+  "$id": "schema/document.schema.json",
   "title": "DocumentEntry",
   "description": "単一ドキュメントのメタデータを定義する。",
   "type": "object",
