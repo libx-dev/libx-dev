@@ -1,0 +1,125 @@
+name: Validate Registry
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'packages/validator/**'
+      - 'scripts/validate-registry.js'
+      - 'scripts/migrate-to-registry.js'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'packages/validator/**'
+      - 'scripts/validate-registry.js'
+      - 'scripts/migrate-to-registry.js'
+  workflow_dispatch:
+
+jobs:
+  # レジストリの基本バリデーション
+  validate-basic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate registry (basic mode)
+        run: pnpm validate
+
+  # 厳格モードでのバリデーション
+  validate-strict:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate registry (strict mode)
+        run: pnpm validate:strict
+
+  # 完全なバリデーション（コンテンツ + syncHash）
+  validate-full:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate registry (full mode)
+        run: pnpm validate:full
+        continue-on-error: true # syncHash の不一致は警告レベル
+
+  # JSONレポート生成（プルリクエストコメント用）
+  validate-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate validation report
+        run: node scripts/validate-registry.js registry/docs.json --report=json --strict > validation-report.json
+        continue-on-error: true
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: validation-report.json
+          retention-days: 7

@@ -157,4 +157,274 @@
 
 ---
 
-次回更新予定: フェーズ1-2開始時に新たな意思決定があれば追記します。
+## 2025-10-16 Phase 1-2 バリデーションツール完成
+
+### 承認内容
+
+**バリデーションツール基盤とマイグレーションシステム**を正式承認し、フェーズ1-2（バリデーションツール詳細計画）を完了とする。
+
+### 成果物
+
+1. **Validatorパッケージ**（`packages/validator/`）
+   - エラーハンドリングシステム（`errors.js`, `messages.js`）
+   - スキーマバリデーター（`schema-validator.js`）
+   - 参照整合性チェッカー（`reference-validator.js`）
+   - コンテンツバリデーター（`content-validator.js`）
+   - メタ情報バリデーター（`meta-validator.js`）
+   - 統合エントリポイント（`index.js`）
+
+2. **CLIコマンド**
+   - `scripts/validate-registry.js` - バリデーションCLI
+   - `pnpm validate` - 基本バリデーション
+   - `pnpm validate:strict` - 厳格モード
+   - `pnpm validate:full` - 完全バリデーション
+
+3. **マイグレーションシステム**
+   - `scripts/migrate-to-registry.js` - 自動移行スクリプト
+   - `docs/new-generator-plan/migration-design.md` - 設計文書
+
+4. **本番レジストリデータ**
+   - `registry/docs.json` - 3プロジェクト、36ドキュメント
+
+5. **CI統合**
+   - `.github/workflows/validate-registry.yml` - 自動バリデーション
+
+### 主要な設計判断
+
+#### 1. スキーマ参照解決の方式
+
+**決定**: スキーマの `$id` をファイルパスベース形式に統一。
+
+**経緯**:
+- 当初はURL形式（`https://libx.dev/schemas/docs.schema.json`）を使用
+- Ajvの相対参照解決で問題が発生（`can't resolve reference`）
+- 複数の解決策を試行（非同期loadSchema、登録順序調整、重複登録）
+
+**最終的な解決策**:
+```json
+// 修正前（URL形式）
+"$id": "https://libx.dev/schemas/docs.schema.json"
+
+// 修正後（ファイルパスベース）
+"$id": "docs.schema.json"
+```
+
+**対象ファイル**:
+- `registry/docs.schema.json` → `$id: "docs.schema.json"`
+- `registry/schema/*.schema.json` (6ファイル) → `$id: "schema/{filename}"`
+- `registry/schema/partials/*.schema.json` (5ファイル) → `$id: "schema/partials/{filename}"`
+
+**根拠**:
+- Ajvの相対参照解決と親和性が高い
+- シンプルで確実な実装
+- ファイル構造との整合性が明確
+
+**代替案検討**:
+- URL形式 + 非同期loadSchema: 複雑性が増し、エラーハンドリングが困難
+- 完全修飾URL: 外部公開時の制約、ローカル開発での不便さ
+
+**今後の対応**:
+- スキーマを外部公開する際は再検討する可能性あり
+- 現時点では内部利用に最適化した形式を採用
+
+#### 2. エラーメッセージの日本語化
+
+**決定**: すべてのバリデーションエラーメッセージを日本語で提供。
+
+**根拠**:
+- プロジェクトのメイン言語が日本語
+- ユーザーフレンドリーなCLI体験の重視
+- 技術的な用語と日本語説明のバランスを考慮
+
+**実装方針**:
+- エラーコード体系の整備（40種類以上）
+- エラーメッセージとヒントの両方を日本語化
+- プレースホルダー置換機能（`{field}`, `{value}` など）
+- カラー出力対応（エラー: 赤、警告: 黄、情報: 青）
+
+**英語対応**:
+- 将来的な拡張として言語ファイル分離の余地を残す
+- i18n対応のフレームワーク準備
+
+**エラーコード分類**:
+- スキーマ検証: `SCHEMA_*`
+- プロジェクト: `PROJECT_*`
+- 言語: `LANGUAGE_*`
+- バージョン: `VERSION_*`
+- ドキュメント: `DOCUMENT_*`
+- コンテンツ: `CONTENT_*`
+- カテゴリ: `CATEGORY_*`
+- メタ情報: `META_*`, `VISIBILITY_*`
+
+#### 3. バリデーションの段階的実行
+
+**決定**: スキーマエラー時は後続バリデーションをスキップし、段階的に実行。
+
+**実行順序**:
+1. スキーマバリデーション（Ajv）
+2. 参照整合性チェック
+3. コンテンツファイルチェック（オプション）
+4. メタ情報チェック
+
+**根拠**:
+- スキーマ不正時の大量エラー出力を防ぐ
+- ユーザーに最も重要なエラーを先に提示
+- パフォーマンスの最適化（早期終了）
+
+**例外**:
+- `--strict` モード時も同じ順序で実行
+- 警告は蓄積し、最後にまとめて表示
+
+#### 4. strictモードの実装
+
+**決定**: デフォルトは警告を許容し、`--strict` で警告もエラー扱い。
+
+**根拠**:
+- 開発中は柔軟に、本番環境では厳格に運用可能
+- 段階的な品質向上をサポート
+- CI/CDでの使い分けが容易
+
+**使い分け**:
+- **開発時**: `pnpm validate` - 警告を許容、エラーのみ失敗
+- **プルリクエスト**: `pnpm validate:strict` - 警告もエラー扱い
+- **定期検査**: `pnpm validate:full` - syncHashも含む完全チェック
+
+**strictモードで追加される検証**:
+- `visibility` と `status` の組み合わせチェック
+- 推奨フィールドの欠落チェック
+- 警告レベルのメタ情報チェック（keywords/tags上限）
+
+#### 5. syncHash のオプション化
+
+**決定**: syncHash チェックはデフォルト無効、`--check-sync-hash` で有効化。
+
+**根拠**:
+- パフォーマンスへの配慮（全ファイル読み込みとSHA-256計算が必要）
+- 通常のバリデーションでは不要な場合が多い
+- マイグレーション直後やコンテンツ更新時の検証で有用
+
+**実装**:
+- SHA-256ハッシュ計算（先頭16文字使用）
+- ファイル内容の読み込みとハッシュ比較
+- 不一致時は警告レベルで報告（致命的エラーではない）
+
+**使用例**:
+```bash
+# syncHash チェック付き
+pnpm validate:full
+
+# マイグレーション直後の検証
+node scripts/migrate-to-registry.js --validate
+pnpm validate:full
+```
+
+#### 6. マイグレーションデータマッピング戦略
+
+**決定**: 既存設定ファイルとの高い互換性を保ちつつ、新スキーマの要件を満たす。
+
+**マッピング方針**:
+
+1. **基本情報の統合**
+   - `baseUrl` → `id`（`/docs/` 以降を抽出）
+   - 多言語フィールドの集約（`translations[lang].displayName` → `displayName[lang]`）
+
+2. **言語設定の自動生成**
+   - `supportedLangs` → `languages[]`
+   - `defaultLang` → `default: true`
+   - フォールバック言語の自動設定（非デフォルト言語 → デフォルト言語）
+   - `status: "active"` で初期化
+
+3. **バージョンステータスの自動変換**
+   - `isLatest: true` → `status: "active"`
+   - `isLatest: false` → `status: "deprecated"`
+   - `date` フィールド名の修正（設計では `releaseDate`、実装では `date`）
+
+4. **カテゴリの自動整形**
+   - 多言語翻訳の集約（`translations[lang].categories` → `titles[lang]`）
+   - `order` の自動採番（定義順に1から）
+
+5. **ライセンス情報の変換**
+   - `sources[].license` → `name`
+   - `sources[].licenseUrl` → `url`
+   - `attribution` を文字列形式に統合（"Title by Author (URL)"）
+   - `sourceLanguage` フィールドは削除（スキーマに存在しないため）
+
+**柔軟性の確保**:
+- `--dry-run` でプレビュー可能
+- `--validate` でマイグレーション結果を即座に検証
+- エラー時の詳細なログ出力
+- デフォルト値の自動補完（必須フィールド欠落時）
+
+**実装時の修正点**:
+- バージョンフィールド名: `releaseDate` → `date`（スキーマに準拠）
+- ライセンスattribution: オブジェクト型 → 文字列型
+- バリデーションメソッド: `formatText()` → `toString()`
+
+#### 7. CI統合のトリガー設計
+
+**決定**: レジストリ・バリデーター関連ファイルの変更時のみ実行。
+
+**トリガー条件**:
+- `push` イベント（mainブランチ）
+- `pull_request` イベント（mainブランチへの変更）
+- `workflow_dispatch`（手動実行）
+
+**パスフィルター**:
+- `registry/**` - レジストリファイル
+- `packages/validator/**` - バリデーターコード
+- `scripts/validate-registry.js` - CLIスクリプト
+- `scripts/migrate-to-registry.js` - マイグレーションスクリプト
+
+**根拠**:
+- 不要なCI実行を避け、リソースを節約
+- レジストリ品質に関係する変更のみを検証
+- 既存のCloudflare Pagesデプロイワークフローと独立
+
+**ジョブ構成**:
+1. `validate-basic`: 基本バリデーション（必須）
+2. `validate-strict`: 厳格モードバリデーション（必須）
+3. `validate-full`: 完全バリデーション（警告のみ、`continue-on-error: true`）
+4. `validate-report`: JSONレポート生成（プルリクエスト時のみ）
+
+**既存CIとの整合性**:
+- 同じNode.jsバージョン（20）
+- 同じpnpmバージョン（9）
+- 同じsetupアクション（`actions/checkout@v4`, `pnpm/action-setup@v4`, `actions/setup-node@v4`）
+
+### マイグレーション結果
+
+**移行済みプロジェクト**:
+
+1. **sample-docs**: 13ドキュメント、2言語、2バージョン
+2. **test-verification**: 3ドキュメント、3言語、2バージョン
+3. **libx-docs**: 20ドキュメント、2言語、1バージョン
+
+**合計**: 3プロジェクト、36ドキュメント
+
+**バリデーション結果**: 全件成功（スキーマ、参照整合性、ID重複チェック）
+
+### 今後の対応
+
+1. **フェーズ1-3への移行**
+   - CLIコマンド群の実装（add, update, remove, list等）
+   - 検証コマンドの機能拡張（fix, check）
+   - ユーティリティコマンド（info, search, export）
+
+2. **パフォーマンス最適化**
+   - 大量ドキュメント時のベンチマークテスト
+   - キャッシュ機能の検討
+
+3. **ユーザーエクスペリエンス向上**
+   - プログレスバー表示
+   - プルリクエストコメントへのバリデーション結果投稿
+   - TypeScript型定義の自動生成
+
+### 参照ドキュメント
+
+- [フェーズ1-2計画](./phase-1-2-validation-tools.md)
+- [フェーズ1-2完了報告書](./status/phase-1-2-completion-report.md)
+- [マイグレーション設計](./migration-design.md)
+
+---
+
+次回更新予定: フェーズ1-3開始時に新たな意思決定があれば追記します。
