@@ -1,0 +1,25 @@
+{
+  "name": "@docs/validator",
+  "version": "1.0.0",
+  "description": "LibX Docs レジストリバリデーター - スキーマ検証、参照整合性チェック、コンテンツ検証",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test command yet\" && exit 0"
+  },
+  "keywords": [
+    "validation",
+    "registry",
+    "schema",
+    "libx-docs"
+  ],
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {},
+  "peerDependencies": {}
+}

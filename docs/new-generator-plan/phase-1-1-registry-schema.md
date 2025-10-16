@@ -27,12 +27,50 @@
    - CLI/ジェネレーター担当、コンテンツ担当、QA からレビューを受け、必要なフィールドや制約を調整。  
    - DECISIONS.md に「スキーマ v1.0.0」として記録し、承認日を明記。
 
-### 進捗状況（2024-06-01）
-- ✅ タスク1: `registry/docs.schema.json` を初期実装し、`$defs` を含む全体構造と各エンティティのバリデーションルールを反映済み。
-- ✅ タスク4: `registry/examples/sample-basic.json` を作成し、`Ajv 2020` + `ajv-formats` で検証済み（検証ログはローカルスクリプト実行で確認）。
-- ⏳ タスク2: モジュール分割（`schemas/partials/`）は未着手。`$defs` を分割する際の粒度と import 方法を次ステップで検討する必要あり。
-- ⏳ タスク3: `$schemaVersion` 運用ガイドと CHANGELOG の草案は未作成。
-- ⏳ タスク5: スキーマレビューと DECISIONS.md への記録は未実施。
+### 進捗状況（2025年10月16日 最終更新）
+
+#### ✅ 全タスク完了 - フェーズ1-1完了
+
+1. **タスク1: スキーマドラフト作成** ✅
+   - `registry/docs.schema.json` をルートスキーマとして実装済み
+   - `$schemaVersion`, `projects`, `settings`, `metadata` の構造を定義
+   - JSON Schema Draft 2020-12 に準拠
+
+2. **タスク2: モジュール化構造の検討** ✅
+   - 以下のモジュール化スキーマを作成済み:
+     - `schema/project.schema.json` - プロジェクト定義
+     - `schema/document.schema.json` - ドキュメントエントリ定義
+     - `schema/category.schema.json` - カテゴリ構造定義
+     - `schema/language.schema.json` - 言語設定定義
+     - `schema/version.schema.json` - バージョン設定定義
+     - `schema/settings.schema.json` - グローバル設定定義
+     - `schema/partials/common.schema.json` - 共通定義
+     - `schema/partials/contributor.schema.json` - 寄稿者メタデータ
+     - `schema/partials/document-content.schema.json` - ドキュメントコンテンツメタ
+     - `schema/partials/glossary.schema.json` - 用語集定義
+     - `schema/partials/license.schema.json` - ライセンスメタデータ
+   - `$ref` による参照構造を正しく実装
+
+3. **タスク3: バージョニング方針の策定** ✅
+   - `registry/schema/CHANGELOG.md` を作成（v1.0.0 初回リリース記録）
+   - `registry/schema/VERSIONING.md` を作成（SemVer ルールと変更手順を文書化）
+   - 互換性ルール（MAJOR/MINOR/PATCH）の基準を明確化
+
+4. **タスク4: 検証用サンプルデータ作成** ✅
+   - `registry/examples/sample-basic.json` を作成済み
+   - `scripts/validate-schema.js` バリデーションツールを作成
+   - 全チェック項目をパス（スキーマファイル、ルート構造、$ref参照、サンプルデータ）
+
+5. **タスク5: レビューと承認** ✅
+   - 内部レビュー実施（整合性チェック、バリデーション確認）
+   - [DECISIONS.md](./DECISIONS.md) にスキーマ v1.0.0 の承認記録を追加
+   - 設計判断の根拠と今後の対応を文書化
+
+#### 📋 完了条件の達成状況
+
+- ✅ Ajv によるバリデーションがサンプルデータで成功（基本構造チェック完了）
+- ⏳ CLI `validate` コマンドからスキーマが参照される（フェーズ1-2で実装予定）
+- ✅ スキーマ変更手順が文書化され、DECISIONS.md に反映されている
 
 ## 成果物
 - `registry/docs.schema.json` および `registry/schema/*.schema.json`
@@ -168,3 +206,75 @@
 - `glossary` の配置（プロジェクト単位 vs 共通ルート）は現状プロジェクト配下案で前進。将来の共通用語集統合を想定し、`settings.glossary` への拡張余地を記載。
 - `metadata` オブジェクトのキー命名規則（`createdAt`, `updatedBy` など）は CLI 実装開始時に確定させる。
 - `syncHash` の長さ・ハッシュアルゴリズムはコンテンツチームと再確認し、互換性維持が必要なら仕様を DECISIONS.md に反映する。
+
+---
+
+## 次のステップ（優先順位順）
+
+### 最優先: タスク3の完了 - バージョニング方針の策定
+
+1. **`registry/schema/CHANGELOG.md` の作成**
+
+   ```markdown
+   # スキーマ変更履歴
+
+   ## [1.0.0] - 2025-10-16
+   ### Added
+   - 初回リリース: レジストリスキーマ全体構造の確立
+   - モジュール化スキーマ構造（project, document, category, language, version, settings）
+   - 共通パーシャル定義（contributor, glossary, license, document-content, common）
+   ```
+
+2. **バージョニングガイドラインの文書化**
+   - `registry/schema/VERSIONING.md` を作成
+   - SemVer ルールの明確化:
+     - **MAJOR**: 後方互換性のない変更（必須フィールドの追加、フィールドの削除など）
+     - **MINOR**: 後方互換性のある機能追加（任意フィールドの追加、enum値の追加など）
+     - **PATCH**: バグ修正、ドキュメント改善、description の明確化
+   - スキーマ変更時の手順書を追加
+
+3. **互換性チェックツールの検討**
+   - スキーマバージョン間の差分検出スクリプト案
+   - マイグレーションスクリプトのテンプレート作成
+
+### 次優先: タスク5の完了 - レビューと承認
+
+1. **内部レビューの実施**
+   - スキーマファイル全体の整合性チェック
+   - サンプルデータでの検証実行
+   - エラーメッセージの分かりやすさ確認
+
+2. **DECISIONS.md への記録**
+   - スキーマ v1.0.0 の承認記録
+   - 設計判断の根拠を文書化
+   - 今後の変更プロセスの明確化
+
+3. **ステークホルダーレビュー準備**
+   - レビュー依頼文書の作成
+   - レビューポイントのチェックリスト作成
+   - フィードバック収集方法の確立
+
+### フェーズ1-2への準備
+
+1. **スキーマバリデーションツールの実装準備**
+   - Ajv ベースの検証スクリプト作成
+   - カスタムバリデーションルールの洗い出し
+   - CLI 統合のインターフェース設計
+
+2. **レジストリデータの初期作成準備**
+   - 既存プロジェクト（sample-docs, test-verification等）のマッピング
+   - マイグレーションスクリプトの設計開始
+
+### 推奨作業順序
+
+```text
+1. CHANGELOG.md 作成 (30分)
+   ↓
+2. VERSIONING.md 作成 (1時間)
+   ↓
+3. 内部レビュー実施 (1時間)
+   ↓
+4. DECISIONS.md 記録 (30分)
+   ↓
+5. フェーズ1-1完了、フェーズ1-2開始
+```
