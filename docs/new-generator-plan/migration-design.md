@@ -1,7 +1,8 @@
 # マイグレーションスクリプト設計文書
 
 **作成日**: 2025-10-16
-**ステータス**: 設計中
+**最終更新**: 2025-10-16
+**ステータス**: ✅ 実装完了・テスト済み
 
 ## 目的
 
@@ -447,14 +448,39 @@ node scripts/migrate-to-registry.js [options]
    - バリデーションが成功するか確認
    - エラーメッセージが適切か確認
 
-## 次のステップ
+## 実装結果
+
+### ✅ 完了したステップ
 
 1. ✅ 設計文書の作成（このファイル）
-2. ⏳ スクリプトの実装
-3. ⏳ dry-runモードでのテスト実行
-4. ⏳ 実際のプロジェクトへの適用
-5. ⏳ 生成されたレジストリのバリデーション
-6. ⏳ Phase 1-2完了報告書への記録
+2. ✅ スクリプトの実装（`scripts/migrate-to-registry.js`）
+3. ✅ dry-runモードでのテスト実行
+4. ✅ 実際のプロジェクトへの適用
+   - sample-docs: 13ドキュメント、2言語、2バージョン
+   - test-verification: 3ドキュメント、3言語、2バージョン
+   - libx-docs: 20ドキュメント、2言語、1バージョン
+5. ✅ 生成されたレジストリのバリデーション（全件成功）
+6. ⏳ Phase 1-2完了報告書への記録（次のセッションで実施）
+
+### 実装時の修正点
+
+1. **バージョンフィールド名の修正**
+   - 旧: `releaseDate` → 新: `date`（スキーマに準拠）
+
+2. **ライセンスattributionの型変更**
+   - 旧: オブジェクト型（title, author, url）
+   - 新: 文字列型（連結形式: "Title by Author (URL)"）
+   - `sourceLanguage` フィールドは削除（スキーマに存在しないため）
+
+3. **バリデーションメソッド名の修正**
+   - 旧: `errors.formatText()`
+   - 新: `errors.toString()`（ValidationErrorCollectionの正しいメソッド）
+
+### 生成されたファイル
+
+- ✅ `registry/docs.json` - 本番用レジストリ（3プロジェクト、36ドキュメント）
+- ✅ `registry/test-sample-docs.json` - sample-docsテスト用レジストリ
+- ✅ `registry/test-verification.json` - test-verificationテスト用レジストリ
 
 ---
 

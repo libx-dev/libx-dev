@@ -1,0 +1,212 @@
+{
+  "$schemaVersion": "1.0.0",
+  "metadata": {
+    "createdAt": "2025-10-16T05:07:31.187Z",
+    "createdBy": "migrate-to-registry.js"
+  },
+  "projects": [
+    {
+      "id": "test-verification",
+      "displayName": {
+        "en": "Test Verification",
+        "ja": "検証テスト",
+        "ko": "검증 테스트"
+      },
+      "description": {
+        "en": "Documentation for Test Verification",
+        "ja": "検証テストのドキュメントです",
+        "ko": "검증 테스트 문서입니다"
+      },
+      "languages": [
+        {
+          "code": "en",
+          "displayName": "English",
+          "status": "active",
+          "default": true
+        },
+        {
+          "code": "ja",
+          "displayName": "日本語",
+          "status": "active",
+          "fallback": "en"
+        },
+        {
+          "code": "ko",
+          "displayName": "한국어",
+          "status": "active",
+          "fallback": "en"
+        }
+      ],
+      "versions": [
+        {
+          "id": "v1",
+          "name": "Version 1.0",
+          "isLatest": false,
+          "status": "deprecated",
+          "date": "2024-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "v2",
+          "name": "Version 2",
+          "isLatest": true,
+          "status": "active",
+          "date": "2025-08-30T02:13:09.787Z"
+        }
+      ],
+      "categories": [
+        {
+          "id": "guide",
+          "order": 1,
+          "titles": {
+            "en": "Guide",
+            "ja": "ガイド",
+            "ko": "가이드"
+          },
+          "docs": [
+            "installation-guide",
+            "getting-started"
+          ]
+        }
+      ],
+      "documents": [
+        {
+          "id": "api-overview",
+          "slug": "api-reference/api-overview",
+          "title": {
+            "ko": "API 개요",
+            "ja": "API概要",
+            "en": "API Overview"
+          },
+          "summary": {
+            "ko": "API 개요에 대한 설명",
+            "ja": "API概要について説明します",
+            "en": "API Overviewについて説明します"
+          },
+          "versions": [
+            "v2"
+          ],
+          "status": "published",
+          "visibility": "public",
+          "keywords": [],
+          "tags": [],
+          "content": {
+            "ko": {
+              "path": "content/api-overview/ko.mdx",
+              "status": "published"
+            },
+            "ja": {
+              "path": "content/api-overview/ja.mdx",
+              "status": "published"
+            },
+            "en": {
+              "path": "content/api-overview/en.mdx",
+              "status": "published"
+            }
+          },
+          "license": "test-verification-original"
+        },
+        {
+          "id": "installation-guide",
+          "slug": "guide/installation-guide",
+          "title": {
+            "ko": "설치 가이드",
+            "ja": "インストールガイド",
+            "en": "Installation Guide"
+          },
+          "summary": {
+            "ko": "검증 테스트 v2 설치 방법",
+            "ja": "インストールガイドについて説明します",
+            "en": "Installation Guideについて説明します"
+          },
+          "versions": [
+            "v2"
+          ],
+          "status": "published",
+          "visibility": "public",
+          "keywords": [],
+          "tags": [],
+          "content": {
+            "ko": {
+              "path": "content/installation-guide/ko.mdx",
+              "status": "published"
+            },
+            "ja": {
+              "path": "content/installation-guide/ja.mdx",
+              "status": "published"
+            },
+            "en": {
+              "path": "content/installation-guide/en.mdx",
+              "status": "published"
+            }
+          },
+          "license": "test-verification-original"
+        },
+        {
+          "id": "getting-started",
+          "slug": "guide/getting-started",
+          "title": {
+            "ko": "검증 테스트에 오신 것을 환영합니다",
+            "ja": "プロジェクトテンプレートへようこそ",
+            "en": "Welcome to Project Template"
+          },
+          "summary": {
+            "ko": "새로운 문서 사이트 생성을 위한 시작점",
+            "ja": "新しいドキュメントサイト作成の出発点",
+            "en": "Starting point for creating new documentation sites"
+          },
+          "versions": [
+            "v2",
+            "v1"
+          ],
+          "status": "published",
+          "visibility": "public",
+          "keywords": [],
+          "tags": [],
+          "content": {
+            "ko": {
+              "path": "content/getting-started/ko.mdx",
+              "status": "published"
+            },
+            "ja": {
+              "path": "content/getting-started/ja.mdx",
+              "status": "published"
+            },
+            "en": {
+              "path": "content/getting-started/en.mdx",
+              "status": "published"
+            }
+          },
+          "license": "test-verification-original"
+        }
+      ],
+      "licenses": [
+        {
+          "id": "test-verification-original",
+          "name": "MIT",
+          "url": "https://opensource.org/licenses/MIT",
+          "attribution": "Test Verification Documentation by libx-dev Team (https://github.com/libx-dev/libx-dev)"
+        }
+      ],
+      "visibility": "public",
+      "options": {
+        "search": true
+      }
+    }
+  ],
+  "settings": {
+    "defaultLocale": "en",
+    "defaultVersion": "v1",
+    "build": {
+      "search": "pagefind",
+      "sitemap": true
+    },
+    "deploy": {
+      "provider": "cloudflare-pages",
+      "basePath": "/"
+    },
+    "backup": {
+      "enabled": true,
+      "retentionDays": 14
+    }
+  }
+}

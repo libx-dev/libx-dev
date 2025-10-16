@@ -1,7 +1,7 @@
 # フェーズ1-2：バリデーションツール詳細計画
 
-**ステータス**: 🟢 Week 1完了 / Week 2-3進行中（マイグレーション設計完了）
-**最終更新**: 2025-10-16（セッション2）
+**ステータス**: ✅ Week 1-2完了（マイグレーション実装・テスト完了）
+**最終更新**: 2025-10-16（セッション3）
 
 ## 目的
 - JSON スキーマと実ファイル構造の整合性を常時検証できるツールチェーンを整備し、フェーズ2以降の自動化基盤を支える。
@@ -43,12 +43,16 @@
 - エラーフォーマットガイド（ドキュメント化）。
 
 ## 完了条件
+
 - ✅ `packages/validator` が全モジュールを実装完了。
 - ✅ `scripts/validate-registry.js` がサンプルデータを正常に検証（**スキーマ参照問題を解決済み**）。
 - ✅ `package.json` にバリデーションコマンドを追加（`pnpm validate` 系統）。
 - ✅ マイグレーションスクリプトの設計完了（`docs/new-generator-plan/migration-design.md`）。
-- ⏳ CI 上での `validate` 実行が安定し、失敗時にエラーログが判読可能。
-- ⏳ 旧スクリプト利用者向けラッパーが用意され、フェーズ3の移行作業で再利用できる。
+- ✅ **マイグレーションスクリプトの実装完了**（`scripts/migrate-to-registry.js`）。
+- ✅ **既存3プロジェクトの本番レジストリへの移行完了**（`registry/docs.json`、36ドキュメント）。
+- ✅ **生成されたレジストリのバリデーション成功**（スキーマ・参照整合性）。
+- ⏳ CI 上での `validate` 実行が安定し、失敗時にエラーログが判読可能（Phase 1-3で実施予定）。
+- ⏳ 旧スクリプト利用者向けラッパーが用意され、フェーズ3の移行作業で再利用できる（必要に応じて実施）。
 
 ---
 
@@ -116,6 +120,69 @@ $ pnpm validate
 # 厳格モード - 成功
 $ pnpm validate:strict
 ⚠ 厳格モードが有効です（警告もエラーとして扱います）
+✓ バリデーション成功
+```
+
+---
+
+## 📅 Week 2 完了サマリー（2025-10-16 セッション3）
+
+### 🎯 Week 2の達成事項
+
+Week 2の最優先タスク「**マイグレーションスクリプトの実装とテスト**」を完了し、既存プロジェクトから新レジストリ形式への移行が正常に動作するようになりました。
+
+#### ✅ Week 2で完了したタスク
+
+1. **マイグレーションスクリプトの完全実装**
+   - `scripts/migrate-to-registry.js` の実装完了
+   - dry-runモード、バリデーション統合、エラーハンドリング実装
+   - 全CLIオプション（--project, --dry-run, --validate, --output, --force）の実装
+
+2. **スキーマとの整合性修正**
+   - バージョンフィールド名: `releaseDate` → `date`
+   - ライセンスattribution: オブジェクト型 → 文字列型
+   - バリデーションメソッド: `formatText()` → `toString()`
+
+3. **既存プロジェクトのテスト移行**
+   - sample-docs: 13ドキュメント、2言語、2バージョン ✅
+   - test-verification: 3ドキュメント、3言語、2バージョン ✅
+   - libx-docs: 20ドキュメント、2言語、1バージョン ✅
+
+4. **本番レジストリの生成とバリデーション**
+   - `registry/docs.json` - 3プロジェクト、36ドキュメント
+   - スキーマバリデーション: 全件成功 ✅
+   - 参照整合性チェック: 全件成功 ✅
+
+#### 🔧 実装の詳細
+
+**データマッピング**:
+
+- プロジェクト基本情報: baseUrl → id、多言語displayName/description
+- 言語設定: supportedLangs → languages配列（default/fallback自動設定）
+- バージョン設定: versions配列（isLatest → status自動変換）
+- カテゴリ設定: 多言語titles、order自動採番
+- ライセンス情報: 文字列形式のattribution生成
+
+**コンテンツスキャン**:
+
+- MDXファイルの自動検出（`src/content/docs/**/*.mdx`）
+- フロントマター解析（gray-matter使用）
+- バージョン・言語の自動関連付け
+- カテゴリへのドキュメント割り当て
+
+#### 📊 移行結果
+
+```bash
+# 全プロジェクト移行
+$ node scripts/migrate-to-registry.js --validate --output=registry/docs.json --force
+✓ test-verification: 3 docs, 3 langs, 2 versions
+✓ sample-docs: 13 docs, 2 langs, 2 versions
+✓ libx-docs: 20 docs, 2 langs, 1 versions
+✓ バリデーション成功
+
+# 個別プロジェクト移行
+$ node scripts/migrate-to-registry.js --project=sample-docs --validate
+✓ レジストリ生成完了
 ✓ バリデーション成功
 ```
 
