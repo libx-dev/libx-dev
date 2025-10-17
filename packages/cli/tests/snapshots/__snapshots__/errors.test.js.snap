@@ -1,0 +1,40 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`エラーメッセージスナップショット > Logger出力形式 > JSONモード出力形式 1`] = `
+"{
+  "level": "error",
+  "message": "Failed to load registry",
+  "data": {
+    "path": "registry/docs.json",
+    "error": "File not found"
+  },
+  "timestamp": "2025-01-01T00:00:00.000Z"
+}"
+`;
+
+exports[`エラーメッセージスナップショット > RegistryManagerエラー > 存在しないドキュメントエラー 1`] = `"ドキュメント "test-project-1/nonexistent" が見つかりません"`;
+
+exports[`エラーメッセージスナップショット > RegistryManagerエラー > 存在しないプロジェクトエラー 1`] = `"プロジェクト "nonexistent" が見つかりません"`;
+
+exports[`エラーメッセージスナップショット > RegistryManagerエラー > 重複プロジェクトエラー 1`] = `"プロジェクト "test-project-1" は既に存在します"`;
+
+exports[`エラーメッセージスナップショット > ValidationErrorCollection > エラー件数サマリー 1`] = `
+{
+  "errorCount": 2,
+  "totalCount": 3,
+  "warningCount": 1,
+}
+`;
+
+exports[`エラーメッセージスナップショット > ValidationErrorCollection > 単一エラーの文字列表現 1`] = `
+"[31m✗[0m [MISSING_FIELD] Required field "displayName" is missing
+  [90m位置:[0m projects[0].displayName"
+`;
+
+exports[`エラーメッセージスナップショット > ValidationErrorCollection > 複数エラーと警告の文字列表現 1`] = `
+"[31m✗[0m [MISSING_FIELD] Required field "displayName" is missing
+
+[31m✗[0m [INVALID_ID] Project ID contains invalid characters
+
+[33m⚠[0m [DEPRECATED_FIELD] Field "oldField" is deprecated"
+`;
