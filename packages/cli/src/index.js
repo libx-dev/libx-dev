@@ -298,6 +298,38 @@ export async function run() {
     });
 
   // ========================================
+  // サブコマンド: search
+  // ========================================
+  program
+    .command('search <query>')
+    .description('レジストリ内を検索')
+    .option('--project <project-id>', '特定プロジェクトのみ検索')
+    .option('--version <version>', '特定バージョンのみ検索')
+    .option('--lang <lang>', '特定言語のみ検索')
+    .option('--type <types>', '検索対象タイプ（project,document,category,glossary）', 'project,document,category,glossary')
+    .option('--field <field>', '検索対象フィールド（id,title,summary,keywords,tags等）')
+    .option('--case-sensitive', '大文字小文字を区別', false)
+    .action(async (query, options) => {
+      const { default: searchCommand } = await import('./commands/search.js');
+      await searchCommand(query, program.opts(), options);
+    });
+
+  // ========================================
+  // サブコマンド: export
+  // ========================================
+  program
+    .command('export')
+    .description('レジストリデータをエクスポート')
+    .option('--format <format>', 'エクスポート形式（json,csv,markdown）', 'json')
+    .option('--project <project-id>', '特定プロジェクトのみエクスポート')
+    .option('--type <type>', 'エクスポート対象（projects,documents,categories,glossary,all）', 'all')
+    .option('--output <path>', '出力先ファイルパス')
+    .action(async (options) => {
+      const { default: exportCommand } = await import('./commands/export.js');
+      await exportCommand(program.opts(), options);
+    });
+
+  // ========================================
   // コマンドのパース
   // ========================================
   await program.parseAsync(process.argv);

@@ -682,25 +682,111 @@ pnpm docs-cli validate --report json
 cp -r .backups/<timestamp>/registry/docs.json registry/docs.json
 ```
 
+### search - レジストリ内検索
+
+レジストリ内のプロジェクト、ドキュメント、カテゴリ、用語集を検索します。
+
+```bash
+pnpm docs-cli search <query> [options]
+```
+
+**オプション**:
+- `--project <project-id>` - 特定プロジェクトのみ検索
+- `--version <version>` - 特定バージョンのみ検索
+- `--lang <lang>` - 特定言語のみ検索
+- `--type <types>` - 検索対象タイプ（project,document,category,glossary）
+- `--field <field>` - 検索対象フィールド（id,title,summary,keywords,tags等）
+- `--case-sensitive` - 大文字小文字を区別
+
+**使用例**:
+
+```bash
+# 全体検索
+pnpm docs-cli search "installation"
+
+# 特定プロジェクトのドキュメントを検索
+pnpm docs-cli search "API" --project sample-docs --type document
+
+# タイトルフィールドのみ検索
+pnpm docs-cli search "getting started" --field title
+
+# 大文字小文字を区別して検索
+pnpm docs-cli search "API" --case-sensitive
+
+# JSON形式で出力
+pnpm docs-cli search "test" --json
+```
+
+**検索対象**:
+- **プロジェクト**: ID、表示名、説明、タグ
+- **ドキュメント**: ID、スラッグ、タイトル、概要、キーワード、タグ
+- **カテゴリ**: ID、表示名、説明
+- **用語集**: 用語、定義、略称
+
+### export - レジストリデータのエクスポート
+
+レジストリデータをJSON/CSV/Markdown形式でエクスポートします。
+
+```bash
+pnpm docs-cli export [options]
+```
+
+**オプション**:
+- `--format <format>` - エクスポート形式（json, csv, markdown）デフォルト: json
+- `--project <project-id>` - 特定プロジェクトのみエクスポート
+- `--type <type>` - エクスポート対象（projects, documents, categories, glossary, all）デフォルト: all
+- `--output <path>` - 出力先ファイルパス
+
+**使用例**:
+
+```bash
+# 全データをJSON形式でエクスポート
+pnpm docs-cli export --format json --output export.json
+
+# プロジェクト一覧をCSV形式でエクスポート
+pnpm docs-cli export --format csv --type projects --output projects.csv
+
+# 特定プロジェクトのドキュメントをMarkdown形式でエクスポート
+pnpm docs-cli export --format markdown --type documents --project sample-docs --output sample-docs.md
+
+# 標準出力にJSON出力
+pnpm docs-cli export --format json
+```
+
+**エクスポート形式**:
+
+**JSON形式**:
+- 構造化されたレジストリデータ
+- CI/CDやスクリプトでの利用に最適
+
+**CSV形式**:
+- プロジェクト、ドキュメント、カテゴリ、用語集ごとにCSVテーブル
+- Excelなどで編集・分析可能
+
+**Markdown形式**:
+- プロジェクト、ドキュメント一覧をMarkdownテーブルで出力
+- ドキュメントやレポート作成に便利
+
 ## 今後の実装予定
 
-Phase 1-4 Week 1-2で主要なCRUDコマンド群を完成させました。以下の機能はWeek 3以降で実装予定です:
+Phase 1-4で主要な機能を完成させました:
 
-**Week 1-2で完成した機能**:
+**Phase 1-4で完成した機能**:
 - [x] `add version` の完全実装 ✅
 - [x] `add language` の完全実装 ✅
 - [x] `add doc` の完全実装 ✅
 - [x] `update` コマンド群（project, version, language, doc）✅
 - [x] `remove` コマンド群（project, version, language, doc）✅
+- [x] `search` コマンド（レジストリ内検索）✅
+- [x] `export` コマンド（レジストリデータのエクスポート）✅
+- [x] テストスイート構築（Vitest）✅
+- [x] 統合テスト作成 ✅
+- [x] CI統合（GitHub Actions）✅
 
-**Week 3以降の実装予定**:
-- [ ] テストスイート構築（Vitest setup）
-- [ ] ユニットテスト作成
-- [ ] 統合テスト作成
-- [ ] CI統合（GitHub Actions）
-- [ ] `search` コマンド（ドキュメント検索機能）
-- [ ] `export` コマンド（レジストリデータのエクスポート）
+**Phase 2以降の実装予定**:
 - [ ] `migrate` コマンドの詳細化（Phase 3連携）
+- [ ] プルリクエストコメント自動投稿
+- [ ] カバレッジバッジ統合
 
 ## 参考リンク
 
