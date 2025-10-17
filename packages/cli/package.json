@@ -1,0 +1,30 @@
+{
+  "name": "@docs/cli",
+  "version": "1.0.0",
+  "description": "LibX Docs CLI - ドキュメントサイトジェネレーターのコマンドラインインターフェース",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "docs-cli": "./bin/docs-cli.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test command yet\" && exit 0"
+  },
+  "keywords": [
+    "cli",
+    "documentation",
+    "generator",
+    "libx-docs"
+  ],
+  "dependencies": {
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^10.2.2",
+    "ora": "^8.1.0"
+  },
+  "devDependencies": {},
+  "peerDependencies": {}
+}

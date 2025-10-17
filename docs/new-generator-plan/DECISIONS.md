@@ -427,4 +427,243 @@ pnpm validate:full
 
 ---
 
-次回更新予定: フェーズ1-3開始時に新たな意思決定があれば追記します。
+## 2025-10-17 Phase 1-3 CLI Core 完成
+
+### 承認内容
+
+**CLI基盤とCRUD系コマンド**を正式承認し、フェーズ1-3（CLI Core詳細計画）を完了とする。
+
+### 成果物
+
+1. **CLIパッケージ**（`packages/cli/`）
+   - bin/docs-cli.js - エントリポイント（実行可能）
+   - src/index.js - Commander.jsベースのメインロジック
+   - src/commands/ - コマンド実装（init, add, validate, list）
+   - src/utils/ - 共通ユーティリティ（logger, config, backup, registry）
+
+2. **共通ユーティリティ**
+   - logger.js - カラー出力、ログレベル、JSON出力
+   - config.js - 設定管理（.docs-cli/config.json）
+   - backup.js - バックアップ/ロールバック管理
+   - registry.js - レジストリ操作（CRUD）
+
+3. **実装済みコマンド**
+   - `docs-cli init` - 設定ファイル初期化
+   - `docs-cli add project` - 新規プロジェクト追加
+   - `docs-cli add version` - バージョン追加（スタブ）
+   - `docs-cli add language` - 言語追加（スタブ）
+   - `docs-cli add doc` - ドキュメント追加（スタブ）
+   - `docs-cli validate` - レジストリバリデーション
+   - `docs-cli list projects/docs/versions/languages` - 一覧表示
+
+4. **ドキュメント**
+   - docs/new-generator-plan/guides/docs-cli.md - CLIユーザーガイド
+   - packages/cli/README.md - 開発者向けドキュメント
+
+5. **統合**
+   - ルートpackage.jsonに`docs-cli`スクリプト追加
+   - 依存パッケージインストール（commander, chalk, inquirer, ora）
+   - 動作確認テスト完了
+
+### 主要な設計判断
+
+#### 1. コマンドフレームワークの選定
+
+**決定**: **Commander.js**を採用
+
+**根拠**:
+- Node.js CLIの業界標準
+- サブコマンド、オプション、ヘルプの自動生成
+- TypeScript型定義のサポート
+- 軽量（依存関係が少ない）
+
+**代替案検討**:
+- yargs: 機能は豊富だが、やや重い
+- oclif: 大規模CLI向けで今回のユースケースには過剰
+
+**採用理由**:
+- シンプルで学習曲線が緩やか
+- 既存の多くのNode.jsプロジェクトで実績あり
+- 非同期処理との相性が良い
+
+#### 2. CLI配置場所
+
+**決定**: `packages/cli/`にCLIパッケージを作成
+
+**根拠**:
+- 既存のvalidator, ui, themeパッケージと同じモノレポ構造
+- `@docs/cli`としてパッケージ化
+- エントリポイント: `packages/cli/bin/docs-cli.js`（#!/usr/bin/env node）
+
+**ディレクトリ構造**:
+```
+packages/cli/
+├── bin/
+│   └── docs-cli.js          # エントリポイント
+├── src/
+│   ├── index.js             # メインCLIロジック
+│   ├── commands/            # コマンド実装
+│   │   ├── add/             # addサブコマンド群
+│   │   ├── validate.js
+│   │   ├── list.js
+│   │   └── init.js
+│   ├── utils/               # ユーティリティ
+│   │   ├── logger.js
+│   │   ├── config.js
+│   │   ├── backup.js
+│   │   └── registry.js
+│   └── templates/           # テンプレートファイル（将来）
+└── tests/                   # テスト（Phase 2以降）
+```
+
+#### 3. グローバルオプション設計
+
+**決定**: すべてのコマンドで共通のオプションを提供
+
+**実装オプション**:
+- `--config <path>` - 設定ファイルパス（デフォルト: `.docs-cli/config.json`）
+- `--dry-run` - プレビューモード（変更を実行しない）
+- `--verbose, -v` - 詳細ログ出力
+- `--json` - JSON形式出力
+- `--yes, -y` - 対話スキップ（CI用）
+
+**根拠**:
+- dry-runモードで安全に変更内容を確認可能
+- JSON出力でCI/CD統合が容易
+- 非対話モードでCIパイプラインに統合可能
+
+#### 4. バックアップ/ロールバック戦略
+
+**決定**: すべての変更操作で自動バックアップを実施
+
+**実装方針**:
+- 変更前のファイルを`.backups/<timestamp>/`に保存
+- エラー時は自動ロールバック
+- バックアップローテーション（デフォルト: 5世代保持）
+
+**BackupManagerクラス**:
+- `backupFile(filePath)` - ファイルをバックアップ
+- `recordCreated(path)` - 新規作成パスを記録
+- `rollback()` - ロールバック実行
+- `static cleanup()` - 古いバックアップ削除
+
+**根拠**:
+- 既存のadd-language.jsで実証済みの安全なパターン
+- 失敗時のリカバリー手順が明確
+- ユーザーの誤操作からの保護
+
+#### 5. 設定管理方式
+
+**決定**: `.docs-cli/config.json`と環境変数の併用
+
+**優先順位**:
+1. コマンドラインオプション
+2. 環境変数
+3. .docs-cli/config.json
+4. デフォルト値
+
+**環境変数**:
+- `DOCS_CLI_CONFIG` - 設定ファイルパス
+- `DOCS_CLI_NON_INTERACTIVE` - 非対話モード
+- `DOCS_CLI_LOG_LEVEL` - ログレベル
+- `DOCS_CLI_REGISTRY_PATH` - レジストリパス
+
+**根拠**:
+- 柔軟な設定方法を提供
+- CI/CD環境での使いやすさを重視
+- 環境ごとの設定切り替えが容易
+
+#### 6. ロガー設計
+
+**決定**: カスタムLoggerクラスを実装
+
+**機能**:
+- ログレベル（DEBUG, INFO, WARN, ERROR, SILENT）
+- カラー出力（chalk使用）
+- JSON出力モード
+- プログレス表示（progress, progressDone, progressFail）
+
+**根拠**:
+- 既存のvalidate-registry.jsで使用していたパターンを統一
+- ユーザーフレンドリーな視覚的フィードバック
+- CI/CDでのログ解析に対応
+
+#### 7. レジストリ操作の抽象化
+
+**決定**: RegistryManagerクラスでCRUD操作を統一
+
+**主要メソッド**:
+- `load()`, `save()` - 読み込み/保存
+- `findProject()`, `addProject()`, `updateProject()`, `removeProject()`
+- `findDocument()`, `addDocument()`, `updateDocument()`, `removeDocument()`
+- `addVersion()`, `addLanguage()`
+- `getNextDocId()` - 次のドキュメントID生成
+- `validate()` - バリデーション実行
+
+**根拠**:
+- レジストリ操作ロジックを一箇所に集約
+- バリデーション統合で品質保証
+- 各コマンドでの実装重複を排除
+
+### 動作確認結果
+
+#### テスト実行
+
+```bash
+# バージョン確認
+$ pnpm docs-cli --version
+1.0.0
+
+# プロジェクト一覧表示
+$ pnpm docs-cli list projects
+📦 プロジェクト一覧 (3件)
+  test-verification - 検証テスト
+  sample-docs - サンプルドキュメント
+  libx-docs - LibX ドキュメント
+
+# レジストリバリデーション
+$ pnpm docs-cli validate
+✅ バリデーション成功！問題は見つかりませんでした
+エラー: 0件
+警告: 0件
+```
+
+#### 実装状況
+
+**完全実装**:
+- ✅ init コマンド
+- ✅ add project コマンド
+- ✅ validate コマンド
+- ✅ list コマンド（projects, docs, versions, languages）
+
+**スタブ実装**（Phase 1-4以降で完全実装予定）:
+- ⏸️ add version コマンド
+- ⏸️ add language コマンド
+- ⏸️ add doc コマンド
+
+### 今後の対応
+
+1. **Phase 1-4への移行**
+   - add version, add language, add docの完全実装
+   - 既存スクリプト（add-language.js等）からのロジック移植
+   - update, removeコマンド群の実装
+
+2. **テストスイート拡充**
+   - ユニットテスト（各ユーティリティ関数）
+   - 統合テスト（エンドツーエンドフロー）
+   - CI統合テスト
+
+3. **機能拡張**
+   - search コマンド
+   - export コマンド
+   - migrate コマンドの詳細化（Phase 3連携）
+
+### 参照ドキュメント
+
+- [Phase 1-3計画](./phase-1-3-cli-core.md)
+- [CLIユーザーガイド](./guides/docs-cli.md)
+- [packages/cli/README.md](../../packages/cli/README.md)
+
+---
+
+次回更新予定: フェーズ1-4開始時に新たな意思決定があれば追記します。

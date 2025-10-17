@@ -26,6 +26,7 @@
     "validate": "node scripts/validate-registry.js",
     "validate:strict": "node scripts/validate-registry.js --strict",
     "validate:full": "node scripts/validate-registry.js --check-content --check-sync-hash",
+    "docs-cli": "node packages/cli/bin/docs-cli.js",
     "deploy": "pnpm build && pnpm deploy:pages",
     "deploy:pages": "wrangler pages deploy dist --project-name libx"
   },
