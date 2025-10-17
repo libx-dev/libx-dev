@@ -84,8 +84,9 @@ export async function run() {
     .description('既存プロジェクトに新バージョンを追加')
     .option('--name <name>', 'バージョン表示名')
     .option('--copy-from <version>', 'コピー元バージョン')
-    .option('--status <status>', 'ステータス（active, deprecated, draft）', 'active')
-    .option('--date <date>', 'リリース日（ISO 8601形式）')
+    .option('--no-copy', '前バージョンからコンテンツをコピーしない', false)
+    .option('--set-latest', '最新バージョンとして設定', true)
+    .option('--no-set-latest', '最新バージョンとして設定しない')
     .action(async (projectId, versionId, options) => {
       const { default: addVersionCommand } = await import('./commands/add/version.js');
       await addVersionCommand(projectId, versionId, program.opts(), options);
@@ -110,8 +111,10 @@ export async function run() {
     .option('--version <version>', '対象バージョン', 'latest')
     .option('--title-en <title>', '英語タイトル')
     .option('--title-ja <title>', '日本語タイトル')
+    .option('--summary <text>', 'ドキュメントの概要')
     .option('--category <category>', 'カテゴリID')
-    .option('--order <number>', '表示順序', parseInt)
+    .option('--keywords <keywords>', 'キーワード（カンマ区切り）')
+    .option('--tags <tags>', 'タグ（カンマ区切り）')
     .action(async (projectId, slug, options) => {
       const { default: addDocCommand } = await import('./commands/add/doc.js');
       await addDocCommand(projectId, slug, program.opts(), options);

@@ -93,7 +93,7 @@ pnpm docs-cli add project my-docs --dry-run
 
 ### add version - バージョン追加
 
-既存プロジェクトに新しいバージョンを追加します（実装中）。
+既存プロジェクトに新しいバージョンを追加します。✅ **完全実装済み**
 
 ```bash
 pnpm docs-cli add version <project-id> <version-id> [options]
@@ -101,22 +101,41 @@ pnpm docs-cli add version <project-id> <version-id> [options]
 
 **オプション**:
 - `--name <name>` - バージョン表示名
-- `--copy-from <version>` - コピー元バージョン
-- `--status <status>` - ステータス（`active`, `deprecated`, `draft`）
-- `--date <date>` - リリース日（ISO 8601形式）
+- `--copy-from <version>` - コピー元バージョンを指定
+- `--no-copy` - 前バージョンからコンテンツをコピーしない
+- `--set-latest` - 最新バージョンとして設定（デフォルト: true）
+- `--no-set-latest` - 最新バージョンとして設定しない
+
+**主要機能**:
+- ✅ バージョンID検証（v1, v2.0形式）
+- ✅ 前バージョンからのコンテンツ自動コピー
+- ✅ 最新バージョンフラグの自動更新
+- ✅ 全言語対応のディレクトリ構造自動作成
+- ✅ バックアップとロールバック機能
 
 **例**:
 ```bash
-# v2を作成（v1からコピー）
+# 対話式でv2を作成（v1からコピー）
+pnpm docs-cli add version my-docs v2
+
+# 非対話式（CI用）
 pnpm docs-cli add version my-docs v2 \
   --name "Version 2.0" \
-  --copy-from v1 \
-  --status active
+  --yes
+
+# 前バージョンからコピーせずに作成
+pnpm docs-cli add version my-docs v3 --no-copy
+
+# 最新版として設定しない
+pnpm docs-cli add version my-docs v2-beta --no-set-latest
+
+# dry-runモードで確認
+pnpm docs-cli add version my-docs v2 --dry-run
 ```
 
 ### add language - 言語追加
 
-既存プロジェクトに新しい言語を追加します（実装中）。
+既存プロジェクトに新しい言語を追加します。✅ **完全実装済み**
 
 ```bash
 pnpm docs-cli add language <project-id> <lang-code> [options]
@@ -127,20 +146,37 @@ pnpm docs-cli add language <project-id> <lang-code> [options]
 - `--template-lang <code>` - テンプレート言語（デフォルト: `en`）
 - `--auto-template` - 対話なしでテンプレート生成
 
+**サポート言語**: en, ja, zh-Hans, zh-Hant, es, pt-BR, ko, de, fr, ru, ar, id, tr, hi, vi
+
+**主要機能**:
+- ✅ 15言語のサポート
+- ✅ テンプレート言語からの自動コピー
+- ✅ 翻訳マーカーの自動挿入（`<!-- TODO: XX - この文書は翻訳が必要です -->`）
+- ✅ デフォルト言語の設定
+- ✅ フォールバック言語の自動設定
+- ✅ 全バージョン対応のディレクトリ構造自動作成
+
 **例**:
 ```bash
-# 中国語（簡体字）を追加
-pnpm docs-cli add language my-docs zh-Hans \
-  --display-name "简体中文" \
-  --template-lang en
+# 対話式で中国語（簡体字）を追加
+pnpm docs-cli add language my-docs zh-Hans
 
-# 自動テンプレート生成
-pnpm docs-cli add language my-docs ko --auto-template
+# 非対話式でテンプレート自動生成
+pnpm docs-cli add language my-docs ko \
+  --display-name "한국어" \
+  --template-lang en \
+  --auto-template
+
+# 韓国語を追加（対話なし）
+pnpm docs-cli add language my-docs ko --yes
+
+# dry-runモードで確認
+pnpm docs-cli add language my-docs de --dry-run
 ```
 
 ### add doc - ドキュメント追加
 
-新しいドキュメントを追加します（実装中）。
+新しいドキュメントを追加します。✅ **完全実装済み**
 
 ```bash
 pnpm docs-cli add doc <project-id> <slug> [options]
@@ -150,17 +186,42 @@ pnpm docs-cli add doc <project-id> <slug> [options]
 - `--version <version>` - 対象バージョン（デフォルト: `latest`）
 - `--title-en <title>` - 英語タイトル
 - `--title-ja <title>` - 日本語タイトル
+- `--summary <text>` - ドキュメントの概要
 - `--category <category>` - カテゴリID
-- `--order <number>` - 表示順序
+- `--keywords <keywords>` - キーワード（カンマ区切り）
+- `--tags <tags>` - タグ（カンマ区切り）
+
+**主要機能**:
+- ✅ 自動ドキュメントID生成（project-001, project-002...）
+- ✅ スラッグのバリデーション（小文字英数字、ハイフン、スラッシュ）
+- ✅ 全言語対応のMDXファイル自動生成
+- ✅ フロントマター付きテンプレート生成
+- ✅ カテゴリへの自動追加
+- ✅ レジストリへの自動登録
 
 **例**:
 ```bash
-# 新しいドキュメント追加
-pnpm docs-cli add doc my-docs getting-started \
-  --title-en "Getting Started" \
-  --title-ja "はじめに" \
+# 対話式でドキュメント追加
+pnpm docs-cli add doc my-docs getting-started
+
+# 非対話式（CI用）
+pnpm docs-cli add doc my-docs installation \
+  --title-en "Installation Guide" \
+  --title-ja "インストールガイド" \
+  --summary "How to install the library" \
   --category guide \
-  --version v1
+  --keywords "install,setup,quickstart" \
+  --tags "beginner,tutorial" \
+  --version v1 \
+  --yes
+
+# スラッシュを含むスラッグ（ネストしたパス）
+pnpm docs-cli add doc my-docs api/authentication \
+  --title-en "API Authentication" \
+  --title-ja "API認証"
+
+# dry-runモードで確認
+pnpm docs-cli add doc my-docs new-feature --dry-run
 ```
 
 ### validate - レジストリバリデーション

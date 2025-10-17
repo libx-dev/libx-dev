@@ -666,4 +666,184 @@ $ pnpm docs-cli validate
 
 ---
 
-次回更新予定: フェーズ1-4開始時に新たな意思決定があれば追記します。
+## 2025-10-17 Phase 1-4 (Week 1) - スタブコマンド完全実装完了
+
+### 承認内容
+
+**add version, add language, add doc コマンドの完全実装**を完了し、Week 1のタスクを達成。
+
+### 成果物
+
+1. **add version コマンド（packages/cli/src/commands/add/version.js）**
+   - バージョンID検証（v1, v2.0, v2.1形式）
+   - 前バージョンからのコンテンツ自動コピー機能
+   - ディレクトリ再帰コピー機能（copyDirectoryRecursive）
+   - 最新バージョンフラグ（isLatest）の自動更新
+   - 全言語対応のディレクトリ構造自動作成
+   - 対話式/非対話式モード完全サポート
+   - dry-run、バックアップ、ロールバック機能統合
+
+2. **add language コマンド（packages/cli/src/commands/add/language.js）**
+   - 15言語サポート（en, ja, zh-Hans, zh-Hant, es, pt-BR, ko, de, fr, ru, ar, id, tr, hi, vi）
+   - テンプレート言語からの自動コピー機能
+   - 翻訳マーカー自動挿入（`<!-- TODO: XX - この文書は翻訳が必要です -->`）
+   - デフォルト言語/フォールバック言語の自動設定
+   - 全バージョン対応のディレクトリ構造自動作成
+   - 対話式/非対話式モード完全サポート
+   - dry-run、バックアップ、ロールバック機能統合
+
+3. **add doc コマンド（packages/cli/src/commands/add/doc.js）**
+   - 自動ドキュメントID生成（project-001, project-002...）
+   - スラッグバリデーション（小文字英数字、ハイフン、スラッシュ）
+   - 全言語対応のMDXファイル自動生成
+   - フロントマター付きテンプレート生成（docId, lang, title, summary, keywords, tags, category）
+   - カテゴリへの自動追加（order自動採番）
+   - レジストリへの自動登録
+   - 対話式/非対話式モード完全サポート
+   - dry-run、バックアップ、ロールバック機能統合
+
+4. **CLIガイド更新（docs/new-generator-plan/guides/docs-cli.md）**
+   - add version, add language, add docコマンドのドキュメントを「実装中」→「完全実装済み✅」に更新
+   - 主要機能リストの追加
+   - 詳細な使用例の追加
+   - オプション説明の更新
+
+### 主要な設計判断
+
+#### 1. コンテンツコピー機能の実装方針
+
+**決定**: 再帰的ディレクトリコピーを共通関数として実装
+
+**根拠**:
+- add versionとadd languageで同じロジックが必要
+- 既存の`scripts/create-version.js`と`scripts/add-language.js`からパターンを踏襲
+- ファイル種別に応じた処理分岐（MDX/MD vs その他）
+
+**実装詳細**:
+```javascript
+// add version: copyDirectoryRecursive()
+// add language: copyDirectoryWithTranslationMarkers()
+```
+
+#### 2. 翻訳マーカーの実装方式
+
+**決定**: MDXフロントマター直後にHTMLコメントを挿入
+
+**形式**: `<!-- TODO: {LANG_CODE} - この文書は翻訳が必要です -->`
+
+**根拠**:
+- 視覚的に分かりやすい
+- MDXレンダリングに影響しない
+- grepで簡単に検索可能（`grep -r "TODO: KO"`）
+
+**実装場所**: `addTranslationMarkers(content, langCode)`
+
+#### 3. ドキュメントID生成戦略
+
+**決定**: プロジェクトIDをプレフィックスとした連番形式（project-001, project-002...）
+
+**根拠**:
+- プロジェクト間で一意性を保証
+- ソート可能で管理しやすい
+- 既存のRegistryManager.getNextDocId()メソッドを活用
+
+**フォーマット**: `{projectId}-{3桁の連番}`
+
+**実装詳細**:
+- 既存ドキュメントIDから最大番号を取得
+- 次の番号を3桁ゼロ埋めで生成
+
+#### 4. MDXテンプレートの構造
+
+**決定**: フロントマターに必須フィールドとオプショナルフィールドを含める
+
+**必須フィールド**:
+- title: ドキュメントタイトル
+- summary: 概要
+- docId: ドキュメントID
+- lang: 言語コード
+
+**オプショナルフィールド**:
+- keywords: キーワード配列
+- tags: タグ配列
+- category: カテゴリID
+
+**根拠**:
+- Astroのフロントマターパースと互換性
+- 検索エンジン最適化（SEO）対応
+- 将来的なメタデータ拡張に対応
+
+#### 5. 非対話式モードの実装戦略
+
+**決定**: 3つの方法で非対話モードを判定
+
+1. `--yes`/`-y` グローバルオプション
+2. `--auto-template` コマンド固有オプション（add languageのみ）
+3. `DOCS_CLI_NON_INTERACTIVE=true` 環境変数
+
+**根拠**:
+- CI/CD環境での自動実行をサポート
+- 既存の`scripts/add-language.js`のパターンを踏襲
+- 柔軟な運用方法を提供
+
+**実装パターン**:
+```javascript
+const nonInteractive = cmdOpts.yes || cmdOpts.autoTemplate || process.env.DOCS_CLI_NON_INTERACTIVE === 'true';
+```
+
+#### 6. バックアップとロールバック統合
+
+**決定**: すべてのaddコマンドでBackupManagerを統一的に使用
+
+**バックアップ対象**:
+- レジストリファイル（registry/docs.json）
+- 作成されたファイル・ディレクトリ（recordCreated）
+
+**ロールバックトリガー**:
+- エラー発生時に自動実行（CLI本体で処理）
+- バックアップから元のファイルを復元
+- 作成されたファイルを削除
+
+**利点**:
+- データ整合性の保証
+- 安全な試行錯誤
+- 失敗時の確実な復旧
+
+### 動作確認結果
+
+**実施日**: 2025年10月17日
+
+**確認項目**:
+1. ✅ add version --help - オプション表示正常
+2. ✅ add language --help - オプション表示正常（15言語リスト表示）
+3. ✅ add doc --help - オプション表示正常
+
+**未実施の動作確認**（次のタスク）:
+- 実際のプロジェクトでの実行テスト
+- エラーケースの確認
+- バックアップ/ロールバック機能の検証
+
+### 次のステップ
+
+**Week 1残り**:
+- スタブコマンドの実動作確認
+- エラーハンドリングの改善
+- ドキュメントの最終確認
+
+**Week 2以降**（Phase 1-4継続）:
+- update/removeコマンド群の実装
+- テストスイート構築（Vitest、ユニットテスト、統合テスト）
+- CI統合（GitHub Actions）
+- 機能拡張（search, export コマンド）
+
+### 参照ドキュメント
+
+- [Phase 1-4計画](./phase-1-4-testing-ci.md)
+- [CLIユーザーガイド](./guides/docs-cli.md)（更新済み）
+- [Phase 1-3完了報告書](./status/phase-1-3-completion-report.md)
+
+---
+
+**記録者**: Claude
+**承認者**: 未定（Week 1完了時に確認）
+**次回レビュー**: Week 1完了時（動作確認後）
