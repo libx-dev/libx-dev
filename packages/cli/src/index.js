@@ -185,6 +185,119 @@ export async function run() {
     });
 
   // ========================================
+  // サブコマンドグループ: update
+  // ========================================
+  const updateCommand = program
+    .command('update')
+    .description('プロジェクト、バージョン、言語、ドキュメントを更新');
+
+  // update project
+  updateCommand
+    .command('project <project-id>')
+    .description('プロジェクトメタデータを更新')
+    .option('--display-name-en <name>', '英語表示名')
+    .option('--display-name-ja <name>', '日本語表示名')
+    .option('--description-en <text>', '英語説明文')
+    .option('--description-ja <text>', '日本語説明文')
+    .option('--status <status>', 'ステータス（active, archived）')
+    .action(async (projectId, options) => {
+      const { default: updateProjectCommand } = await import('./commands/update/project.js');
+      await updateProjectCommand(projectId, program.opts(), options);
+    });
+
+  // update version
+  updateCommand
+    .command('version <project-id> <version-id>')
+    .description('バージョンメタデータを更新')
+    .option('--name <name>', 'バージョン表示名')
+    .option('--status <status>', 'ステータス（active, deprecated, draft）')
+    .option('--set-latest', '最新バージョンとして設定')
+    .option('--no-set-latest', '最新バージョンから除外')
+    .action(async (projectId, versionId, options) => {
+      const { default: updateVersionCommand } = await import('./commands/update/version.js');
+      await updateVersionCommand(projectId, versionId, program.opts(), options);
+    });
+
+  // update language
+  updateCommand
+    .command('language <project-id> <lang-code>')
+    .description('言語設定を更新')
+    .option('--display-name <name>', '言語表示名')
+    .option('--status <status>', 'ステータス（active, inactive）')
+    .option('--set-default', 'デフォルト言語として設定')
+    .option('--fallback <code>', 'フォールバック言語を設定')
+    .action(async (projectId, langCode, options) => {
+      const { default: updateLanguageCommand } = await import('./commands/update/language.js');
+      await updateLanguageCommand(projectId, langCode, program.opts(), options);
+    });
+
+  // update doc
+  updateCommand
+    .command('doc <project-id> <doc-id>')
+    .description('ドキュメントメタデータを更新')
+    .option('--title-en <title>', '英語タイトル')
+    .option('--title-ja <title>', '日本語タイトル')
+    .option('--summary <text>', 'ドキュメントの概要')
+    .option('--status <status>', 'ステータス（draft, published, archived）')
+    .option('--visibility <visibility>', '可視性（public, private）')
+    .option('--keywords <keywords>', 'キーワード（カンマ区切り）')
+    .option('--tags <tags>', 'タグ（カンマ区切り）')
+    .action(async (projectId, docId, options) => {
+      const { default: updateDocCommand } = await import('./commands/update/doc.js');
+      await updateDocCommand(projectId, docId, program.opts(), options);
+    });
+
+  // ========================================
+  // サブコマンドグループ: remove
+  // ========================================
+  const removeCommand = program
+    .command('remove')
+    .description('プロジェクト、バージョン、言語、ドキュメントを削除');
+
+  // remove project
+  removeCommand
+    .command('project <project-id>')
+    .description('プロジェクトを削除（確認プロンプト付き）')
+    .option('--force', '確認なしで削除', false)
+    .action(async (projectId, options) => {
+      const { default: removeProjectCommand } = await import('./commands/remove/project.js');
+      await removeProjectCommand(projectId, program.opts(), options);
+    });
+
+  // remove version
+  removeCommand
+    .command('version <project-id> <version-id>')
+    .description('バージョンを削除（確認プロンプト付き）')
+    .option('--force', '確認なしで削除', false)
+    .option('--delete-content', 'コンテンツファイルも削除', false)
+    .action(async (projectId, versionId, options) => {
+      const { default: removeVersionCommand } = await import('./commands/remove/version.js');
+      await removeVersionCommand(projectId, versionId, program.opts(), options);
+    });
+
+  // remove language
+  removeCommand
+    .command('language <project-id> <lang-code>')
+    .description('言語を削除（確認プロンプト付き）')
+    .option('--force', '確認なしで削除', false)
+    .option('--delete-content', 'コンテンツファイルも削除', false)
+    .action(async (projectId, langCode, options) => {
+      const { default: removeLanguageCommand } = await import('./commands/remove/language.js');
+      await removeLanguageCommand(projectId, langCode, program.opts(), options);
+    });
+
+  // remove doc
+  removeCommand
+    .command('doc <project-id> <doc-id>')
+    .description('ドキュメントを削除（確認プロンプト付き）')
+    .option('--force', '確認なしで削除', false)
+    .option('--delete-content', 'コンテンツファイルも削除', false)
+    .action(async (projectId, docId, options) => {
+      const { default: removeDocCommand } = await import('./commands/remove/doc.js');
+      await removeDocCommand(projectId, docId, program.opts(), options);
+    });
+
+  // ========================================
   // コマンドのパース
   // ========================================
   await program.parseAsync(process.argv);

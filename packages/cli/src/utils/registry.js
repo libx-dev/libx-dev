@@ -174,13 +174,13 @@ export class RegistryManager {
   }
 
   /**
-   * ドキュメントを検索
+   * ドキュメントを検索（docIdまたはslugで検索）
    */
-  findDocument(projectId, docId) {
+  findDocument(projectId, identifier) {
     const project = this.findProject(projectId);
     if (!project) return null;
 
-    return project.documents?.find(d => d.id === docId);
+    return project.documents?.find(d => d.id === identifier || d.slug === identifier);
   }
 
   /**
@@ -208,36 +208,37 @@ export class RegistryManager {
   }
 
   /**
-   * ドキュメントを更新
+   * ドキュメントを更新（docIdまたはslugで検索）
    */
-  updateDocument(projectId, docId, updates) {
-    const document = this.findDocument(projectId, docId);
+  updateDocument(projectId, identifier, updates) {
+    const document = this.findDocument(projectId, identifier);
 
     if (!document) {
-      throw new Error(`ドキュメント "${projectId}/${docId}" が見つかりません`);
+      throw new Error(`ドキュメント "${projectId}/${identifier}" が見つかりません`);
     }
 
     Object.assign(document, updates);
-    logger.debug(`ドキュメント更新: ${projectId}/${docId}`);
+    logger.debug(`ドキュメント更新: ${projectId}/${identifier}`);
     return document;
   }
 
   /**
-   * ドキュメントを削除
+   * ドキュメントを削除（docIdまたはslugで検索）
    */
-  removeDocument(projectId, docId) {
+  removeDocument(projectId, identifier) {
     const project = this.findProject(projectId);
     if (!project) {
       throw new Error(`プロジェクト "${projectId}" が見つかりません`);
     }
 
-    const index = project.documents?.findIndex(d => d.id === docId);
+    // docIdまたはslugで検索
+    const index = project.documents?.findIndex(d => d.id === identifier || d.slug === identifier);
     if (index === -1 || index === undefined) {
-      throw new Error(`ドキュメント "${projectId}/${docId}" が見つかりません`);
+      throw new Error(`ドキュメント "${projectId}/${identifier}" が見つかりません`);
     }
 
     const removed = project.documents.splice(index, 1)[0];
-    logger.debug(`ドキュメント削除: ${projectId}/${docId}`);
+    logger.debug(`ドキュメント削除: ${projectId}/${identifier}`);
     return removed;
   }
 
@@ -287,6 +288,86 @@ export class RegistryManager {
     project.languages.push(language);
     logger.debug(`言語追加: ${projectId}/${language.code}`);
     return language;
+  }
+
+  /**
+   * バージョンを更新
+   */
+  updateVersion(projectId, versionId, updates) {
+    const project = this.findProject(projectId);
+
+    if (!project) {
+      throw new Error(`プロジェクト "${projectId}" が見つかりません`);
+    }
+
+    const version = project.versions?.find(v => v.id === versionId);
+    if (!version) {
+      throw new Error(`バージョン "${versionId}" が見つかりません`);
+    }
+
+    Object.assign(version, updates);
+    logger.debug(`バージョン更新: ${projectId}/${versionId}`);
+    return version;
+  }
+
+  /**
+   * バージョンを削除
+   */
+  removeVersion(projectId, versionId) {
+    const project = this.findProject(projectId);
+
+    if (!project) {
+      throw new Error(`プロジェクト "${projectId}" が見つかりません`);
+    }
+
+    const index = project.versions?.findIndex(v => v.id === versionId);
+    if (index === -1 || index === undefined) {
+      throw new Error(`バージョン "${versionId}" が見つかりません`);
+    }
+
+    const removed = project.versions.splice(index, 1)[0];
+    logger.debug(`バージョン削除: ${projectId}/${versionId}`);
+    return removed;
+  }
+
+  /**
+   * 言語を更新
+   */
+  updateLanguage(projectId, langCode, updates) {
+    const project = this.findProject(projectId);
+
+    if (!project) {
+      throw new Error(`プロジェクト "${projectId}" が見つかりません`);
+    }
+
+    const language = project.languages?.find(l => l.code === langCode);
+    if (!language) {
+      throw new Error(`言語 "${langCode}" が見つかりません`);
+    }
+
+    Object.assign(language, updates);
+    logger.debug(`言語更新: ${projectId}/${langCode}`);
+    return language;
+  }
+
+  /**
+   * 言語を削除
+   */
+  removeLanguage(projectId, langCode) {
+    const project = this.findProject(projectId);
+
+    if (!project) {
+      throw new Error(`プロジェクト "${projectId}" が見つかりません`);
+    }
+
+    const index = project.languages?.findIndex(l => l.code === langCode);
+    if (index === -1 || index === undefined) {
+      throw new Error(`言語 "${langCode}" が見つかりません`);
+    }
+
+    const removed = project.languages.splice(index, 1)[0];
+    logger.debug(`言語削除: ${projectId}/${langCode}`);
+    return removed;
   }
 
   /**

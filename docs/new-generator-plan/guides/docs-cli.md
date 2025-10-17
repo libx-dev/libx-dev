@@ -319,6 +319,270 @@ pnpm docs-cli list languages my-docs
 pnpm docs-cli list languages my-docs --status active
 ```
 
+## update - 更新コマンド群 ✅ **完全実装済み**
+
+既存のプロジェクト、バージョン、言語、ドキュメントのメタデータを更新します。
+
+### update project - プロジェクト更新
+
+プロジェクトのメタデータ（表示名、説明、ステータス）を更新します。
+
+```bash
+pnpm docs-cli update project <project-id> [options]
+```
+
+**オプション**:
+- `--display-name-en <name>` - 英語表示名
+- `--display-name-ja <name>` - 日本語表示名
+- `--description-en <text>` - 英語説明文
+- `--description-ja <text>` - 日本語説明文
+- `--status <status>` - ステータス（`active`, `archived`）
+
+**例**:
+```bash
+# 表示名を更新
+pnpm docs-cli update project my-docs \
+  --display-name-en "My Documentation" \
+  --display-name-ja "私のドキュメント"
+
+# ステータスを更新
+pnpm docs-cli update project my-docs --status archived
+
+# dry-runモードで確認
+pnpm docs-cli update project my-docs \
+  --display-name-en "New Name" \
+  --dry-run
+```
+
+### update version - バージョン更新
+
+バージョンのメタデータを更新します。
+
+```bash
+pnpm docs-cli update version <project-id> <version-id> [options]
+```
+
+**オプション**:
+- `--name <name>` - バージョン表示名
+- `--status <status>` - ステータス（`active`, `deprecated`, `draft`）
+- `--set-latest` - 最新バージョンとして設定
+
+**主要機能**:
+- ✅ 最新バージョンフラグの自動更新（既存の最新バージョンを自動解除）
+
+**例**:
+```bash
+# バージョン名を更新
+pnpm docs-cli update version my-docs v2 --name "Version 2.0"
+
+# 最新バージョンとして設定
+pnpm docs-cli update version my-docs v3 --set-latest
+
+# ステータスを非推奨に変更
+pnpm docs-cli update version my-docs v1 --status deprecated
+```
+
+### update language - 言語更新
+
+言語設定を更新します。
+
+```bash
+pnpm docs-cli update language <project-id> <lang-code> [options]
+```
+
+**オプション**:
+- `--display-name <name>` - 言語表示名
+- `--status <status>` - ステータス（`active`, `inactive`）
+- `--set-default` - デフォルト言語として設定
+- `--fallback <lang-code>` - フォールバック言語
+
+**主要機能**:
+- ✅ デフォルト言語フラグの自動更新（既存のデフォルト言語を自動解除）
+
+**例**:
+```bash
+# 表示名を更新
+pnpm docs-cli update language my-docs ja --display-name "日本語 (Japanese)"
+
+# デフォルト言語として設定
+pnpm docs-cli update language my-docs ja --set-default
+
+# フォールバック言語を変更
+pnpm docs-cli update language my-docs ko --fallback ja
+```
+
+### update doc - ドキュメント更新
+
+ドキュメントのメタデータを更新します。
+
+```bash
+pnpm docs-cli update doc <project-id> <doc-id|slug> [options]
+```
+
+**オプション**:
+- `--title-en <title>` - 英語タイトル
+- `--title-ja <title>` - 日本語タイトル
+- `--summary <text>` - 概要
+- `--status <status>` - ステータス（`draft`, `published`, `archived`）
+- `--visibility <visibility>` - 可視性（`public`, `private`）
+- `--keywords <keywords>` - キーワード（カンマ区切り）
+- `--tags <tags>` - タグ（カンマ区切り）
+
+**主要機能**:
+- ✅ docIDまたはslugで検索可能
+- ✅ 配列フィールドの完全置き換え
+
+**例**:
+```bash
+# タイトルを更新
+pnpm docs-cli update doc my-docs getting-started \
+  --title-en "Getting Started Guide" \
+  --title-ja "スタートガイド"
+
+# ステータスを公開に変更
+pnpm docs-cli update doc my-docs api/auth --status published
+
+# キーワードとタグを更新
+pnpm docs-cli update doc my-docs installation \
+  --keywords "install,setup,quickstart" \
+  --tags "beginner,tutorial"
+
+# slugで検索して更新
+pnpm docs-cli update doc my-docs "guide/installation" \
+  --summary "How to install the library"
+```
+
+## remove - 削除コマンド群 ✅ **完全実装済み**
+
+プロジェクト、バージョン、言語、ドキュメントを削除します。すべての削除コマンドには確認プロンプトがあります。
+
+### remove project - プロジェクト削除
+
+プロジェクトをレジストリから削除します。
+
+```bash
+pnpm docs-cli remove project <project-id> [options]
+```
+
+**オプション**:
+- `--force` - 確認なしで削除
+
+**主要機能**:
+- ✅ プロジェクト詳細表示（ドキュメント数、バージョン数、言語数）
+- ✅ 確認プロンプト（--forceでスキップ可能）
+- ✅ レジストリからのみ削除（コンテンツファイルは保持）
+
+**例**:
+```bash
+# プロジェクト削除（確認プロンプト付き）
+pnpm docs-cli remove project old-docs
+
+# 確認なしで削除
+pnpm docs-cli remove project old-docs --force
+
+# dry-runモードで確認
+pnpm docs-cli remove project old-docs --dry-run --yes
+```
+
+**注意**: デフォルトではレジストリからのみ削除し、コンテンツファイル（`apps/<project-id>/`）は保持されます。手動で削除する必要があります。
+
+### remove version - バージョン削除
+
+バージョンをレジストリから削除します。
+
+```bash
+pnpm docs-cli remove version <project-id> <version-id> [options]
+```
+
+**オプション**:
+- `--force` - 確認なしで削除
+- `--delete-content` - コンテンツファイルも削除
+
+**主要機能**:
+- ✅ バージョン情報表示
+- ✅ 確認プロンプト
+- ✅ オプショナルなコンテンツ削除
+- ✅ 全言語のコンテンツディレクトリ削除
+
+**例**:
+```bash
+# バージョン削除（レジストリのみ）
+pnpm docs-cli remove version my-docs v1
+
+# コンテンツファイルも削除
+pnpm docs-cli remove version my-docs v1 --delete-content
+
+# 確認なしで削除
+pnpm docs-cli remove version my-docs v1 --force --yes
+```
+
+### remove language - 言語削除
+
+言語をレジストリから削除します。
+
+```bash
+pnpm docs-cli remove language <project-id> <lang-code> [options]
+```
+
+**オプション**:
+- `--force` - 確認なしで削除
+- `--delete-content` - コンテンツファイルも削除
+
+**主要機能**:
+- ✅ 言語情報表示（デフォルト言語か、影響を受けるバージョン数）
+- ✅ 最後の1言語は削除不可（バリデーション）
+- ✅ デフォルト言語削除時の警告メッセージ
+- ✅ オプショナルなコンテンツ削除
+- ✅ 全バージョンのコンテンツディレクトリ削除
+
+**例**:
+```bash
+# 言語削除（レジストリのみ）
+pnpm docs-cli remove language my-docs ko
+
+# コンテンツファイルも削除
+pnpm docs-cli remove language my-docs ko --delete-content
+
+# 確認なしで削除
+pnpm docs-cli remove language my-docs ko --force --yes
+```
+
+**注意**: デフォルト言語を削除した後は、別の言語をデフォルトに設定する必要があります。
+
+### remove doc - ドキュメント削除
+
+ドキュメントをレジストリから削除します。
+
+```bash
+pnpm docs-cli remove doc <project-id> <doc-id|slug> [options]
+```
+
+**オプション**:
+- `--force` - 確認なしで削除
+- `--delete-content` - コンテンツファイルも削除
+
+**主要機能**:
+- ✅ ドキュメント情報表示（影響を受けるファイル数）
+- ✅ docIDまたはslugで検索可能
+- ✅ 確認プロンプト
+- ✅ オプショナルなコンテンツ削除
+- ✅ 全バージョン・全言語のMDXファイル削除
+
+**例**:
+```bash
+# ドキュメント削除（レジストリのみ）
+pnpm docs-cli remove doc my-docs getting-started
+
+# slugで検索して削除
+pnpm docs-cli remove doc my-docs "guide/installation"
+
+# コンテンツファイルも削除
+pnpm docs-cli remove doc my-docs api/auth --delete-content
+
+# 確認なしで削除
+pnpm docs-cli remove doc my-docs old-feature --force --yes
+```
+
 ## 設定ファイル
 
 `.docs-cli/config.json` で動作をカスタマイズできます。
@@ -420,16 +684,23 @@ cp -r .backups/<timestamp>/registry/docs.json registry/docs.json
 
 ## 今後の実装予定
 
-Phase 1-3では基盤を構築しました。以下の機能はPhase 1-4以降で実装予定です:
+Phase 1-4 Week 1-2で主要なCRUDコマンド群を完成させました。以下の機能はWeek 3以降で実装予定です:
 
-- [ ] `add version` の完全実装
-- [ ] `add language` の完全実装（既存スクリプトからの移植）
-- [ ] `add doc` の完全実装
-- [ ] `update` コマンド群
-- [ ] `remove` コマンド群
-- [ ] `migrate` コマンド（Phase 3連携）
-- [ ] `search` コマンド
-- [ ] `export` コマンド
+**Week 1-2で完成した機能**:
+- [x] `add version` の完全実装 ✅
+- [x] `add language` の完全実装 ✅
+- [x] `add doc` の完全実装 ✅
+- [x] `update` コマンド群（project, version, language, doc）✅
+- [x] `remove` コマンド群（project, version, language, doc）✅
+
+**Week 3以降の実装予定**:
+- [ ] テストスイート構築（Vitest setup）
+- [ ] ユニットテスト作成
+- [ ] 統合テスト作成
+- [ ] CI統合（GitHub Actions）
+- [ ] `search` コマンド（ドキュメント検索機能）
+- [ ] `export` コマンド（レジストリデータのエクスポート）
+- [ ] `migrate` コマンドの詳細化（Phase 3連携）
 
 ## 参考リンク
 
