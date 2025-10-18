@@ -1,0 +1,85 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`スナップショットテスト > development環境のサイドバー構造 1`] = `
+[
+  {
+    "icon": "book",
+    "items": [
+      {
+        "docId": "getting-started",
+        "href": "/docs/test-project/v2/ja/guide/getting-started",
+        "order": 1,
+        "title": "はじめに",
+      },
+      {
+        "docId": "installation",
+        "href": "/docs/test-project/v2/ja/guide/installation",
+        "order": 2,
+        "title": "インストール",
+      },
+    ],
+    "order": 1,
+    "slug": "guide",
+    "title": "ガイド",
+  },
+  {
+    "icon": undefined,
+    "items": [
+      {
+        "docId": "api-overview",
+        "href": "/docs/test-project/v2/ja/api/overview",
+        "order": 1,
+        "title": "API概要",
+      },
+      {
+        "docId": "api-methods",
+        "href": "/docs/test-project/v2/ja/api/methods",
+        "order": 2,
+        "title": "APIメソッド",
+      },
+    ],
+    "order": 2,
+    "slug": "api",
+    "title": "APIリファレンス",
+  },
+]
+`;
+
+exports[`スナップショットテスト > production環境のサイドバー構造 1`] = `
+[
+  {
+    "icon": "book",
+    "items": [
+      {
+        "docId": "getting-started",
+        "href": "/docs/test-project/v2/en/guide/getting-started",
+        "order": 1,
+        "title": "Getting Started",
+      },
+      {
+        "docId": "installation",
+        "href": "/docs/test-project/v2/en/guide/installation",
+        "order": 2,
+        "title": "Installation",
+      },
+    ],
+    "order": 1,
+    "slug": "guide",
+    "title": "Guide",
+  },
+  {
+    "icon": undefined,
+    "items": [
+      {
+        "docId": "api-overview",
+        "href": "/docs/test-project/v2/en/api/overview",
+        "order": 1,
+        "title": "API Overview",
+      },
+    ],
+    "order": 2,
+    "slug": "api",
+    "title": "API Reference",
+  },
+]
+`;

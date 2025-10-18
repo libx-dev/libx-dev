@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`スナップショットテスト > OpenGraphメタデータのスナップショット 1`] = `
+{
+  "og:description": "Learn how to get started with our platform",
+  "og:image": "https://libx.dev/og-image.png",
+  "og:locale": "en",
+  "og:site_name": "LibX Documentation",
+  "og:title": "Getting Started Guide",
+  "og:type": "article",
+  "og:url": "https://libx.dev/docs/guide/getting-started",
+}
+`;
+
+exports[`スナップショットテスト > manifest.jsonのスナップショット 1`] = `
+{
+  "background_color": "#ffffff",
+  "description": "ドキュメント用の包括的なテストプロジェクト",
+  "dir": "ltr",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "/icon-192.png",
+      "type": "image/png",
+    },
+    {
+      "sizes": "512x512",
+      "src": "/icon-512.png",
+      "type": "image/png",
+    },
+  ],
+  "lang": "ja",
+  "name": "テストプロジェクト",
+  "short_name": "テストプロジェクト",
+  "start_url": "/",
+  "theme_color": "#1e40af",
+}
+`;
+
+exports[`スナップショットテスト > robots.txtのスナップショット 1`] = `
+"User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /private
+Crawl-delay: 5
+
+Sitemap: https://libx.dev/sitemap.xml
+"
+`;

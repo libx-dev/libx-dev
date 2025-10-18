@@ -1,0 +1,60 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`スナップショットテスト > XML出力のスナップショット 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://libx.dev/test-project/v1/en/guide/getting-started</loc>
+    <lastmod>TIMESTAMP</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://libx.dev/test-project/v1/ja/guide/getting-started</loc>
+    <lastmod>TIMESTAMP</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://libx.dev/test-project/v2/en/guide/getting-started</loc>
+    <lastmod>TIMESTAMP</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://libx.dev/test-project/v2/ja/guide/getting-started</loc>
+    <lastmod>TIMESTAMP</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>"
+`;
+
+exports[`スナップショットテスト > production環境のサイトマップ構造 1`] = `
+[
+  {
+    "changefreq": "weekly",
+    "lastmod": "2025-10-18T03:16:45.002Z",
+    "priority": 0.5,
+    "url": "https://libx.dev/test-project/v1/en/guide/getting-started",
+  },
+  {
+    "changefreq": "weekly",
+    "lastmod": "2025-10-18T03:16:45.002Z",
+    "priority": 0.5,
+    "url": "https://libx.dev/test-project/v1/ja/guide/getting-started",
+  },
+  {
+    "changefreq": "weekly",
+    "lastmod": "2025-10-18T03:16:45.002Z",
+    "priority": 0.8,
+    "url": "https://libx.dev/test-project/v2/en/guide/getting-started",
+  },
+  {
+    "changefreq": "weekly",
+    "lastmod": "2025-10-18T03:16:45.002Z",
+    "priority": 0.8,
+    "url": "https://libx.dev/test-project/v2/ja/guide/getting-started",
+  },
+]
+`;

@@ -4,11 +4,14 @@
 
 ## 概要
 
-`@docs/generator`は、`registry/docs.json`に定義されたデータ構造をもとに、Astroサイトのルーティング、サイドバー、サイトマップを自動生成するためのツールを提供します。
+`@docs/generator`は、`registry/docs.json`に定義されたデータ構造をもとに、Astroサイトのルーティング、サイドバー、サイトマップ、メタデータを自動生成するためのツールを提供します。
 
 ## 主要機能
 
 - **レジストリ駆動のルーティング生成**: プロジェクト/バージョン/言語/slugからAstro用のルーティング情報を自動生成
+- **サイドバー生成**: カテゴリ階層構造に基づいたナビゲーションメニューを自動生成
+- **サイトマップ生成**: SEO最適化されたsitemap.xmlを自動生成
+- **メタデータ生成**: robots.txt、manifest.json、OpenGraphメタデータを生成
 - **Visibility制御**: `public`/`internal`/`draft`設定に基づいてビルド対象を制御
 - **環境別ビルド**: production/staging/development/preview環境ごとに異なるビルド結果を生成
 - **型安全**: TypeScriptによる完全な型サポート
@@ -66,6 +69,76 @@ const { project, version, lang, slug } = Astro.params;
 
 <h1>{title}</h1>
 <p>{summary}</p>
+```
+
+### サイドバー生成
+
+```typescript
+import { loadRegistry, generateSidebar } from '@docs/generator';
+
+const registry = loadRegistry();
+const sidebar = generateSidebar(
+  registry,
+  'sample-docs',  // プロジェクトID
+  'v2',           // バージョン
+  'ja',           // 言語
+  {
+    env: 'production',
+    baseUrl: '/docs/sample-docs'
+  }
+);
+
+console.log(`Generated ${sidebar.length} categories`);
+```
+
+### サイトマップ生成
+
+```typescript
+import { loadRegistry, generateSitemap, sitemapToXml } from '@docs/generator';
+
+const registry = loadRegistry();
+const sitemap = generateSitemap(
+  registry,
+  'https://example.com',
+  {
+    env: 'production',
+    defaultChangefreq: 'weekly',
+    defaultPriority: 0.5
+  }
+);
+
+// XMLとして出力
+const xml = sitemapToXml(sitemap);
+fs.writeFileSync('sitemap.xml', xml);
+```
+
+### メタデータ生成
+
+```typescript
+import {
+  generateRobotsTxt,
+  generateManifest,
+  generateOpenGraph
+} from '@docs/generator';
+
+// robots.txt
+const robotsTxt = generateRobotsTxt('https://example.com', {
+  sitemapUrl: '/sitemap.xml'
+});
+
+// manifest.json
+const manifest = generateManifest(registry, 'sample-docs', {
+  lang: 'ja',
+  themeColor: '#1e40af'
+});
+
+// OpenGraph メタデータ
+const og = generateOpenGraph(
+  'ページタイトル',
+  'ページ説明',
+  'https://example.com/page',
+  { lang: 'ja' }
+);
 ```
 
 ### Visibility制御
@@ -152,6 +225,111 @@ console.log(filtered.length); // 1
 #### `dumpRoutes(routes, maxRoutes?): void`
 
 ルーティング情報を人間が読みやすい形式で出力します。
+
+### サイドバー生成
+
+#### `generateSidebar(registry, projectId, version, lang, options?): SidebarItem[]`
+
+レジストリからサイドバー構造を生成します。
+
+**パラメータ:**
+- `registry` (Registry): レジストリオブジェクト
+- `projectId` (string): プロジェクトID
+- `version` (string): バージョンID
+- `lang` (string): 言語コード
+- `options` (GenerateSidebarOptions, optional): 生成オプション
+  - `env` (string): ビルド環境
+  - `baseUrl` (string): ベースURL
+  - `debug` (boolean): デバッグログ出力
+
+**戻り値:** `SidebarItem[]` - サイドバーカテゴリの配列
+
+#### `getSidebarStats(sidebar): Object`
+
+サイドバーの統計情報を取得します。
+
+#### `dumpSidebar(sidebar): void`
+
+サイドバーを人間が読みやすい形式で出力します。
+
+### サイトマップ生成
+
+#### `generateSitemap(registry, baseUrl, options?): SitemapEntry[]`
+
+レジストリからサイトマップを生成します。
+
+**パラメータ:**
+- `registry` (Registry): レジストリオブジェクト
+- `baseUrl` (string): サイトのベースURL
+- `options` (GenerateSitemapOptions, optional): 生成オプション
+  - `env` (string): ビルド環境
+  - `defaultChangefreq` (string): デフォルト変更頻度
+  - `defaultPriority` (number): デフォルト優先度
+  - `latestVersionPriorityBoost` (number): 最新バージョンの優先度ブースト
+
+**戻り値:** `SitemapEntry[]` - サイトマップエントリの配列
+
+#### `sitemapToXml(entries): string`
+
+サイトマップエントリをXML形式の文字列に変換します。
+
+#### `getSitemapStats(entries): Object`
+
+サイトマップの統計情報を取得します。
+
+#### `dumpSitemap(entries, maxEntries?): void`
+
+サイトマップを人間が読みやすい形式で出力します。
+
+### メタデータ生成
+
+#### `generateRobotsTxt(baseUrl, options?): string`
+
+robots.txtを生成します。
+
+**パラメータ:**
+- `baseUrl` (string): サイトのベースURL
+- `options` (GenerateRobotsTxtOptions, optional): 生成オプション
+  - `sitemapUrl` (string): サイトマップURL
+  - `additionalDisallow` (string[]): 追加のDisallowルール
+  - `crawlDelay` (number): クローリング遅延
+
+**戻り値:** `string` - robots.txtの内容
+
+#### `generateManifest(registry, projectId, options?): WebManifest | null`
+
+manifest.jsonを生成します。
+
+**パラメータ:**
+- `registry` (Registry): レジストリオブジェクト
+- `projectId` (string): プロジェクトID
+- `options` (GenerateManifestOptions, optional): 生成オプション
+  - `lang` (string): 言語コード
+  - `themeColor` (string): テーマカラー
+  - `backgroundColor` (string): 背景色
+  - `icons` (Array): アイコン設定
+
+**戻り値:** `WebManifest | null` - マニフェストオブジェクト
+
+#### `generateOpenGraph(title, description, url, options?): OpenGraphMeta`
+
+OpenGraphメタデータを生成します。
+
+**パラメータ:**
+- `title` (string): ページタイトル
+- `description` (string): ページ説明
+- `url` (string): ページURL
+- `options` (GenerateOpenGraphOptions, optional): 生成オプション
+  - `type` (string): ページタイプ
+  - `imageUrl` (string): OGイメージURL
+  - `siteName` (string): サイト名
+  - `lang` (string): 言語コード
+
+**戻り値:** `OpenGraphMeta` - OpenGraphメタデータオブジェクト
+
+#### `openGraphToHtml(meta): string[]`
+
+OpenGraphメタデータをHTMLメタタグの配列に変換します。
 
 ### Visibility制御
 
