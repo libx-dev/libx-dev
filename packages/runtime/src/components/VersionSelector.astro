@@ -19,7 +19,8 @@ interface Props {
 const { projectId, currentVersion, lang, slug } = Astro.props;
 
 // レジストリからプロジェクト情報を取得
-const registry = loadRegistry('/Users/dolphilia/github/libx-dev/registry/docs.json');
+// process.cwd()がプロジェクトルートを指すため、相対パスで指定
+const registry = loadRegistry('registry/docs.json');
 const project = registry.projects.find(p => p.id === projectId);
 
 if (!project) {

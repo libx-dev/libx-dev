@@ -3,7 +3,8 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadRegistry, generateRobotsTxt, generateManifest, generateSitemap, sitemapToXml } from '@docs/generator';
+// @docs/generatorはTypeScriptファイル (.ts) なので、直接TypeScript形式で読み込む
+import { loadRegistry, generateRobotsTxt, generateManifest, generateSitemap, sitemapToXml } from '../../generator/src/index.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

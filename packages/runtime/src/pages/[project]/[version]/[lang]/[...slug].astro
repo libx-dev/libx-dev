@@ -2,14 +2,21 @@
 import { loadRegistry, generateRoutes, generateSidebar, generateOpenGraph } from '@docs/generator';
 import DocLayout from '../../../../layouts/DocLayout.astro';
 import RelatedDocs from '../../../../components/RelatedDocs.astro';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 // import.meta.globでMDXファイルを事前収集
 const mdxModules = import.meta.glob<any>('../../../../apps/*/src/content/docs/**/*.mdx');
 
 // Astro getStaticPaths() - ルーティング生成
 export async function getStaticPaths() {
-  // プロジェクトルートからの絶対パス
-  const registry = loadRegistry('/Users/dolphilia/github/libx-dev/registry/docs.json');
+  // ファイルパスからプロジェクトルートを取得
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  const projectRoot = join(__dirname, '../../../../..');
+
+  // レジストリをプロジェクトルートから読み込み
+  const registry = loadRegistry('registry/docs.json', projectRoot);
 
   // 環境に応じたルーティング生成
   const routes = generateRoutes(registry, {
@@ -73,8 +80,13 @@ try {
   mdxError = error instanceof Error ? error.message : String(error);
 }
 
+// ファイルパスからプロジェクトルートを取得
+const __filename_runtime = fileURLToPath(import.meta.url);
+const __dirname_runtime = dirname(__filename_runtime);
+const projectRoot = join(__dirname_runtime, '../../../../..');
+
 // レジストリを再読み込み（サイドバー生成用）
-const registry = loadRegistry('/Users/dolphilia/github/libx-dev/registry/docs.json');
+const registry = loadRegistry('registry/docs.json', projectRoot);
 
 // サイドバーを生成
 const sidebar = generateSidebar(registry, project, version, lang, {

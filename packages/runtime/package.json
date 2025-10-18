@@ -6,7 +6,6 @@
   "description": "Astroランタイムパッケージ - レジストリ駆動のドキュメントサイト生成",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/generate-metadata.js",
     "build": "astro build",
     "postbuild": "pagefind --site dist --glob \"**/*.html\"",
     "preview": "astro preview",
