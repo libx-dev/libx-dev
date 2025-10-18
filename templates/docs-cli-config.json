@@ -1,0 +1,19 @@
+{
+  "// registryPath": "レジストリファイルパス（デフォルト: registry/docs.json）",
+  "registryPath": "registry/docs.json",
+
+  "// projectRoot": "プロジェクトルートディレクトリ（デフォルト: apps）",
+  "projectRoot": "apps",
+
+  "// backupDir": "バックアップディレクトリ（デフォルト: .backups）",
+  "backupDir": ".backups",
+
+  "// backupRetention": "バックアップ保持世代数（デフォルト: 5）",
+  "backupRetention": 5,
+
+  "// logLevel": "ログレベル（DEBUG, INFO, WARN, ERROR, SILENT）",
+  "logLevel": "INFO",
+
+  "// nonInteractive": "非対話モード（デフォルト: false）",
+  "nonInteractive": false
+}

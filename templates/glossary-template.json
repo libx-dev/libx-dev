@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cli",
+    "term": "CLI",
+    "titles": {
+      "en": "Command Line Interface",
+      "ja": "コマンドラインインターフェース"
+    },
+    "definition": {
+      "en": "A text-based interface for interacting with software applications through commands entered in a terminal or console.",
+      "ja": "ターミナルやコンソールでコマンドを入力してソフトウェアアプリケーションと対話するためのテキストベースのインターフェース。"
+    },
+    "aliases": ["command-line", "terminal", "console"],
+    "relatedDocs": ["cli-guide", "installation"],
+    "visibility": "public",
+    "tags": ["tech", "interface", "tools"]
+  },
+  {
+    "id": "registry",
+    "term": "Registry",
+    "titles": {
+      "en": "Registry",
+      "ja": "レジストリ"
+    },
+    "definition": {
+      "en": "A centralized data store that contains all project, version, language, and document definitions for the documentation site generator.",
+      "ja": "ドキュメントサイトジェネレーターのすべてのプロジェクト、バージョン、言語、ドキュメント定義を含む一元化されたデータストア。"
+    },
+    "aliases": ["docs.json", "data registry"],
+    "relatedDocs": ["registry-guide", "architecture"],
+    "visibility": "public",
+    "tags": ["core", "architecture", "data"]
+  },
+  {
+    "id": "slug",
+    "term": "Slug",
+    "titles": {
+      "en": "URL Slug",
+      "ja": "URLスラッグ"
+    },
+    "definition": {
+      "en": "A URL-friendly string that represents a document's path without special characters or spaces.",
+      "ja": "特殊文字やスペースを含まない、URLに適した文字列でドキュメントのパスを表現したもの。"
+    },
+    "aliases": ["url-path", "permalink"],
+    "relatedDocs": ["url-structure", "routing"],
+    "visibility": "public",
+    "tags": ["url", "routing"]
+  }
+]
