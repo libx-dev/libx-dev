@@ -3,10 +3,6 @@ import { loadRegistry, generateRoutes, generateSidebar, generateOpenGraph } from
 import DocLayout from '../../../../layouts/DocLayout.astro';
 import RelatedDocs from '../../../../components/RelatedDocs.astro';
 
-// import.meta.globでMDXファイルを事前収集
-// astro.config.mjsのrootからの相対パスで指定
-const mdxModules = import.meta.glob<any>('/apps/*/src/content/docs/**/*.mdx');
-
 // Astro getStaticPaths() - ルーティング生成
 export async function getStaticPaths() {
   // プロジェクトルートを環境変数から取得（astro.config.mjsで設定）
@@ -44,35 +40,65 @@ const {
 const { project, version, lang, slug } = Astro.params;
 
 // MDXコンテンツの読み込み
-// プロジェクト、バージョン、言語、slugからファイルパスを推測
+// Vite Aliasを使用してMDXファイルを動的にimport
 let Content: any = null;
 let mdxError: string | null = null;
 
-// globパターンからマッチするファイルを探す
 try {
-  // slugは "guide/getting-started" のような形式
-  // 実際のファイル名は "01-guide/01-getting-started.mdx" のような形式
-  // 最後のセグメント（例: "getting-started"）でマッチさせる
-  const slugSegments = slug.split('/');
-  const lastSegment = slugSegments[slugSegments.length - 1];
+  // @appsエイリアスを使用してMDXファイルを読み込む
+  // import.meta.glob()でパターンマッチング
+  const mdxModules = import.meta.glob('@apps/*/src/content/docs/**/*.mdx');
 
-  // MDXファイルを検索（番号接頭辞を考慮）
-  const allKeys = Object.keys(mdxModules);
+  // デバッグログ
+  console.log(`[MDX Import] Looking for: project=${project}, version=${version}, lang=${lang}, slug=${slug}`);
+  console.log(`[MDX Import] Total MDX modules found: ${Object.keys(mdxModules).length}`);
 
-  // デバッグ: マッチングを試みているキーをログ出力
-  console.log(`[MDX Search] Looking for: project=${project}, version=${version}, lang=${lang}, slug=${slug}, lastSegment=${lastSegment}`);
-  console.log(`[MDX Search] Total MDX files found: ${allKeys.length}`);
+  if (Object.keys(mdxModules).length > 0) {
+    console.log(`[MDX Import] Sample module paths:`, Object.keys(mdxModules).slice(0, 5));
+  }
 
-  const matchingKey = allKeys.find(key => {
-    const normalized = key.toLowerCase();
-    const matches = normalized.includes(`/${project}/`) &&
-           normalized.includes(`/${version}/`) &&
-           normalized.includes(`/${lang}/`) &&
-           (normalized.endsWith(`/${lastSegment}.mdx`) ||
-            normalized.match(new RegExp(`/\\d+-${lastSegment}\\.mdx$`, 'i')));
+  // slugから実際のファイルパスを構築
+  // slug: "guide/getting-started"
+  // 実際のファイル: "@apps/sample-docs/src/content/docs/v2/ja/01-guide/01-getting-started.mdx"
+
+  // slugの各セグメントを番号接頭辞付きでマッチング
+  const slugSegments = slug.toLowerCase().split('/');
+
+  const matchingKey = Object.keys(mdxModules).find(modulePath => {
+    const normalizedPath = modulePath.toLowerCase();
+
+    // プロジェクト、バージョン、言語が一致するか確認
+    if (!normalizedPath.includes(`/${project}/`) ||
+        !normalizedPath.includes(`/${version}/`) ||
+        !normalizedPath.includes(`/${lang}/`)) {
+      return false;
+    }
+
+    // バージョン/言語以降のパス部分を取得
+    const versionLangPattern = `/${version}/${lang}/`;
+    const pathIndex = normalizedPath.indexOf(versionLangPattern);
+    if (pathIndex === -1) return false;
+
+    const pathPart = normalizedPath.substring(pathIndex + versionLangPattern.length);
+
+    // 番号接頭辞を除去したセグメントを作成
+    const pathSegments = pathPart
+      .replace(/\.mdx$/, '')  // 拡張子を除去
+      .split('/')
+      .map(seg => seg.replace(/^\d+-/, ''));  // 番号接頭辞を除去
+
+    // セグメント数が一致するか確認
+    if (slugSegments.length !== pathSegments.length) {
+      return false;
+    }
+
+    // 全セグメントが一致するか確認
+    const matches = slugSegments.every((slugSeg, index) => {
+      return pathSegments[index] === slugSeg;
+    });
 
     if (matches) {
-      console.log(`[MDX Search] Match found: ${key}`);
+      console.log(`[MDX Import] Match found: ${modulePath} for slug: ${slug}`);
     }
 
     return matches;
@@ -80,7 +106,7 @@ try {
 
   if (matchingKey) {
     const module = await mdxModules[matchingKey]();
-    Content = module.default;
+    Content = module.default || module.Content;
   } else {
     mdxError = `MDXファイルが見つかりません: project=${project}, version=${version}, lang=${lang}, slug=${slug}`;
   }

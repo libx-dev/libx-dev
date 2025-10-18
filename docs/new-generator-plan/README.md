@@ -20,7 +20,7 @@
 | フェーズ1 | レジストリ/CLI/テスト基盤 | `phase-1-0-foundation.md` | `phase-1-1-...` 〜 `phase-1-5-...` | ✅ 完了 |
 | フェーズ2-1 | ランタイム/ジェネレーター | `phase-2-1-runtime-generator.md` | サイドバー・サイトマップ・メタデータ生成 | ✅ 完了 |
 | フェーズ2-2 | UI/テーマ統合 | `phase-2-2-ui-theme.md` | Astroページ・レイアウト実装 | ✅ 完了 |
-| フェーズ2-3 | コンテンツ統合 | `phase-2-3-content-integration.md` | MDX読み込み・既存UI統合 | ⏳ 次 |
+| フェーズ2-3 | コンテンツ統合 | `phase-2-3-search.md` | MDX読み込み・既存UI統合・検索機能 | ✅ 完了 |
 | フェーズ2 | Astro ビルドと UI 統合 | `phase-2-0-build.md` | `phase-2-1-...` 〜 `phase-2-6-...` | 🚧 進行中 |
 | フェーズ3 | 既存資産移行と CI 整備 | `phase-3-0-migration.md` | `phase-3-1-...` 〜 `phase-3-6-...` | - |
 | フェーズ4 | QA・リリース準備 | `phase-4-0-release.md` | `phase-4-1-...` 〜 `phase-4-4-...` | - |
@@ -71,5 +71,6 @@
 ---
 
 ### 更新履歴
+- 2025-10-19: Phase 2-3完了（MDXコンテンツ統合・検索機能統合成功）
 - 2025-10-18: Phase 2-2完了、Phase 2-3ステータスを追加
 - 2024-XX-XX: README 初版作成（概要、フェーズ一覧、進捗更新フローを追加）

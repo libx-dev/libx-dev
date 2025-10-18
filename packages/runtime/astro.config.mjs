@@ -35,6 +35,8 @@ export default defineConfig({
         '@docs/versioning': path.resolve(__dirname, '../versioning/src'),
         '@docs/theme': path.resolve(__dirname, '../theme/src'),
         '@docs/i18n': path.resolve(__dirname, '../i18n/src'),
+        // モノレポ内のappsディレクトリへのエイリアス
+        '@apps': path.resolve(__dirname, '../../apps'),
       },
     },
     define: {
