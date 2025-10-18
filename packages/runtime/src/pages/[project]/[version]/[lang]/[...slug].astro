@@ -1,10 +1,15 @@
 ---
 import { loadRegistry, generateRoutes, generateSidebar, generateOpenGraph } from '@docs/generator';
 import DocLayout from '../../../../layouts/DocLayout.astro';
+import RelatedDocs from '../../../../components/RelatedDocs.astro';
+
+// import.meta.globでMDXファイルを事前収集
+const mdxModules = import.meta.glob<any>('../../../../apps/*/src/content/docs/**/*.mdx');
 
 // Astro getStaticPaths() - ルーティング生成
 export async function getStaticPaths() {
-  const registry = loadRegistry('registry/docs.json', '../../../..');
+  // プロジェクトルートからの絶対パス
+  const registry = loadRegistry('/Users/dolphilia/github/libx-dev/registry/docs.json');
 
   // 環境に応じたルーティング生成
   const routes = generateRoutes(registry, {
@@ -34,8 +39,42 @@ const {
 // URLパラメータ
 const { project, version, lang, slug } = Astro.params;
 
+// MDXコンテンツの読み込み
+// プロジェクト、バージョン、言語、slugからファイルパスを推測
+const possiblePaths = [
+  // apps/[project]/src/content/docs/[version]/[lang]/[slug].mdx のパターン
+  `../../../../apps/${project}/src/content/docs/${version}/${lang}/${slug}.mdx`,
+  // カテゴリ付きパターン（例: 01-guide/01-getting-started）
+  `../../../../apps/${project}/src/content/docs/${version}/${lang}/*/${slug}.mdx`,
+];
+
+let Content: any = null;
+let mdxError: string | null = null;
+
+// globパターンからマッチするファイルを探す
+try {
+  // slugベースでMDXファイルを検索
+  const matchingKey = Object.keys(mdxModules).find(key => {
+    const normalized = key.toLowerCase();
+    return normalized.includes(`/${project}/`) &&
+           normalized.includes(`/${version}/`) &&
+           normalized.includes(`/${lang}/`) &&
+           (normalized.includes(`/${slug}.mdx`) || normalized.endsWith(`/${slug.split('/').pop()}.mdx`));
+  });
+
+  if (matchingKey) {
+    const module = await mdxModules[matchingKey]();
+    Content = module.default;
+  } else {
+    mdxError = `MDXファイルが見つかりません: project=${project}, version=${version}, lang=${lang}, slug=${slug}`;
+  }
+} catch (error) {
+  console.error(`MDXファイルの読み込みに失敗:`, error);
+  mdxError = error instanceof Error ? error.message : String(error);
+}
+
 // レジストリを再読み込み（サイドバー生成用）
-const registry = loadRegistry('registry/docs.json', '../../../..');
+const registry = loadRegistry('/Users/dolphilia/github/libx-dev/registry/docs.json');
 
 // サイドバーを生成
 const sidebar = generateSidebar(registry, project, version, lang, {
@@ -64,33 +103,49 @@ const ogMeta = generateOpenGraph(title, summary, pageUrl, {
   version={version}
   lang={lang}
 >
-  <!--
-    TODO: MDXコンテンツの読み込み
-    contentPath からコンテンツを読み込んで表示
-    Phase 2-3で実装予定
-  -->
-  <div class="prose">
-    <h1>{title}</h1>
-    <p class="summary">{summary}</p>
-
-    <div class="placeholder-content">
-      <p>ドキュメントID: <code>{docId}</code></p>
-      <p>コンテンツパス: <code>{contentPath}</code></p>
-      <p>Visibility: <code>{visibility}</code></p>
-      <p>ステータス: <code>{status}</code></p>
+  {Content ? (
+    <!-- MDXコンテンツが正常に読み込まれた場合 -->
+    <div class="prose">
+      <Content />
     </div>
-  </div>
+  ) : (
+    <!-- MDXファイルが見つからない場合のフォールバック -->
+    <div class="prose">
+      <h1>{title}</h1>
+      <p class="summary">{summary}</p>
 
-  <!-- related があれば関連ドキュメントを表示 -->
+      <div class="error-message">
+        <h2>コンテンツを読み込めませんでした</h2>
+        <p>{mdxError || 'MDXファイルが見つかりません'}</p>
+        <details>
+          <summary>デバッグ情報</summary>
+          <dl>
+            <dt>ドキュメントID:</dt>
+            <dd><code>{docId}</code></dd>
+            <dt>プロジェクト:</dt>
+            <dd><code>{project}</code></dd>
+            <dt>バージョン:</dt>
+            <dd><code>{version}</code></dd>
+            <dt>言語:</dt>
+            <dd><code>{lang}</code></dd>
+            <dt>スラッグ:</dt>
+            <dd><code>{slug}</code></dd>
+            <dt>レジストリのパス:</dt>
+            <dd><code>{contentPath}</code></dd>
+          </dl>
+        </details>
+      </div>
+    </div>
+  )}
+
+  <!-- 関連ドキュメント -->
   {related && related.length > 0 && (
-    <section class="related-docs">
-      <h2>関連ドキュメント</h2>
-      <ul>
-        {related.map(relatedId => (
-          <li>{relatedId}</li>
-        ))}
-      </ul>
-    </section>
+    <RelatedDocs
+      relatedDocIds={related}
+      projectId={projectId}
+      currentLang={lang}
+      currentVersion={version}
+    />
   )}
 </DocLayout>
 
@@ -98,6 +153,56 @@ const ogMeta = generateOpenGraph(title, summary, pageUrl, {
   .prose {
     max-width: 800px;
     margin: 0 auto;
+    line-height: 1.75;
+  }
+
+  .prose :global(h1) {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+
+  .prose :global(h2) {
+    font-size: 1.875rem;
+    font-weight: 600;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+
+  .prose :global(h3) {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .prose :global(p) {
+    margin-bottom: 1.25rem;
+    color: var(--color-secondary);
+  }
+
+  .prose :global(code) {
+    background-color: var(--color-code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875em;
+  }
+
+  .prose :global(pre) {
+    background-color: var(--color-code-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .prose :global(pre code) {
+    background: none;
+    padding: 0;
   }
 
   .summary {
@@ -106,30 +211,75 @@ const ogMeta = generateOpenGraph(title, summary, pageUrl, {
     margin-bottom: 2rem;
   }
 
-  .placeholder-content {
+  .error-message {
     padding: 2rem;
-    background-color: #f3f4f6;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
     border-radius: 0.5rem;
     margin: 2rem 0;
   }
 
-  .placeholder-content code {
+  .error-message h2 {
+    color: #dc2626;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .error-message p {
+    color: #991b1b;
+    margin-bottom: 1rem;
+  }
+
+  .error-message details {
+    margin-top: 1.5rem;
+  }
+
+  .error-message summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #991b1b;
+    padding: 0.5rem;
+    background-color: #fee2e2;
+    border-radius: 0.25rem;
+  }
+
+  .error-message dl {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.25rem;
+  }
+
+  .error-message dt {
+    font-weight: 600;
+    margin-top: 0.75rem;
+    color: #374151;
+  }
+
+  .error-message dd {
+    margin-left: 0;
+    color: #6b7280;
+  }
+
+  .error-message code {
     background-color: #e5e7eb;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-family: monospace;
+    font-size: 0.875rem;
   }
 
   .related-docs {
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--color-border);
   }
 
   .related-docs h2 {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    color: var(--color-text);
   }
 
   .related-docs ul {
@@ -139,5 +289,6 @@ const ogMeta = generateOpenGraph(title, summary, pageUrl, {
 
   .related-docs li {
     margin-bottom: 0.5rem;
+    color: var(--color-secondary);
   }
 </style>

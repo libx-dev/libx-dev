@@ -1,0 +1,235 @@
+---
+/**
+ * Search - 検索UIコンポーネント
+ * Pagefind検索エンジンと統合した検索インターフェース
+ */
+---
+
+<div class="search-container">
+  <div class="search-wrapper">
+    <div class="search-input-wrapper">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <div id="search"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // @ts-ignore - Pagefindは動的に読み込まれる
+  async function initSearch() {
+    // Pagefindの動的読み込み
+    // ビルド後に生成される /pagefind/pagefind.js を読み込む
+    try {
+      // @ts-ignore
+      const pagefind = await import('/pagefind/pagefind.js');
+
+      // 検索オプションの設定
+      await pagefind.options({
+        excerptLength: 30,
+        highlightParam: 'highlight'
+      });
+
+      // 検索UIの初期化
+      const searchElement = document.getElementById('search');
+      if (searchElement) {
+        // 簡易的な検索UIを実装
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'ドキュメントを検索...';
+        input.className = 'search-input';
+
+        const resultsContainer = document.createElement('div');
+        resultsContainer.className = 'search-results';
+        resultsContainer.style.display = 'none';
+
+        searchElement.appendChild(input);
+        searchElement.appendChild(resultsContainer);
+
+        // 検索処理
+        let searchTimeout: ReturnType<typeof setTimeout>;
+        input.addEventListener('input', async (e) => {
+          const query = (e.target as HTMLInputElement).value.trim();
+
+          // デバウンス処理
+          clearTimeout(searchTimeout);
+
+          if (!query) {
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+            return;
+          }
+
+          searchTimeout = setTimeout(async () => {
+            // @ts-ignore
+            const results = await pagefind.debouncedSearch(query);
+
+            if (results && results.results && results.results.length > 0) {
+              resultsContainer.style.display = 'block';
+              resultsContainer.innerHTML = '';
+
+              // 最大10件まで表示
+              const displayResults = results.results.slice(0, 10);
+
+              for (const result of displayResults) {
+                // @ts-ignore
+                const data = await result.data();
+
+                const resultItem = document.createElement('a');
+                resultItem.href = data.url;
+                resultItem.className = 'search-result-item';
+
+                resultItem.innerHTML = `
+                  <div class="result-title">${data.meta.title || 'Untitled'}</div>
+                  <div class="result-excerpt">${data.excerpt || ''}</div>
+                  <div class="result-url">${data.url}</div>
+                `;
+
+                resultsContainer.appendChild(resultItem);
+              }
+            } else {
+              resultsContainer.style.display = 'block';
+              resultsContainer.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
+            }
+          }, 300);
+        });
+
+        // 検索結果エリア外クリックで閉じる
+        document.addEventListener('click', (e) => {
+          if (!searchElement.contains(e.target as Node)) {
+            resultsContainer.style.display = 'none';
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Pagefind初期化エラー:', error);
+      // フォールバック: 検索機能が利用できない旨を表示
+      const searchElement = document.getElementById('search');
+      if (searchElement) {
+        searchElement.innerHTML = '<input type="text" placeholder="検索機能は現在利用できません" disabled class="search-input" />';
+      }
+    }
+  }
+
+  // DOMContentLoaded後に初期化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearch);
+  } else {
+    initSearch();
+  }
+</script>
+
+<style>
+  .search-container {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .search-wrapper {
+    position: relative;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--color-secondary);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  :global(.search-input) {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  :global(.search-input:focus) {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  }
+
+  :global(.search-input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  :global(.search-results) {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+
+  :global(.search-result-item) {
+    display: block;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  :global(.search-result-item:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.search-result-item:hover) {
+    background-color: var(--color-border);
+  }
+
+  :global(.result-title) {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.result-excerpt) {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+  }
+
+  :global(.result-url) {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    font-family: monospace;
+  }
+
+  :global(.no-results) {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--color-secondary);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    .search-container {
+      max-width: 100%;
+    }
+
+    :global(.search-results) {
+      max-height: 300px;
+    }
+  }
+</style>

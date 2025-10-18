@@ -30,6 +30,8 @@ const { project, version, lang } = Astro.props;
           {lang.toUpperCase()}
         </div>
       )}
+      <!-- 追加アクション（ThemeToggleなど） -->
+      <slot name="actions" />
     </div>
   </div>
 </header>

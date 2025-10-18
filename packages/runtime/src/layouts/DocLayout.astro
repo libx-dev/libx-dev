@@ -3,6 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { ThemeToggle } from '@docs/ui/components';
 
 interface Props {
   title: string;
@@ -35,7 +36,11 @@ const {
 
 <BaseLayout title={title} description={summary} ogMeta={ogMeta} lang={lang} keywords={keywords}>
   <div class="layout">
-    <Header project={project} version={version} lang={lang} />
+    <Header project={project} version={version} lang={lang}>
+      <div slot="actions" class="header-actions">
+        <ThemeToggle />
+      </div>
+    </Header>
 
     <div class="main-container">
       <!-- サイドバー -->

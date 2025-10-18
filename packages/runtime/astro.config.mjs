@@ -40,14 +40,23 @@ export default defineConfig({
     build: {
       // CSSとJSのパスを絶対パスに変更
       assetsInlineLimit: 0,
-      cssCodeSplit: false,
+      cssCodeSplit: true, // CSSコード分割を有効化
+      minify: 'esbuild', // 高速な最小化
       rollupOptions: {
         output: {
           assetFileNames: 'assets/[name].[hash].[ext]',
           chunkFileNames: 'assets/[name].[hash].js',
           entryFileNames: 'assets/[name].[hash].js',
+          // コード分割の最適化
+          manualChunks: {
+            'vendor': ['astro'],
+            'ui': ['@docs/ui'],
+            'generator': ['@docs/generator']
+          }
         }
-      }
+      },
+      // ソースマップを無効化（プロダクションビルドの高速化）
+      sourcemap: false
     },
   },
   // 多言語対応の設定

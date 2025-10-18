@@ -8,20 +8,22 @@
     "dev": "astro dev",
     "prebuild": "node scripts/generate-metadata.js",
     "build": "astro build",
+    "postbuild": "pagefind --site dist --glob \"**/*.html\"",
     "preview": "astro preview",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.7",
     "@docs/generator": "workspace:*",
-    "@docs/ui": "workspace:*",
-    "@docs/theme": "workspace:*",
     "@docs/i18n": "workspace:*",
+    "@docs/theme": "workspace:*",
+    "@docs/ui": "workspace:*",
     "@docs/versioning": "workspace:*",
-    "astro": "^5.7.12",
-    "@astrojs/mdx": "^4.3.7"
+    "astro": "^5.7.12"
   },
   "devDependencies": {
     "@types/node": "^18.19.100",
+    "pagefind": "^1.4.0",
     "typescript": "^5.8.3"
   }
 }
