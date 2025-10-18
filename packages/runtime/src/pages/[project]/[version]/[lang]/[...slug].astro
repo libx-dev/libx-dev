@@ -1,0 +1,143 @@
+---
+import { loadRegistry, generateRoutes, generateSidebar, generateOpenGraph } from '@docs/generator';
+import DocLayout from '../../../../layouts/DocLayout.astro';
+
+// Astro getStaticPaths() - ルーティング生成
+export async function getStaticPaths() {
+  const registry = loadRegistry('registry/docs.json', '../../../..');
+
+  // 環境に応じたルーティング生成
+  const routes = generateRoutes(registry, {
+    env: import.meta.env.MODE || 'production',
+    debug: true
+  });
+
+  return routes;
+}
+
+// Astroから渡されるprops
+const {
+  docId,
+  projectId,
+  title,
+  summary,
+  keywords,
+  tags,
+  related,
+  license,
+  contributors,
+  contentPath,
+  visibility,
+  status
+} = Astro.props;
+
+// URLパラメータ
+const { project, version, lang, slug } = Astro.params;
+
+// レジストリを再読み込み（サイドバー生成用）
+const registry = loadRegistry('registry/docs.json', '../../../..');
+
+// サイドバーを生成
+const sidebar = generateSidebar(registry, project, version, lang, {
+  env: import.meta.env.MODE || 'production',
+  baseUrl: ''
+});
+
+// OpenGraphメタデータを生成
+const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const ogMeta = generateOpenGraph(title, summary, pageUrl, {
+  lang,
+  siteName: 'LibX Documentation'
+});
+---
+
+<DocLayout
+  title={title}
+  summary={summary}
+  sidebar={sidebar}
+  ogMeta={ogMeta}
+  keywords={keywords}
+  tags={tags}
+  license={license}
+  contributors={contributors}
+  project={project}
+  version={version}
+  lang={lang}
+>
+  <!--
+    TODO: MDXコンテンツの読み込み
+    contentPath からコンテンツを読み込んで表示
+    Phase 2-3で実装予定
+  -->
+  <div class="prose">
+    <h1>{title}</h1>
+    <p class="summary">{summary}</p>
+
+    <div class="placeholder-content">
+      <p>ドキュメントID: <code>{docId}</code></p>
+      <p>コンテンツパス: <code>{contentPath}</code></p>
+      <p>Visibility: <code>{visibility}</code></p>
+      <p>ステータス: <code>{status}</code></p>
+    </div>
+  </div>
+
+  <!-- related があれば関連ドキュメントを表示 -->
+  {related && related.length > 0 && (
+    <section class="related-docs">
+      <h2>関連ドキュメント</h2>
+      <ul>
+        {related.map(relatedId => (
+          <li>{relatedId}</li>
+        ))}
+      </ul>
+    </section>
+  )}
+</DocLayout>
+
+<style>
+  .prose {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .summary {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .placeholder-content {
+    padding: 2rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+  }
+
+  .placeholder-content code {
+    background-color: #e5e7eb;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+  }
+
+  .related-docs {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .related-docs h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .related-docs ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+
+  .related-docs li {
+    margin-bottom: 0.5rem;
+  }
+</style>

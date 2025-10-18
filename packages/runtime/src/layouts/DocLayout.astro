@@ -1,0 +1,158 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  summary?: string;
+  sidebar: any[];
+  ogMeta?: Record<string, string>;
+  keywords?: string[];
+  tags?: string[];
+  license?: string;
+  contributors?: string[];
+  project?: string;
+  version?: string;
+  lang?: string;
+}
+
+const {
+  title,
+  summary,
+  sidebar,
+  ogMeta,
+  keywords = [],
+  tags = [],
+  license,
+  contributors = [],
+  project,
+  version,
+  lang
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={summary} ogMeta={ogMeta} lang={lang} keywords={keywords}>
+  <div class="layout">
+    <Header project={project} version={version} lang={lang} />
+
+    <div class="main-container">
+      <!-- サイドバー -->
+      <aside class="sidebar-wrapper">
+        <Sidebar items={sidebar} currentPath={Astro.url.pathname} />
+      </aside>
+
+      <!-- メインコンテンツ -->
+      <main class="content">
+        <article class="article">
+          <slot />
+        </article>
+
+        <!-- メタ情報 -->
+        {(keywords.length > 0 || tags.length > 0) && (
+          <div class="meta">
+            {keywords.length > 0 && (
+              <div class="keywords">
+                <strong>キーワード:</strong> {keywords.join(', ')}
+              </div>
+            )}
+            {tags.length > 0 && (
+              <div class="tags">
+                <strong>タグ:</strong> {tags.join(', ')}
+              </div>
+            )}
+          </div>
+        )}
+
+        <!-- ライセンス表示 -->
+        {license && (
+          <div class="license">
+            <p>ライセンス: {license}</p>
+          </div>
+        )}
+
+        <!-- 貢献者 -->
+        {contributors.length > 0 && (
+          <div class="contributors">
+            <strong>貢献者:</strong> {contributors.join(', ')}
+          </div>
+        )}
+      </main>
+    </div>
+
+    <Footer />
+  </div>
+</BaseLayout>
+
+<style>
+  .layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-container {
+    flex: 1;
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding-top: 4rem; /* ヘッダー分のスペース */
+  }
+
+  .sidebar-wrapper {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 4rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 800px;
+  }
+
+  .article {
+    margin-bottom: 3rem;
+  }
+
+  .meta, .license, .contributors {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+  }
+
+  .meta strong,
+  .contributors strong {
+    color: var(--color-text);
+  }
+
+  .keywords, .tags {
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .main-container {
+      flex-direction: column;
+    }
+
+    .sidebar-wrapper {
+      width: 100%;
+      height: auto;
+      position: static;
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .content {
+      max-width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+{
+  "name": "@docs/runtime",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Astroランタイムパッケージ - レジストリ駆動のドキュメントサイト生成",
+  "scripts": {
+    "dev": "astro dev",
+    "prebuild": "node scripts/generate-metadata.js",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@docs/generator": "workspace:*",
+    "@docs/ui": "workspace:*",
+    "@docs/theme": "workspace:*",
+    "@docs/i18n": "workspace:*",
+    "@docs/versioning": "workspace:*",
+    "astro": "^5.7.12",
+    "@astrojs/mdx": "^4.3.7"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.100",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,71 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-content">
+      <p class="copyright">
+        © {currentYear} LibX Documentation. All rights reserved.
+      </p>
+      <nav class="footer-links">
+        <a href="/about">About</a>
+        <a href="/license">License</a>
+        <a href="https://github.com/dolphilia/libx-dev" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .copyright {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    margin: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-links a {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-primary);
+  }
+
+  @media (min-width: 768px) {
+    .footer-content {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+</style>
