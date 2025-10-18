@@ -199,6 +199,15 @@ importers:
         specifier: ^8.1.0
         version: 8.2.0
 
+  packages/generator:
+    devDependencies:
+      '@types/node':
+        specifier: ^18.19.100
+        version: 18.19.100
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
   packages/i18n:
     dependencies:
       astro:

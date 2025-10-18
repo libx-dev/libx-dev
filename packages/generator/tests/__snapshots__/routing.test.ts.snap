@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateRoutes - スナップショット > development環境のルート生成結果がスナップショットと一致 1`] = `
+[
+  {
+    "docId": "api-overview",
+    "url": "/test-verification/v2/en/api-reference/api-overview",
+    "visibility": "public",
+  },
+  {
+    "docId": "installation-guide",
+    "url": "/test-verification/v2/en/guide/installation-guide",
+    "visibility": "public",
+  },
+  {
+    "docId": "getting-started",
+    "url": "/test-verification/v2/en/guide/getting-started",
+    "visibility": "public",
+  },
+]
+`;
+
+exports[`generateRoutes - スナップショット > production環境のルート生成結果がスナップショットと一致 1`] = `
+[
+  {
+    "docId": "api-overview",
+    "url": "/test-verification/v2/ja/api-reference/api-overview",
+    "visibility": "public",
+  },
+  {
+    "docId": "installation-guide",
+    "url": "/test-verification/v2/ja/guide/installation-guide",
+    "visibility": "public",
+  },
+  {
+    "docId": "getting-started",
+    "url": "/test-verification/v2/ja/guide/getting-started",
+    "visibility": "public",
+  },
+]
+`;

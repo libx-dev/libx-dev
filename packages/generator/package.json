@@ -1,0 +1,30 @@
+{
+  "name": "@docs/generator",
+  "version": "0.1.0",
+  "description": "LibX Docs Generator - レジストリ駆動のルーティング・サイドバー・サイトマップ生成",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./routing": "./src/routing.js",
+    "./registry": "./src/registry.js",
+    "./types": "./src/types.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "generator",
+    "routing",
+    "registry",
+    "astro",
+    "libx-docs"
+  ],
+  "devDependencies": {
+    "@types/node": "^18.19.100",
+    "typescript": "^5.8.3"
+  }
+}
