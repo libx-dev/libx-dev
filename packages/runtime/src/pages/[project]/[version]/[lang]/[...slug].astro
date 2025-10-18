@@ -2,18 +2,15 @@
 import { loadRegistry, generateRoutes, generateSidebar, generateOpenGraph } from '@docs/generator';
 import DocLayout from '../../../../layouts/DocLayout.astro';
 import RelatedDocs from '../../../../components/RelatedDocs.astro';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
 // import.meta.globでMDXファイルを事前収集
-const mdxModules = import.meta.glob<any>('../../../../apps/*/src/content/docs/**/*.mdx');
+// astro.config.mjsのrootからの相対パスで指定
+const mdxModules = import.meta.glob<any>('/apps/*/src/content/docs/**/*.mdx');
 
 // Astro getStaticPaths() - ルーティング生成
 export async function getStaticPaths() {
-  // ファイルパスからプロジェクトルートを取得
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  const projectRoot = join(__dirname, '../../../../..');
+  // プロジェクトルートを環境変数から取得（astro.config.mjsで設定）
+  const projectRoot = import.meta.env.PROJECT_ROOT;
 
   // レジストリをプロジェクトルートから読み込み
   const registry = loadRegistry('registry/docs.json', projectRoot);
@@ -48,25 +45,37 @@ const { project, version, lang, slug } = Astro.params;
 
 // MDXコンテンツの読み込み
 // プロジェクト、バージョン、言語、slugからファイルパスを推測
-const possiblePaths = [
-  // apps/[project]/src/content/docs/[version]/[lang]/[slug].mdx のパターン
-  `../../../../apps/${project}/src/content/docs/${version}/${lang}/${slug}.mdx`,
-  // カテゴリ付きパターン（例: 01-guide/01-getting-started）
-  `../../../../apps/${project}/src/content/docs/${version}/${lang}/*/${slug}.mdx`,
-];
-
 let Content: any = null;
 let mdxError: string | null = null;
 
 // globパターンからマッチするファイルを探す
 try {
-  // slugベースでMDXファイルを検索
-  const matchingKey = Object.keys(mdxModules).find(key => {
+  // slugは "guide/getting-started" のような形式
+  // 実際のファイル名は "01-guide/01-getting-started.mdx" のような形式
+  // 最後のセグメント（例: "getting-started"）でマッチさせる
+  const slugSegments = slug.split('/');
+  const lastSegment = slugSegments[slugSegments.length - 1];
+
+  // MDXファイルを検索（番号接頭辞を考慮）
+  const allKeys = Object.keys(mdxModules);
+
+  // デバッグ: マッチングを試みているキーをログ出力
+  console.log(`[MDX Search] Looking for: project=${project}, version=${version}, lang=${lang}, slug=${slug}, lastSegment=${lastSegment}`);
+  console.log(`[MDX Search] Total MDX files found: ${allKeys.length}`);
+
+  const matchingKey = allKeys.find(key => {
     const normalized = key.toLowerCase();
-    return normalized.includes(`/${project}/`) &&
+    const matches = normalized.includes(`/${project}/`) &&
            normalized.includes(`/${version}/`) &&
            normalized.includes(`/${lang}/`) &&
-           (normalized.includes(`/${slug}.mdx`) || normalized.endsWith(`/${slug.split('/').pop()}.mdx`));
+           (normalized.endsWith(`/${lastSegment}.mdx`) ||
+            normalized.match(new RegExp(`/\\d+-${lastSegment}\\.mdx$`, 'i')));
+
+    if (matches) {
+      console.log(`[MDX Search] Match found: ${key}`);
+    }
+
+    return matches;
   });
 
   if (matchingKey) {
@@ -80,10 +89,8 @@ try {
   mdxError = error instanceof Error ? error.message : String(error);
 }
 
-// ファイルパスからプロジェクトルートを取得
-const __filename_runtime = fileURLToPath(import.meta.url);
-const __dirname_runtime = dirname(__filename_runtime);
-const projectRoot = join(__dirname_runtime, '../../../../..');
+// プロジェクトルートを環境変数から取得（astro.config.mjsで設定）
+const projectRoot = import.meta.env.PROJECT_ROOT;
 
 // レジストリを再読み込み（サイドバー生成用）
 const registry = loadRegistry('registry/docs.json', projectRoot);

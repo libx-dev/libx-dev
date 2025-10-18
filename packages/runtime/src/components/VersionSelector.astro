@@ -18,9 +18,11 @@ interface Props {
 
 const { projectId, currentVersion, lang, slug } = Astro.props;
 
+// プロジェクトルートを環境変数から取得（astro.config.mjsで設定）
+const projectRoot = import.meta.env.PROJECT_ROOT;
+
 // レジストリからプロジェクト情報を取得
-// process.cwd()がプロジェクトルートを指すため、相対パスで指定
-const registry = loadRegistry('registry/docs.json');
+const registry = loadRegistry('registry/docs.json', projectRoot);
 const project = registry.projects.find(p => p.id === projectId);
 
 if (!project) {

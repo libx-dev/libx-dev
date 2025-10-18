@@ -37,6 +37,11 @@ export default defineConfig({
         '@docs/i18n': path.resolve(__dirname, '../i18n/src'),
       },
     },
+    define: {
+      // プロジェクトルートをビルド時に環境変数として注入
+      // これによりレジストリファイルのパス解決が正しく動作する
+      'import.meta.env.PROJECT_ROOT': JSON.stringify(path.resolve(__dirname, '../..'))
+    },
     build: {
       // CSSとJSのパスを絶対パスに変更
       assetsInlineLimit: 0,

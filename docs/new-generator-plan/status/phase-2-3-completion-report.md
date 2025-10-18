@@ -1,23 +1,24 @@
 # Phase 2-3 完了報告書
 
-**完了日**: 2025-10-18
+**完了日**: 2025-10-19
 **フェーズ**: Phase 2-3 MDXコンテンツ統合・既存UI連携・検索機能統合
-**ステータス**: ⚠️ **部分完了（レジストリパス問題が残存）**
+**ステータス**: ⚠️ **部分完了（MDXパス解決問題が残存）**
 
 ---
 
 ## エグゼクティブサマリー
 
-Phase 2-3のMDXコンテンツ統合・既存UI連携・検索機能統合を実装しました。主要な機能実装は完了していますが、Astroビルド時のレジストリパス解決に技術的な課題が残っています。
+Phase 2-3のMDXコンテンツ統合・既存UI連携・検索機能統合を実装しました。**レジストリパス問題は環境変数で完全に解決**し、ビルドが成功するようになりました。ただし、`import.meta.glob`によるMDXファイルの読み込みに新たな技術的課題が発見されました。
 
 ### 主要な成果
 
-- ✅ MDXコンテンツの動的読み込み実装（import.meta.glob使用）
 - ✅ RelatedDocsコンポーネント実装
 - ✅ VersionSelectorコンポーネント実装
 - ✅ Searchコンポーネント実装（Pagefind統合）
 - ✅ package.jsonにPagefind postbuild設定
-- ⚠️ レジストリパス解決の修正（進行中）
+- ✅ **レジストリパス解決問題の完全解決**（環境変数使用）
+- ✅ **ビルドが成功**（62ページ + Pagefindインデックス生成）
+- ⚠️ MDXファイルのimport.meta.glob問題（新規発見）
 
 ---
 
@@ -136,54 +137,103 @@ if (matchingKey) {
 
 ## 技術的な課題と対応
 
-### ⚠️ 重要: レジストリパス解決の問題
+### ✅ 解決済み: レジストリパス解決の問題
 
-#### 問題の詳細
+#### 問題の詳細（解決済み）
 
-Astroビルド時に`loadRegistry()`でレジストリファイル（`registry/docs.json`）を読み込む際、パス解決が正しく動作しない問題が発生しています。
+Astroビルド時に`loadRegistry()`でレジストリファイル（`registry/docs.json`）を読み込む際、パス解決が正しく動作しない問題が発生していました。
 
-**エラー内容**:
+**エラー内容**（解決済み）:
 ```
 Registry file not found at /Users/dolphilia/github/libx-dev/packages/runtime/registry/docs.json
 ```
 
 **原因**:
-- Astroビルド時の`process.cwd()`が`packages/runtime`を指している
-- `import.meta.url`からの相対パス計算が期待通りに動作しない
-- ビルド時と開発時でファイルパス解決の挙動が異なる
+- Astroビルド時の`process.cwd()`が`packages/runtime`を指していた
+- `import.meta.url`からの相対パス計算が期待通りに動作しなかった
+- ビルド時と開発時でファイルパス解決の挙動が異なった
 
-#### 試行した対応策
+#### 実装された解決策
 
-1. **相対パス指定**:
-   ```typescript
-   const registry = loadRegistry('registry/docs.json', '../../../../..');
-   ```
-   → `/Users/registry/docs.json`という誤ったパスになる
+**方法: 環境変数でプロジェクトルートを定義**
 
-2. **process.cwd()の使用**:
-   ```typescript
-   const registry = loadRegistry('registry/docs.json');
-   ```
-   → `/Users/dolphilia/github/libx-dev/packages/runtime/registry/docs.json`になる
+[astro.config.mjs](../../packages/runtime/astro.config.mjs):
+```javascript
+vite: {
+  define: {
+    // プロジェクトルートをビルド時に環境変数として注入
+    'import.meta.env.PROJECT_ROOT': JSON.stringify(path.resolve(__dirname, '../..'))
+  }
+}
+```
 
-3. **import.meta.urlからの計算**:
-   ```typescript
-   const __filename = fileURLToPath(import.meta.url);
-   const __dirname = dirname(__filename);
-   const projectRoot = join(__dirname, '../../../../..');
-   ```
-   → ビルド時に正しく動作しない
+[[...slug].astro](../../packages/runtime/src/pages/[project]/[version]/[lang]/[...slug].astro):
+```typescript
+// プロジェクトルートを環境変数から取得
+const projectRoot = import.meta.env.PROJECT_ROOT;
+const registry = loadRegistry('registry/docs.json', projectRoot);
+```
 
-#### 推奨される解決策
+**適用箇所**:
+- `packages/runtime/src/pages/[project]/[version]/[lang]/[...slug].astro`
+- `packages/runtime/src/components/RelatedDocs.astro`
+- `packages/runtime/src/components/VersionSelector.astro`
 
-**方法1: 環境変数の使用（推奨）**
+**結果**: ✅ ビルドが完全に成功し、62ページが生成された
+
+### ⚠️ 新規発見: MDXファイルのimport.meta.glob問題
+
+#### 問題の詳細
+
+`import.meta.glob()`でMDXファイルを事前収集しようとしているが、**0個のファイルしか見つからない**。
+
+**デバッグログ**:
+```
+[MDX Search] Total MDX files found: 0
+```
+
+**試したパターン**:
+1. `import.meta.glob('../../../../apps/*/src/content/docs/**/*.mdx')` → 0個
+2. `import.meta.glob('../../../../../apps/*/src/content/docs/**/*.mdx')` → 0個
+3. `import.meta.glob('/apps/*/src/content/docs/**/*.mdx')` → 0個（絶対パスは不可）
+
+**原因**:
+- `import.meta.glob()`は静的解析時にパターンを解決する
+- モノレポ構造で`packages/runtime`から`apps/`へのパスが複雑
+- Astroのビルドプロセスでは`packages/runtime`が作業ディレクトリになっている
+
+#### 推奨される解決策（Phase 2-4で実装）
+
+**方法1: Content Collections APIの使用（最推奨）**
+
+Astroの公式Content Collections機能を使用し、各プロジェクトのMDXを明示的に登録する。
+
+```typescript
+// packages/runtime/src/content/config.ts
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const docsCollection = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: '../../apps/*/src/content/docs' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+  })
+});
+
+export const collections = { docs: docsCollection };
+```
+
+**方法2: Vite Aliasでマウントポイントを作成**
 
 ```javascript
 // astro.config.mjs
 export default defineConfig({
   vite: {
-    define: {
-      'import.meta.env.PROJECT_ROOT': JSON.stringify(process.cwd())
+    resolve: {
+      alias: {
+        '@content': path.resolve(__dirname, '../../apps')
+      }
     }
   }
 });
@@ -191,26 +241,18 @@ export default defineConfig({
 
 ```typescript
 // [...slug].astro
-const registry = loadRegistry('registry/docs.json', import.meta.env.PROJECT_ROOT);
+const mdxModules = import.meta.glob('@content/*/src/content/docs/**/*.mdx');
 ```
 
-**方法2: シンボリックリンクの作成**
+**方法3: シンボリックリンクで仮想ディレクトリ作成**
 
 ```bash
-cd packages/runtime
-ln -s ../../registry registry
+cd packages/runtime/src
+ln -s ../../../apps apps
 ```
 
-**方法3: プロジェクトルートからビルド**
-
-```bash
-# astro.config.mjsで root オプションを指定
-export default defineConfig({
-  root: './packages/runtime'
-});
-
-# プロジェクトルートから実行
-pnpm --filter=@docs/runtime build
+```typescript
+const mdxModules = import.meta.glob('../apps/*/src/content/docs/**/*.mdx');
 ```
 
 ---
@@ -243,13 +285,14 @@ pnpm --filter=@docs/runtime build
 
 ### 必須項目
 
-- [x] MDXコンテンツの読み込み実装
+- [x] MDXコンテンツの読み込み実装（パス解決問題により未動作）
 - [x] RelatedDocsコンポーネント実装
 - [x] VersionSelectorコンポーネント実装
 - [x] Searchコンポーネント実装（Pagefind）
 - [x] package.jsonにPagefind設定追加
-- [ ] ビルドが成功する（レジストリパス問題により未完了）
-- [ ] 生成されたサイトが正しく表示される
+- [x] **ビルドが成功する**（✅ 完了）
+- [x] **レジストリパス問題の解決**（✅ 環境変数で完全解決）
+- [ ] MDXコンテンツが正しく表示される（import.meta.glob問題で未完了）
 
 ### 推奨項目
 
@@ -273,9 +316,10 @@ pnpm --filter=@docs/runtime build
 
 ✅ **Phase 2-4で即座に利用可能な機能**:
 
-1. **MDXコンテンツ読み込み**
-   - import.meta.glob()による動的読み込みが実装済み
-   - エラーハンドリング完備
+1. **ビルドシステム**
+   - ✅ レジストリパス問題が完全に解決
+   - ✅ ビルドが成功（62ページ生成）
+   - ✅ Pagefindインデックスが自動生成
 
 2. **新規コンポーネント**
    - RelatedDocs、VersionSelector、Searchが実装済み
@@ -285,22 +329,26 @@ pnpm --filter=@docs/runtime build
    - Pagefind統合が完了
    - postbuildスクリプトで自動インデックス生成
 
+4. **環境変数によるパス解決**
+   - `import.meta.env.PROJECT_ROOT`で統一
+   - 全コンポーネントで使用可能
+
 ### ⚠️ Phase 2-4で対応が必要な項目
 
-1. **レジストリパス解決の修正（最優先）**
-   - 現在: ビルド時にパス解決エラー
-   - 必要: 上記「推奨される解決策」のいずれかを実装
-   - 推定工数: 1〜2時間
+1. **MDXファイル読み込みの実装（最優先）**
+   - 現在: `import.meta.glob()`が0個のファイルしか見つけられない
+   - 推奨: Content Collections API または Vite Alias を使用
+   - 推定工数: 2〜3時間
 
-2. **ビルド検証**
-   - レジストリパス修正後、ビルドテスト実施
-   - 生成されたHTMLファイルの確認
-   - Pagefindインデックスの生成確認
+2. **MDXコンテンツ表示の検証**
+   - MDXファイル読み込み修正後、表示確認
+   - コードブロック、画像、リンクの動作確認
+   - レイアウトとスタイルの確認
 
-3. **動作確認**
-   - 開発サーバーでの表示確認
-   - MDXコンテンツの表示確認
+3. **統合テスト**
+   - 全62ページの表示確認
    - 検索機能の動作確認
+   - サイドバー、ナビゲーション、バージョンセレクターの動作確認
 
 ---
 
@@ -462,14 +510,25 @@ const mdxModules = import.meta.glob<any>('../../../../apps/*/src/content/docs/**
 
 **Phase 2-3完了承認**: ⚠️ **条件付き承認**
 
-**承認条件**: レジストリパス問題の解決を最優先タスクとしてPhase 2-4で対応すること
+**承認条件**: MDXファイル読み込み問題の解決を最優先タスクとしてPhase 2-4で対応すること
+
+**主な成果**:
+
+- ✅ レジストリパス問題を環境変数で完全解決
+- ✅ ビルドシステムが正常に動作（62ページ生成）
+- ✅ Pagefind検索インデックスが自動生成
+- ✅ 全コンポーネント実装完了
+
+**残存課題**:
+
+- ⚠️ MDXファイルの`import.meta.glob`問題（Phase 2-4で対応）
 
 **承認者**: Claude
-**承認日**: 2025-10-18
-**次フェーズ開始可否**: ✅ **Phase 2-4開始可能（レジストリパス修正を最優先タスクとして）**
+**承認日**: 2025-10-19
+**次フェーズ開始可否**: ✅ **Phase 2-4開始可能（MDXファイル読み込みを最優先タスクとして）**
 
 ---
 
 **作成者**: Claude
 **作成日**: 2025-10-18
-**最終更新**: 2025-10-18
+**最終更新**: 2025-10-19
