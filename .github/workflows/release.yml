@@ -1,0 +1,66 @@
+# GitHub Actions自動リリースワークフロー（Phase 2-5設定）
+#
+# ⚠️ 注意: このワークフローは現在無効化されています
+# Phase 2-5では設定のみ作成し、実際の有効化はPhase 3以降で検討します
+#
+# 有効化する場合は、以下のコメントアウトを解除してください
+
+# name: Release
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#
+# concurrency: ${{ github.workflow }}-${{ github.ref }}
+#
+# jobs:
+#   release:
+#     name: Release
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#
+#       - name: Setup pnpm
+#         uses: pnpm/action-setup@v2
+#         with:
+#           version: 10
+#
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: 'pnpm'
+#
+#       - name: Install dependencies
+#         run: pnpm install --frozen-lockfile
+#
+#       - name: Build packages
+#         run: |
+#           pnpm --filter=@docs/generator build
+#           pnpm --filter=@docs/theme build
+#           pnpm --filter=@docs/i18n build
+#
+#       - name: Create Release Pull Request or Publish
+#         id: changesets
+#         uses: changesets/action@v1
+#         with:
+#           publish: pnpm release
+#           commit: 'chore: release packages'
+#           title: 'chore: release packages'
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+#
+# ---
+#
+# このワークフローの有効化手順:
+#
+# 1. 上記のコメントアウトをすべて解除
+# 2. GitHubリポジトリのSecretsにNPM_TOKENを追加
+# 3. npm organizationを作成（@docsスコープ）
+# 4. 各パッケージのpackage.jsonでprivate: falseに変更
+# 5. mainブランチにpushしてワークフローをトリガー
+#
+# Phase 2-5では上記の手順は実施せず、設定のみを残します

@@ -18,17 +18,27 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "diff": "^5.1.0"
+    "diff": "^5.2.0"
   },
   "peerDependencies": {
     "astro": "^5.0.0",
     "@docs/ui": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/diff": "^5.0.3",
+    "@types/node": "^18.19.100",
+    "@types/diff": "^5.2.3",
     "astro": "^5.7.12",
     "@docs/ui": "workspace:*",
-    "typescript": "^5.0.0"
-  }
+    "typescript": "^5.8.3"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dolphilia/libx-dev.git",
+    "directory": "packages/versioning"
+  },
+  "bugs": {
+    "url": "https://github.com/dolphilia/libx-dev/issues"
+  },
+  "homepage": "https://github.com/dolphilia/libx-dev#readme"
 }

@@ -34,7 +34,10 @@
     "test:cli": "vitest run --project cli",
     "test:validator": "vitest run --project validator",
     "deploy": "pnpm build && pnpm deploy:pages",
-    "deploy:pages": "wrangler pages deploy dist --project-name libx"
+    "deploy:pages": "wrangler pages deploy dist --project-name libx",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

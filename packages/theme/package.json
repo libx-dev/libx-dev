@@ -43,8 +43,18 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^18.19.100",
     "tsup": "^8.5.0",
-    "typescript": "^5.0.0"
-  }
+    "typescript": "^5.8.3"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dolphilia/libx-dev.git",
+    "directory": "packages/theme"
+  },
+  "bugs": {
+    "url": "https://github.com/dolphilia/libx-dev/issues"
+  },
+  "homepage": "https://github.com/dolphilia/libx-dev#readme"
 }

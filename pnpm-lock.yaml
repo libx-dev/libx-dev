@@ -220,7 +220,7 @@ importers:
   packages/i18n:
     devDependencies:
       '@types/node':
-        specifier: ^18.0.0
+        specifier: ^18.19.100
         version: 18.19.100
       astro:
         specifier: ^5.7.12
@@ -229,7 +229,7 @@ importers:
         specifier: ^8.5.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.1)
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.8.3
         version: 5.8.3
 
   packages/runtime:
@@ -278,26 +278,25 @@ importers:
   packages/theme:
     devDependencies:
       '@types/node':
-        specifier: ^18.0.0
+        specifier: ^18.19.100
         version: 18.19.100
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.1)
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.8.3
         version: 5.8.3
 
   packages/ui:
-    dependencies:
+    devDependencies:
+      '@types/node':
+        specifier: ^18.19.100
+        version: 18.19.100
       astro:
         specifier: ^5.7.12
         version: 5.7.12(@types/node@18.19.100)(jiti@1.21.7)(rollup@4.40.2)(typescript@5.8.3)(yaml@2.7.1)
-    devDependencies:
-      '@types/node':
-        specifier: ^18.0.0
-        version: 18.19.100
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.8.3
         version: 5.8.3
 
   packages/validator:
@@ -312,26 +311,23 @@ importers:
   packages/versioning:
     dependencies:
       diff:
-        specifier: ^5.1.0
+        specifier: ^5.2.0
         version: 5.2.0
     devDependencies:
       '@docs/ui':
         specifier: workspace:*
         version: link:../ui
       '@types/diff':
-        specifier: ^5.0.3
+        specifier: ^5.2.3
         version: 5.2.3
       '@types/node':
-        specifier: ^18.0.0
+        specifier: ^18.19.100
         version: 18.19.100
       astro:
         specifier: ^5.7.12
         version: 5.7.12(@types/node@18.19.100)(jiti@1.21.7)(rollup@4.40.2)(typescript@5.8.3)(yaml@2.7.1)
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@1.21.7)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.1)
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.8.3
         version: 5.8.3
 
 packages:
