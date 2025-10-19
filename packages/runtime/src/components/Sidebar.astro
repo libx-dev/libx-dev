@@ -92,13 +92,22 @@ const { items, currentPath } = Astro.props;
     text-decoration: none;
   }
 
+  /* キーボードフォーカス時の視覚的フィードバック */
+  .doc-link:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    background-color: var(--color-border);
+  }
+
+  /* 現在のページ表示 */
   .doc-link.is-current {
     background-color: var(--color-primary);
     color: #ffffff;
     font-weight: 500;
   }
 
-  .doc-link.is-current:hover {
+  .doc-link.is-current:hover,
+  .doc-link.is-current:focus {
     background-color: var(--color-primary);
   }
 </style>

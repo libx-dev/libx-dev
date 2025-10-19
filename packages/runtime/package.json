@@ -22,7 +22,10 @@
   },
   "devDependencies": {
     "@types/node": "^18.19.100",
+    "chrome-launcher": "^1.2.1",
+    "lighthouse": "^13.0.0",
     "pagefind": "^1.4.0",
+    "sharp": "^0.34.4",
     "typescript": "^5.8.3"
   }
 }

@@ -1,18 +1,36 @@
 ---
 /**
- * Search - 検索UIコンポーネント
+ * Search - 検索UIコンポーネント（強化版）
  * Pagefind検索エンジンと統合した検索インターフェース
+ * - アクセシビリティ対応（WCAG 2.1準拠）
+ * - ファセット検索（プロジェクト/バージョン/言語フィルタ）
+ * - ページネーション
+ * - 検索ハイライト
  */
 ---
 
-<div class="search-container">
+<div class="search-container" role="search" aria-label="サイト内検索">
   <div class="search-wrapper">
+    <!-- 検索入力エリア -->
     <div class="search-input-wrapper">
-      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
       <div id="search"></div>
+    </div>
+
+    <!-- フィルタエリア -->
+    <div class="search-filters" id="search-filters" style="display: none;">
+      <select id="project-filter" aria-label="プロジェクトで絞り込み" class="filter-select">
+        <option value="">すべてのプロジェクト</option>
+      </select>
+      <select id="version-filter" aria-label="バージョンで絞り込み" class="filter-select">
+        <option value="">すべてのバージョン</option>
+      </select>
+      <select id="lang-filter" aria-label="言語で絞り込み" class="filter-select">
+        <option value="">すべての言語</option>
+      </select>
     </div>
   </div>
 </div>
@@ -20,100 +38,272 @@
 <script>
   // @ts-ignore - Pagefindは動的に読み込まれる
   async function initSearch() {
-    // Pagefindの動的読み込み
-    // ビルド後に生成される /pagefind/pagefind.js を読み込む
     try {
       // @ts-ignore
       const pagefind = await import('/pagefind/pagefind.js');
 
-      // 検索オプションの設定
       await pagefind.options({
         excerptLength: 30,
         highlightParam: 'highlight'
       });
 
-      // 検索UIの初期化
       const searchElement = document.getElementById('search');
-      if (searchElement) {
-        // 簡易的な検索UIを実装
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.placeholder = 'ドキュメントを検索...';
-        input.className = 'search-input';
+      const filtersElement = document.getElementById('search-filters');
 
-        const resultsContainer = document.createElement('div');
-        resultsContainer.className = 'search-results';
-        resultsContainer.style.display = 'none';
+      if (!searchElement) return;
 
-        searchElement.appendChild(input);
-        searchElement.appendChild(resultsContainer);
+      // 検索入力フィールド
+      const input = document.createElement('input');
+      input.type = 'search';
+      input.placeholder = 'ドキュメントを検索...';
+      input.className = 'search-input';
+      input.setAttribute('aria-label', 'ドキュメントを検索');
+      input.setAttribute('aria-describedby', 'search-help');
+      input.setAttribute('aria-autocomplete', 'list');
+      input.setAttribute('aria-controls', 'search-results');
 
-        // 検索処理
-        let searchTimeout: ReturnType<typeof setTimeout>;
-        input.addEventListener('input', async (e) => {
-          const query = (e.target as HTMLInputElement).value.trim();
+      // スクリーンリーダー用の説明テキスト
+      const helpText = document.createElement('div');
+      helpText.id = 'search-help';
+      helpText.className = 'sr-only';
+      helpText.textContent = 'キーワードを入力して検索してください。矢印キーで結果を移動できます。';
 
-          // デバウンス処理
-          clearTimeout(searchTimeout);
+      // 検索結果コンテナ
+      const resultsContainer = document.createElement('div');
+      resultsContainer.id = 'search-results';
+      resultsContainer.className = 'search-results';
+      resultsContainer.style.display = 'none';
+      resultsContainer.setAttribute('role', 'listbox');
+      resultsContainer.setAttribute('aria-label', '検索結果');
 
-          if (!query) {
-            resultsContainer.style.display = 'none';
-            resultsContainer.innerHTML = '';
-            return;
+      // ページネーションコンテナ
+      const paginationContainer = document.createElement('div');
+      paginationContainer.id = 'pagination';
+      paginationContainer.className = 'pagination-container';
+
+      searchElement.appendChild(input);
+      searchElement.appendChild(helpText);
+      searchElement.appendChild(resultsContainer);
+      searchElement.appendChild(paginationContainer);
+
+      // フィルタの初期化
+      const projectFilter = document.getElementById('project-filter') as HTMLSelectElement;
+      const versionFilter = document.getElementById('version-filter') as HTMLSelectElement;
+      const langFilter = document.getElementById('lang-filter') as HTMLSelectElement;
+
+      // 検索状態
+      let currentPage = 1;
+      const resultsPerPage = 10;
+      let allResults: any[] = [];
+      let currentQuery = '';
+
+      // 検索キーワードをハイライト
+      function highlightText(text: string, query: string): string {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+
+      // 検索結果を表示
+      function displayResults(results: any[], page: number, query: string) {
+        const start = (page - 1) * resultsPerPage;
+        const end = start + resultsPerPage;
+        const pageResults = results.slice(start, end);
+
+        if (pageResults.length > 0) {
+          resultsContainer.style.display = 'block';
+          resultsContainer.innerHTML = '';
+
+          pageResults.forEach((data: any, index: number) => {
+            const resultItem = document.createElement('a');
+            resultItem.href = data.url;
+            resultItem.className = 'search-result-item';
+            resultItem.setAttribute('role', 'option');
+            resultItem.setAttribute('tabindex', '0');
+            resultItem.setAttribute('aria-setsize', String(results.length));
+            resultItem.setAttribute('aria-posinset', String(start + index + 1));
+
+            resultItem.innerHTML = `
+              <div class="result-title">${highlightText(data.meta?.title || 'Untitled', query)}</div>
+              <div class="result-excerpt">${highlightText(data.excerpt || '', query)}</div>
+              <div class="result-meta">
+                ${data.meta?.project ? `<span class="meta-badge">${data.meta.project}</span>` : ''}
+                ${data.meta?.version ? `<span class="meta-badge">${data.meta.version}</span>` : ''}
+                ${data.meta?.lang ? `<span class="meta-badge">${data.meta.lang}</span>` : ''}
+              </div>
+              <div class="result-url">${data.url}</div>
+            `;
+
+            resultsContainer.appendChild(resultItem);
+          });
+
+          // ページネーション表示
+          renderPagination(results.length, page);
+        } else {
+          resultsContainer.style.display = 'block';
+          resultsContainer.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
+          paginationContainer.innerHTML = '';
+        }
+      }
+
+      // ページネーション表示
+      function renderPagination(totalResults: number, currentPage: number) {
+        const totalPages = Math.ceil(totalResults / resultsPerPage);
+
+        if (totalPages <= 1) {
+          paginationContainer.innerHTML = '';
+          return;
+        }
+
+        const buttons: string[] = [];
+
+        // 前へボタン
+        if (currentPage > 1) {
+          buttons.push(`<button class="pagination-button" data-page="${currentPage - 1}" aria-label="前のページ">前へ</button>`);
+        }
+
+        // ページ番号ボタン
+        for (let i = 1; i <= totalPages; i++) {
+          if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            const isActive = i === currentPage;
+            buttons.push(`
+              <button
+                class="pagination-button ${isActive ? 'active' : ''}"
+                data-page="${i}"
+                ${isActive ? 'aria-current="page"' : ''}
+                aria-label="ページ ${i}"
+              >
+                ${i}
+              </button>
+            `);
+          } else if (i === currentPage - 3 || i === currentPage + 3) {
+            buttons.push('<span class="pagination-ellipsis">...</span>');
           }
+        }
 
-          searchTimeout = setTimeout(async () => {
-            // @ts-ignore
-            const results = await pagefind.debouncedSearch(query);
+        // 次へボタン
+        if (currentPage < totalPages) {
+          buttons.push(`<button class="pagination-button" data-page="${currentPage + 1}" aria-label="次のページ">次へ</button>`);
+        }
 
-            if (results && results.results && results.results.length > 0) {
-              resultsContainer.style.display = 'block';
-              resultsContainer.innerHTML = '';
+        paginationContainer.innerHTML = `
+          <nav class="pagination" aria-label="検索結果のページネーション">
+            <div class="pagination-info" aria-live="polite">
+              ${totalResults}件中 ${(currentPage - 1) * resultsPerPage + 1}-${Math.min(currentPage * resultsPerPage, totalResults)}件を表示
+            </div>
+            <div class="pagination-buttons">
+              ${buttons.join('')}
+            </div>
+          </nav>
+        `;
 
-              // 最大10件まで表示
-              const displayResults = results.results.slice(0, 10);
-
-              for (const result of displayResults) {
-                // @ts-ignore
-                const data = await result.data();
-
-                const resultItem = document.createElement('a');
-                resultItem.href = data.url;
-                resultItem.className = 'search-result-item';
-
-                resultItem.innerHTML = `
-                  <div class="result-title">${data.meta.title || 'Untitled'}</div>
-                  <div class="result-excerpt">${data.excerpt || ''}</div>
-                  <div class="result-url">${data.url}</div>
-                `;
-
-                resultsContainer.appendChild(resultItem);
-              }
-            } else {
-              resultsContainer.style.display = 'block';
-              resultsContainer.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
-            }
-          }, 300);
-        });
-
-        // 検索結果エリア外クリックで閉じる
-        document.addEventListener('click', (e) => {
-          if (!searchElement.contains(e.target as Node)) {
-            resultsContainer.style.display = 'none';
-          }
+        // ページネーションボタンのイベントリスナー
+        paginationContainer.querySelectorAll('.pagination-button').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const target = e.target as HTMLButtonElement;
+            const page = parseInt(target.dataset.page || '1', 10);
+            currentPage = page;
+            displayResults(allResults, currentPage, currentQuery);
+          });
         });
       }
+
+      // 検索実行
+      async function performSearch(query: string) {
+        if (!query.trim()) {
+          resultsContainer.style.display = 'none';
+          resultsContainer.innerHTML = '';
+          paginationContainer.innerHTML = '';
+          return;
+        }
+
+        currentQuery = query;
+        currentPage = 1;
+
+        try {
+          // @ts-ignore
+          const results = await pagefind.debouncedSearch(query);
+
+          if (results && results.results && results.results.length > 0) {
+            // 結果データを取得
+            const dataPromises = results.results.map((r: any) => r.data());
+            allResults = await Promise.all(dataPromises);
+
+            // フィルタ適用
+            let filteredResults = allResults;
+
+            const projectValue = projectFilter?.value;
+            const versionValue = versionFilter?.value;
+            const langValue = langFilter?.value;
+
+            if (projectValue) {
+              filteredResults = filteredResults.filter(r => r.meta?.project === projectValue);
+            }
+            if (versionValue) {
+              filteredResults = filteredResults.filter(r => r.meta?.version === versionValue);
+            }
+            if (langValue) {
+              filteredResults = filteredResults.filter(r => r.meta?.lang === langValue);
+            }
+
+            displayResults(filteredResults, currentPage, query);
+          } else {
+            allResults = [];
+            displayResults([], currentPage, query);
+          }
+        } catch (error) {
+          console.error('検索エラー:', error);
+          resultsContainer.style.display = 'block';
+          resultsContainer.innerHTML = '<div class="no-results">検索中にエラーが発生しました</div>';
+        }
+      }
+
+      // 検索入力イベント
+      let searchTimeout: ReturnType<typeof setTimeout>;
+      input.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.trim();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => performSearch(query), 300);
+      });
+
+      // フィルタ変更イベント
+      [projectFilter, versionFilter, langFilter].forEach(filter => {
+        filter?.addEventListener('change', () => {
+          if (currentQuery) {
+            performSearch(currentQuery);
+          }
+        });
+      });
+
+      // 検索結果エリア外クリックで閉じる
+      document.addEventListener('click', (e) => {
+        if (!searchElement.contains(e.target as Node) &&
+            !filtersElement?.contains(e.target as Node)) {
+          resultsContainer.style.display = 'none';
+        }
+      });
+
+      // キーボードナビゲーション
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const firstResult = resultsContainer.querySelector('.search-result-item') as HTMLElement;
+          firstResult?.focus();
+        } else if (e.key === 'Escape') {
+          resultsContainer.style.display = 'none';
+        }
+      });
+
     } catch (error) {
       console.error('Pagefind初期化エラー:', error);
-      // フォールバック: 検索機能が利用できない旨を表示
       const searchElement = document.getElementById('search');
       if (searchElement) {
-        searchElement.innerHTML = '<input type="text" placeholder="検索機能は現在利用できません" disabled class="search-input" />';
+        searchElement.innerHTML = '<input type="text" placeholder="検索機能は現在利用できません" disabled class="search-input" aria-label="検索は利用できません" />';
       }
     }
   }
 
-  // DOMContentLoaded後に初期化
+  // 初期化
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initSearch);
   } else {
@@ -145,6 +335,20 @@
     z-index: 1;
   }
 
+  /* スクリーンリーダー専用テキスト */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* 検索入力フィールド */
   :global(.search-input) {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
@@ -167,6 +371,32 @@
     cursor: not-allowed;
   }
 
+  /* フィルタエリア */
+  .search-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .filter-select {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+  }
+
+  /* 検索結果 */
   :global(.search-results) {
     position: absolute;
     top: calc(100% + 0.5rem);
@@ -193,8 +423,11 @@
     border-bottom: none;
   }
 
-  :global(.search-result-item:hover) {
+  :global(.search-result-item:hover),
+  :global(.search-result-item:focus) {
     background-color: var(--color-border);
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
   }
 
   :global(.result-title) {
@@ -206,14 +439,38 @@
   :global(.result-excerpt) {
     font-size: 0.875rem;
     color: var(--color-secondary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
     line-height: 1.5;
+  }
+
+  :global(.result-meta) {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.meta-badge) {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    background-color: var(--color-border);
+    color: var(--color-text);
+    border-radius: 0.25rem;
   }
 
   :global(.result-url) {
     font-size: 0.75rem;
     color: var(--color-primary);
     font-family: monospace;
+  }
+
+  /* 検索ハイライト */
+  :global(mark) {
+    background-color: #fef08a;
+    color: #000;
+    font-weight: 600;
+    padding: 0 0.125rem;
+    border-radius: 0.125rem;
   }
 
   :global(.no-results) {
@@ -223,6 +480,65 @@
     font-size: 0.875rem;
   }
 
+  /* ページネーション */
+  .pagination-container {
+    margin-top: 0.5rem;
+  }
+
+  :global(.pagination) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+  }
+
+  :global(.pagination-info) {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    text-align: center;
+  }
+
+  :global(.pagination-buttons) {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  :global(.pagination-button) {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  :global(.pagination-button:hover) {
+    background-color: var(--color-border);
+  }
+
+  :global(.pagination-button:focus) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  :global(.pagination-button.active) {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  :global(.pagination-ellipsis) {
+    padding: 0.5rem 0.25rem;
+    color: var(--color-secondary);
+  }
+
   @media (max-width: 768px) {
     .search-container {
       max-width: 100%;
@@ -230,6 +546,19 @@
 
     :global(.search-results) {
       max-height: 300px;
+    }
+
+    .search-filters {
+      flex-direction: column;
+    }
+
+    :global(.pagination-buttons) {
+      font-size: 0.75rem;
+    }
+
+    :global(.pagination-button) {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.75rem;
     }
   }
 </style>

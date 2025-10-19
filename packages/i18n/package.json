@@ -3,20 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./utils": "./src/utils/index.ts",
-    "./locales": "./src/locales/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "pnpm build",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
-  "dependencies": {
-    "astro": "^3.0.0"
+  "peerDependencies": {
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "astro": "^5.7.12",
+    "tsup": "^8.5.0",
     "typescript": "^5.0.0"
   }
 }

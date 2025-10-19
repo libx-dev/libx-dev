@@ -3,21 +3,48 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./colors": "./src/colors.ts",
-    "./typography": "./src/typography.ts",
-    "./spacing": "./src/spacing.ts",
-    "./css": "./src/css/index.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./colors": {
+      "types": "./dist/colors.d.ts",
+      "import": "./dist/colors.js",
+      "require": "./dist/colors.cjs"
+    },
+    "./typography": {
+      "types": "./dist/typography.d.ts",
+      "import": "./dist/typography.js",
+      "require": "./dist/typography.cjs"
+    },
+    "./spacing": {
+      "types": "./dist/spacing.d.ts",
+      "import": "./dist/spacing.js",
+      "require": "./dist/spacing.cjs"
+    },
     "./css/variables.css": "./src/css/variables.css",
     "./css/base.css": "./src/css/base.css"
   },
+  "files": [
+    "dist",
+    "src/css",
+    "README.md"
+  ],
   "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "pnpm build",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.0.0"
   }
 }

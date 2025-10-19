@@ -37,6 +37,7 @@
     "deploy:pages": "wrangler pages deploy dist --project-name libx"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^3.2.4",
@@ -47,6 +48,7 @@
     "glob": "^11.0.2",
     "gray-matter": "^4.0.3",
     "prettier": "^3.0.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.0.0",
     "vitest": "^3.2.4",
     "wrangler": "^3.0.0"

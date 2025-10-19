@@ -6,20 +6,29 @@
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
+    "./components/*": "./src/components/*.astro",
     "./utils": "./src/utils/index.ts"
   },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
-    "astro": "^3.0.0",
-    "@docs/ui": "workspace:*",
     "diff": "^5.1.0"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0",
+    "@docs/ui": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
     "@types/diff": "^5.0.3",
+    "astro": "^5.7.12",
+    "@docs/ui": "workspace:*",
     "typescript": "^5.0.0"
   }
 }
