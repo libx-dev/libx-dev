@@ -1,0 +1,16 @@
+{
+  "name": "npm-usage-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "共有パッケージのビルド成果物使用テスト",
+  "type": "module",
+  "scripts": {
+    "test:cjs": "node test-cjs.cjs",
+    "test:esm": "node test-esm.js",
+    "test:types": "tsc --noEmit test-types.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.100",
+    "typescript": "^5.8.3"
+  }
+}
