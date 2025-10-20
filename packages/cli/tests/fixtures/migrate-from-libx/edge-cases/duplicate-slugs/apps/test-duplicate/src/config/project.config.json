@@ -1,0 +1,41 @@
+{
+  "id": "test-duplicate",
+  "displayName": {
+    "en": "Test Duplicate Project",
+    "ja": "重複テストプロジェクト"
+  },
+  "description": {
+    "en": "Test project for duplicate slugs",
+    "ja": "スラッグ重複テスト用プロジェクト"
+  },
+  "languages": [
+    {
+      "code": "en",
+      "displayName": "English",
+      "default": true
+    }
+  ],
+  "versions": [
+    {
+      "id": "v1",
+      "name": "Version 1.0",
+      "isLatest": true
+    }
+  ],
+  "categories": {
+    "guide": {
+      "en": "Guide",
+      "ja": "ガイド"
+    },
+    "tutorial": {
+      "en": "Tutorial",
+      "ja": "チュートリアル"
+    }
+  },
+  "licenses": [
+    {
+      "title": "MIT License",
+      "licenseUrl": "https://opensource.org/licenses/MIT"
+    }
+  ]
+}

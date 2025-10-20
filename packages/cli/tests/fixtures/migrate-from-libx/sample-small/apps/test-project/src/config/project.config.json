@@ -1,0 +1,52 @@
+{
+  "basic": {
+    "baseUrl": "/docs/test-project",
+    "supportedLangs": ["en", "ja"],
+    "defaultLang": "en"
+  },
+  "languageNames": {
+    "en": "English",
+    "ja": "日本語"
+  },
+  "translations": {
+    "en": {
+      "displayName": "Test Project",
+      "displayDescription": "A test project for migration testing",
+      "categories": {
+        "guide": "Guide"
+      }
+    },
+    "ja": {
+      "displayName": "テストプロジェクト",
+      "displayDescription": "マイグレーションテスト用のプロジェクト",
+      "categories": {
+        "guide": "ガイド"
+      }
+    }
+  },
+  "versioning": {
+    "versions": [
+      {
+        "id": "v1",
+        "name": "Version 1.0",
+        "date": "2024-01-01T00:00:00.000Z",
+        "isLatest": true
+      }
+    ]
+  },
+  "licensing": {
+    "sources": [
+      {
+        "id": "test-original",
+        "name": "Test Documentation",
+        "author": "Test Team",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT",
+        "sourceUrl": "https://github.com/test/test-docs"
+      }
+    ],
+    "defaultSource": "test-original",
+    "showAttribution": true,
+    "sourceLanguage": "en"
+  }
+}

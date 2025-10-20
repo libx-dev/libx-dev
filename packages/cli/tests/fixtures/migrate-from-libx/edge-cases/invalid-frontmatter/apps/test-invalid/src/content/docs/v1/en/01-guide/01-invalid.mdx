@@ -1,0 +1,19 @@
+---
+title: Invalid Frontmatter Document
+description: This document has invalid YAML frontmatter
+category: guide
+categoryOrder: 1
+pubDate: not-a-valid-date
+order: invalid-number
+invalid-field: [unclosed array
+---
+
+# Invalid Frontmatter Document
+
+This document contains intentionally invalid frontmatter for testing error handling.
+
+The migration tool should:
+1. Detect the parsing error
+2. Use default values
+3. Log a warning
+4. Continue processing

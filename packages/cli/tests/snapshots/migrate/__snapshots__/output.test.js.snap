@@ -1,0 +1,247 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`migrate from-libx (スナップショット) > カテゴリとドキュメントの関連構造のスナップショット 1`] = `
+[
+  {
+    "categoryId": "guide",
+    "categoryName": undefined,
+    "docs": [
+      "getting-started",
+      "installation",
+    ],
+  },
+]
+`;
+
+exports[`migrate from-libx (スナップショット) > プロジェクト構造のスナップショット 1`] = `
+{
+  "categories": [
+    {
+      "description": {
+        "en": "",
+        "ja": "",
+      },
+      "id": "guide",
+      "name": undefined,
+      "order": 1,
+    },
+  ],
+  "description": {
+    "en": "A test project for migration testing",
+    "ja": "マイグレーションテスト用のプロジェクト",
+  },
+  "displayName": {
+    "en": "Test Project",
+    "ja": "テストプロジェクト",
+  },
+  "documents": [
+    {
+      "description": undefined,
+      "id": "getting-started",
+      "slug": "guide/getting-started",
+      "title": {
+        "en": "Getting Started",
+        "ja": "はじめに",
+      },
+      "versions": [
+        "v1",
+      ],
+    },
+    {
+      "description": undefined,
+      "id": "installation",
+      "slug": "guide/installation",
+      "title": {
+        "en": "Installation",
+        "ja": "インストール",
+      },
+      "versions": [
+        "v1",
+      ],
+    },
+  ],
+  "id": "test-project",
+  "languages": [
+    {
+      "code": "en",
+      "default": true,
+      "displayName": "English",
+      "status": "active",
+    },
+    {
+      "code": "ja",
+      "default": false,
+      "displayName": "日本語",
+      "fallback": "en",
+      "status": "active",
+    },
+  ],
+  "versions": [
+    {
+      "date": "2024-01-01T00:00:00.000Z",
+      "id": "v1",
+      "isLatest": true,
+      "name": "Version 1.0",
+      "status": "active",
+    },
+  ],
+}
+`;
+
+exports[`migrate from-libx (スナップショット) > レジストリ出力が期待される構造と一致する 1`] = `
+{
+  "$schemaVersion": "1.0.0",
+  "metadata": {
+    "createdBy": "migrate-from-libx",
+  },
+  "projects": [
+    {
+      "categories": [
+        {
+          "description": {
+            "en": "",
+            "ja": "",
+          },
+          "docs": [
+            "getting-started",
+            "installation",
+          ],
+          "id": "guide",
+          "order": 1,
+          "titles": {
+            "en": "Guide",
+            "ja": "ガイド",
+          },
+        },
+      ],
+      "description": {
+        "en": "A test project for migration testing",
+        "ja": "マイグレーションテスト用のプロジェクト",
+      },
+      "displayName": {
+        "en": "Test Project",
+        "ja": "テストプロジェクト",
+      },
+      "documents": [
+        {
+          "content": {
+            "en": {
+              "path": "content/getting-started/en.mdx",
+              "source": {
+                "branch": "main",
+                "path": "src/content/docs/v1/en/01-guide/01-getting-started.mdx",
+              },
+              "status": "published",
+              "wordCount": 34,
+            },
+            "ja": {
+              "path": "content/getting-started/ja.mdx",
+              "source": {
+                "branch": "main",
+                "path": "src/content/docs/v1/ja/01-guide/01-getting-started.mdx",
+              },
+              "status": "published",
+              "wordCount": 13,
+            },
+          },
+          "id": "getting-started",
+          "keywords": [],
+          "slug": "guide/getting-started",
+          "status": "published",
+          "summary": {
+            "en": "Quick start guide for Test Project",
+            "ja": "Test Projectのクイックスタートガイド",
+          },
+          "tags": [],
+          "title": {
+            "en": "Getting Started",
+            "ja": "はじめに",
+          },
+          "versions": [
+            "v1",
+          ],
+          "visibility": "public",
+        },
+        {
+          "content": {
+            "en": {
+              "path": "content/installation/en.mdx",
+              "source": {
+                "branch": "main",
+                "path": "src/content/docs/v1/en/01-guide/02-installation.mdx",
+              },
+              "status": "published",
+              "wordCount": 27,
+            },
+            "ja": {
+              "path": "content/installation/ja.mdx",
+              "source": {
+                "branch": "main",
+                "path": "src/content/docs/v1/ja/01-guide/02-installation.mdx",
+              },
+              "status": "published",
+              "wordCount": 12,
+            },
+          },
+          "id": "installation",
+          "keywords": [],
+          "slug": "guide/installation",
+          "status": "published",
+          "summary": {
+            "en": "How to install Test Project",
+            "ja": "Test Projectのインストール方法",
+          },
+          "tags": [],
+          "title": {
+            "en": "Installation",
+            "ja": "インストール",
+          },
+          "versions": [
+            "v1",
+          ],
+          "visibility": "public",
+        },
+      ],
+      "id": "test-project",
+      "languages": [
+        {
+          "code": "en",
+          "default": true,
+          "displayName": "English",
+          "status": "active",
+        },
+        {
+          "code": "ja",
+          "default": false,
+          "displayName": "日本語",
+          "fallback": "en",
+          "status": "active",
+        },
+      ],
+      "licenses": [
+        {
+          "author": "Test Team",
+          "id": "test-original",
+          "license": "MIT",
+          "name": "Test Documentation",
+          "url": "https://opensource.org/licenses/MIT",
+        },
+      ],
+      "versions": [
+        {
+          "date": "2024-01-01T00:00:00.000Z",
+          "id": "v1",
+          "isLatest": true,
+          "name": "Version 1.0",
+          "status": "active",
+        },
+      ],
+    },
+  ],
+  "settings": {
+    "defaultLocale": "en",
+    "siteName": "Documentation",
+    "siteUrl": "https://example.com",
+  },
+}
+`;

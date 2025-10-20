@@ -1,0 +1,51 @@
+{
+  "basic": {
+    "baseUrl": "/docs/test-missing",
+    "supportedLangs": ["en", "ja"],
+    "defaultLang": "en"
+  },
+  "languageNames": {
+    "en": "English",
+    "ja": "日本語"
+  },
+  "translations": {
+    "en": {
+      "displayName": "Test Missing Files",
+      "displayDescription": "Test project with missing language versions",
+      "categories": {
+        "guide": "Guide"
+      }
+    },
+    "ja": {
+      "displayName": "ファイル欠損テスト",
+      "displayDescription": "言語版が一部欠損しているテストプロジェクト",
+      "categories": {
+        "guide": "ガイド"
+      }
+    }
+  },
+  "versioning": {
+    "versions": [
+      {
+        "id": "v1",
+        "name": "Version 1.0",
+        "date": "2024-01-01T00:00:00.000Z",
+        "isLatest": true
+      }
+    ]
+  },
+  "licensing": {
+    "sources": [
+      {
+        "id": "test-original",
+        "name": "Test Documentation",
+        "author": "Test Team",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT"
+      }
+    ],
+    "defaultSource": "test-original",
+    "showAttribution": true,
+    "sourceLanguage": "en"
+  }
+}

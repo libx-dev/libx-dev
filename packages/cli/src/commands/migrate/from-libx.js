@@ -5,8 +5,9 @@
  * 新レジストリ形式（registry/docs.json）へ自動変換します。
  */
 
-import { resolve, join } from 'path';
+import { resolve, join, dirname } from 'path';
 import { existsSync, readFileSync, writeFileSync, copyFileSync, mkdirSync } from 'fs';
+import cliProgress from 'cli-progress';
 import * as logger from '../../utils/logger.js';
 import { BackupManager } from '../../utils/backup.js';
 import { RegistryManager } from '../../utils/registry.js';
@@ -15,6 +16,7 @@ import { scanAllCategories } from './category-scanner.js';
 import { scanAllDocuments } from './document-scanner.js';
 import { generateAllContentMeta } from './content-meta.js';
 import { parseGlossary } from './glossary-parser.js';
+import { deduplicateSlugs } from './slug-deduplicator.js';
 
 /**
  * migrate from-libx コマンドのメイン処理
@@ -27,9 +29,20 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
   logger.info('migrate from-libx: 既存プロジェクトの変換を開始');
   logger.info('='.repeat(60));
 
+  // 開始時刻を記録
+  const startTime = Date.now();
+
   // バックアップマネージャーを初期化（エラー時のロールバック用）
   const backupManager = new BackupManager({
     backupDir: cmdOpts.backup || '.backups'
+  });
+
+  // プログレスバーの作成
+  const progressBar = new cliProgress.SingleBar({
+    format: '進行状況 |{bar}| {percentage}% | {stage}',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true,
   });
 
   try {
@@ -56,6 +69,9 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     logger.info(`変換先: ${targetPath}`);
     logger.info(`dry-run: ${globalOpts.dryRun ? 'はい' : 'いいえ'}`);
     logger.info('');
+
+    // プログレスバーを開始（8段階）
+    progressBar.start(8, 0, { stage: '初期化中...' });
 
     // === ソースディレクトリの存在確認 ===
     if (!existsSync(sourcePath)) {
@@ -103,7 +119,8 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     }
 
     // === プロジェクト設定の解析 ===
-    logger.info('[1/7] プロジェクト設定を解析中...');
+    progressBar.update(1, { stage: 'プロジェクト設定を解析中...' });
+    logger.info('[1/8] プロジェクト設定を解析中...');
     const {
       projectData,
       categoryTranslations,
@@ -112,12 +129,14 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     } = parseProjectConfig(sourcePath, projectId);
 
     // === プロジェクト装飾情報の取得 ===
-    logger.info('[2/7] プロジェクト装飾情報を取得中...');
+    progressBar.update(2, { stage: 'プロジェクト装飾情報を取得中...' });
+    logger.info('[2/8] プロジェクト装飾情報を取得中...');
     const decorations = parseProjectDecorations(topPagePath, projectId);
     Object.assign(projectData, decorations);
 
     // === カテゴリのスキャン ===
-    logger.info('[3/7] カテゴリをスキャン中...');
+    progressBar.update(3, { stage: 'カテゴリをスキャン中...' });
+    logger.info('[3/8] カテゴリをスキャン中...');
     const categories = scanAllCategories(
       sourcePath,
       versions,
@@ -127,16 +146,23 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     projectData.categories = categories;
 
     // === ドキュメントのスキャン ===
-    logger.info('[4/7] ドキュメントをスキャン中...');
-    const documents = scanAllDocuments(
+    progressBar.update(4, { stage: 'ドキュメントをスキャン中...' });
+    logger.info('[4/8] ドキュメントをスキャン中...');
+    let documents = scanAllDocuments(
       sourcePath,
       projectId,
       versions,
       supportedLangs
     );
 
+    // === スラッグ重複の検知と解決 ===
+    progressBar.update(5, { stage: 'スラッグ重複を検知中...' });
+    logger.info('[5/8] スラッグ重複を検知中...');
+    documents = deduplicateSlugs(documents);
+
     // === コンテンツメタの生成 ===
-    logger.info('[5/7] コンテンツメタを生成中...');
+    progressBar.update(6, { stage: 'コンテンツメタを生成中...' });
+    logger.info('[6/8] コンテンツメタを生成中...');
     const documentsWithMeta = generateAllContentMeta(
       sourcePath,
       documents,
@@ -145,7 +171,8 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     );
 
     // === Glossary（用語集）の解析 ===
-    logger.info('[6/7] Glossary（用語集）を解析中...');
+    progressBar.update(7, { stage: 'Glossaryを解析中...' });
+    logger.info('[7/8] Glossary（用語集）を解析中...');
     const glossary = parseGlossary(sourcePath, projectId);
     if (glossary.length > 0) {
       projectData.glossary = glossary;
@@ -172,7 +199,8 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     projectData.documents = documentsWithMeta;
 
     // === レジストリへの統合 ===
-    logger.info('[7/7] レジストリに統合中...');
+    progressBar.update(8, { stage: 'レジストリに統合中...' });
+    logger.info('[8/8] レジストリに統合中...');
 
     // 既存プロジェクトを削除（上書き）
     registry.projects = registry.projects.filter((p) => p.id !== projectId);
@@ -183,23 +211,20 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     // メタデータを更新
     registry.metadata.lastUpdated = new Date().toISOString();
 
+    // プログレスバーを停止
+    progressBar.stop();
+
     logger.success('レジストリへの統合完了');
     logger.info('');
 
-    // === サマリーの表示 ===
-    logger.info('='.repeat(60));
-    logger.info('変換サマリー');
-    logger.info('='.repeat(60));
-    logger.info(`プロジェクトID: ${projectData.id}`);
-    logger.info(`言語数: ${projectData.languages.length}`);
-    logger.info(`バージョン数: ${projectData.versions.length}`);
-    logger.info(`カテゴリ数: ${projectData.categories.length}`);
-    logger.info(`ドキュメント数: ${projectData.documents.length}`);
+    // === 処理時間を計算 ===
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
 
+    // === 詳細統計情報の収集 ===
     const totalContent = projectData.documents.reduce((sum, doc) => {
       return sum + Object.keys(doc.content).length;
     }, 0);
-    logger.info(`コンテンツファイル数: ${totalContent}`);
 
     const publishedCount = projectData.documents.reduce((sum, doc) => {
       return (
@@ -207,7 +232,6 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
         Object.values(doc.content).filter((c) => c.status === 'published').length
       );
     }, 0);
-    logger.info(`  published: ${publishedCount}`);
 
     const missingCount = projectData.documents.reduce((sum, doc) => {
       return (
@@ -215,7 +239,6 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
         Object.values(doc.content).filter((c) => c.status === 'missing').length
       );
     }, 0);
-    logger.info(`  missing: ${missingCount}`);
 
     const draftCount = projectData.documents.reduce((sum, doc) => {
       return (
@@ -223,7 +246,52 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
         Object.values(doc.content).filter((c) => c.status === 'draft').length
       );
     }, 0);
+
+    const inReviewCount = projectData.documents.reduce((sum, doc) => {
+      return (
+        sum +
+        Object.values(doc.content).filter((c) => c.status === 'in-review').length
+      );
+    }, 0);
+
+    const glossaryCount = projectData.glossary ? projectData.glossary.length : 0;
+
+    // 警告とエラーの収集（スラッグ重複など）
+    const warnings = [];
+    const errors = [];
+
+    // === 詳細統計情報の表示 ===
+    logger.info('\n' + '='.repeat(60));
+    logger.info('📊 詳細統計情報');
+    logger.info('='.repeat(60));
+    logger.info(`処理時間: ${processingTime}ms (${(processingTime / 1000).toFixed(2)}秒)`);
+    logger.info('');
+    logger.info('【プロジェクト情報】');
+    logger.info(`  プロジェクトID: ${projectData.id}`);
+    logger.info(`  言語数: ${projectData.languages.length}`);
+    logger.info(`  バージョン数: ${projectData.versions.length}`);
+    logger.info('');
+    logger.info('【コンテンツ情報】');
+    logger.info(`  カテゴリ数: ${projectData.categories.length}`);
+    logger.info(`  ドキュメント数: ${projectData.documents.length}`);
+    logger.info(`  Glossary用語数: ${glossaryCount}`);
+    logger.info('');
+    logger.info('【コンテンツファイル】');
+    logger.info(`  合計: ${totalContent} ファイル`);
+    logger.info(`  published: ${publishedCount}`);
+    logger.info(`  missing: ${missingCount}`);
     logger.info(`  draft: ${draftCount}`);
+    logger.info(`  in-review: ${inReviewCount}`);
+
+    if (warnings.length > 0) {
+      logger.info('');
+      logger.warn(`⚠️  警告数: ${warnings.length}`);
+    }
+
+    if (errors.length > 0) {
+      logger.info('');
+      logger.error(`❌ エラー数: ${errors.length}`);
+    }
 
     logger.info('='.repeat(60));
     logger.info('');

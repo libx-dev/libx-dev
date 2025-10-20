@@ -1,0 +1,43 @@
+{
+  "basic": {
+    "baseUrl": "/docs/test-invalid",
+    "supportedLangs": ["en"],
+    "defaultLang": "en"
+  },
+  "languageNames": {
+    "en": "English"
+  },
+  "translations": {
+    "en": {
+      "displayName": "Test Invalid Frontmatter",
+      "displayDescription": "Test project with invalid frontmatter",
+      "categories": {
+        "guide": "Guide"
+      }
+    }
+  },
+  "versioning": {
+    "versions": [
+      {
+        "id": "v1",
+        "name": "Version 1.0",
+        "date": "2024-01-01T00:00:00.000Z",
+        "isLatest": true
+      }
+    ]
+  },
+  "licensing": {
+    "sources": [
+      {
+        "id": "test-original",
+        "name": "Test Documentation",
+        "author": "Test Team",
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT"
+      }
+    ],
+    "defaultSource": "test-original",
+    "showAttribution": true,
+    "sourceLanguage": "en"
+  }
+}
