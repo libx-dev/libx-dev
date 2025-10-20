@@ -1,0 +1,57 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "1.0.0",
+  "mode": "ci",
+  "verbose": true,
+  "suppressWarnings": false,
+  "registry": {
+    "path": "registry/docs.json",
+    "validateOnLoad": true,
+    "strictMode": true
+  },
+  "projects": {
+    "basePath": "apps",
+    "template": "project-template",
+    "defaultLanguages": ["en", "ja"]
+  },
+  "build": {
+    "output": "dist",
+    "sidebar": {
+      "generate": true,
+      "outputPath": "apps"
+    },
+    "clean": true
+  },
+  "migrate": {
+    "backup": true,
+    "backupDir": ".backups",
+    "maxBackups": 10,
+    "dryRun": false
+  },
+  "artifacts": {
+    "enabled": true,
+    "reports": "reports/migration",
+    "backups": ".backups",
+    "logs": "logs",
+    "retentionDays": 30
+  },
+  "validation": {
+    "strictMode": true,
+    "checkLinks": false,
+    "checkSyncHash": true,
+    "failOnWarning": false
+  },
+  "ci": {
+    "provider": "github-actions",
+    "notifications": {
+      "enabled": true,
+      "onWarning": true,
+      "onError": true
+    },
+    "timeouts": {
+      "build": 600,
+      "validate": 300,
+      "migrate": 900
+    }
+  }
+}

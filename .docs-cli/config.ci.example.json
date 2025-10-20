@@ -1,0 +1,85 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "1.0.0",
+
+  "// mode": "実行モード: 'ci' (CI環境), 'local' (ローカル開発), 'production' (本番環境)",
+  "mode": "ci",
+
+  "// verbose": "詳細ログを出力するか",
+  "verbose": true,
+
+  "// suppressWarnings": "警告を抑制するか（CI環境では false を推奨）",
+  "suppressWarnings": false,
+
+  "// registry": "レジストリ設定",
+  "registry": {
+    "path": "registry/docs.json",
+    "validateOnLoad": true,
+    "strictMode": true
+  },
+
+  "// projects": "プロジェクト設定",
+  "projects": {
+    "basePath": "apps",
+    "template": "project-template",
+    "defaultLanguages": ["en", "ja"]
+  },
+
+  "// build": "ビルド設定",
+  "build": {
+    "output": "dist",
+    "sidebar": {
+      "generate": true,
+      "outputPath": "apps"
+    },
+    "clean": true
+  },
+
+  "// migrate": "移行設定",
+  "migrate": {
+    "backup": true,
+    "backupDir": ".backups",
+    "maxBackups": 10,
+    "dryRun": false
+  },
+
+  "// artifacts": "Artifact設定（CI環境用）",
+  "artifacts": {
+    "enabled": true,
+    "reports": "reports/migration",
+    "backups": ".backups",
+    "logs": "logs",
+    "retentionDays": 30
+  },
+
+  "// validation": "バリデーション設定",
+  "validation": {
+    "strictMode": true,
+    "checkLinks": false,
+    "checkSyncHash": true,
+    "failOnWarning": false
+  },
+
+  "// ci": "CI固有の設定",
+  "ci": {
+    "provider": "github-actions",
+    "notifications": {
+      "enabled": true,
+      "onWarning": true,
+      "onError": true
+    },
+    "timeouts": {
+      "// build": "ビルドタイムアウト（秒）",
+      "build": 600,
+      "// validate": "バリデーションタイムアウト（秒）",
+      "validate": 300,
+      "// migrate": "移行タイムアウト（秒）",
+      "migrate": 900
+    }
+  },
+
+  "// 環境変数": "CI環境で使用する環境変数の例",
+  "// DOCS_CLI_CONFIG": ".docs-cli/config.ci.json",
+  "// NODE_ENV": "production",
+  "// CI": "true"
+}

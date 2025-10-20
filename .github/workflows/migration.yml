@@ -1,0 +1,343 @@
+name: Migration Workflow
+
+# 移行作業用のCI/自動化ワークフロー
+# Phase 3-4で実装された新CLIコマンドと互換レイヤーを使用
+
+on:
+  # 手動トリガー（柔軟な実行を可能にする）
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'プロジェクトID（例: sample-docs）'
+        required: false
+        default: ''
+      version:
+        description: 'バージョンID（例: v1）'
+        required: false
+        default: ''
+      mode:
+        description: '実行モード（new-cli: 新CLI使用, compat: 互換ラッパー使用）'
+        required: true
+        type: choice
+        options:
+          - new-cli
+          - compat
+        default: new-cli
+      dry-run:
+        description: 'Dry-runモード（変更を実際には行わない）'
+        type: boolean
+        default: true
+
+  # プルリクエスト時（検証のみ）
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/migration.yml'
+      - '.docs-cli/**'
+      - 'packages/cli/**'
+      - 'scripts/compat/**'
+
+jobs:
+  # 互換性チェック
+  compatibility-check:
+    runs-on: ubuntu-latest
+    outputs:
+      has-warnings: ${{ steps.compat-check.outputs.has-warnings }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 互換性チェック実行
+        id: compat-check
+        run: |
+          # 互換性チェックを実行
+          pnpm exec docs-cli compat check --no-schedule --no-guide > compat-check.log 2>&1 || true
+
+          # 警告の有無を確認
+          if grep -q 'WARNING\|⚠️' compat-check.log; then
+            echo "has-warnings=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-warnings=false" >> $GITHUB_OUTPUT
+          fi
+
+          # ログを表示
+          cat compat-check.log
+
+      - name: 互換性チェックログをアップロード
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-check-log
+          path: compat-check.log
+          retention-days: 7
+
+  # 移行レポート生成
+  migration-report:
+    runs-on: ubuntu-latest
+    needs: compatibility-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 移行レポート生成
+        run: |
+          # レポート出力ディレクトリを作成
+          mkdir -p reports/migration
+
+          # 移行レポートを生成
+          pnpm exec docs-cli compat report --output reports/migration
+
+      - name: 移行レポートをアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-reports
+          path: |
+            reports/migration/
+          retention-days: 30
+
+  # 新CLI使用モード
+  migrate-new-cli:
+    runs-on: ubuntu-latest
+    needs: compatibility-check
+    if: github.event.inputs.mode == 'new-cli' || github.event.inputs.mode == ''
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 設定ファイルの確認
+        run: |
+          # CI用設定ファイルが存在するか確認
+          if [ -f .docs-cli/config.ci.json ]; then
+            echo "✅ CI用設定ファイルが見つかりました"
+            cat .docs-cli/config.ci.json
+          else
+            echo "⚠️  CI用設定ファイルが見つかりません。デフォルト設定を使用します。"
+          fi
+
+      - name: プロジェクト作成（デモ）
+        if: github.event.inputs.project != ''
+        run: |
+          # プロジェクトIDが指定されている場合のみ実行
+          PROJECT_ID="${{ github.event.inputs.project }}"
+
+          # Dry-runモードの場合は --dry-run を付与
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry-run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+
+          echo "プロジェクト作成: $PROJECT_ID (dry-run: ${{ github.event.inputs.dry-run }})"
+          pnpm exec docs-cli add project "$PROJECT_ID" \
+            --display-name-en "$PROJECT_ID" \
+            --display-name-ja "$PROJECT_ID" \
+            $DRY_RUN_FLAG || echo "プロジェクト作成をスキップ（既に存在する可能性）"
+
+      - name: バージョン追加（デモ）
+        if: github.event.inputs.project != '' && github.event.inputs.version != ''
+        run: |
+          PROJECT_ID="${{ github.event.inputs.project }}"
+          VERSION_ID="${{ github.event.inputs.version }}"
+
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry-run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+
+          echo "バージョン追加: $PROJECT_ID/$VERSION_ID (dry-run: ${{ github.event.inputs.dry-run }})"
+          pnpm exec docs-cli add version "$PROJECT_ID" "$VERSION_ID" \
+            $DRY_RUN_FLAG || echo "バージョン追加をスキップ（既に存在する可能性）"
+
+      - name: バリデーション実行
+        run: |
+          echo "レジストリのバリデーションを実行中..."
+          pnpm validate || echo "⚠️  バリデーションで警告が検出されました"
+
+      - name: ビルド実行
+        if: github.event.inputs.dry-run != 'true'
+        run: |
+          echo "サイドバー生成中..."
+          pnpm build:sidebar
+
+          echo "ビルド実行中..."
+          pnpm build
+
+      - name: ビルドログをアップロード
+        if: always() && github.event.inputs.dry-run != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-new-cli
+          path: |
+            logs/
+            .backups/
+          retention-days: 7
+
+  # 互換ラッパー使用モード
+  migrate-compat:
+    runs-on: ubuntu-latest
+    needs: compatibility-check
+    if: github.event.inputs.mode == 'compat'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 互換スクリプトの確認
+        run: |
+          if [ -d scripts/compat ]; then
+            echo "✅ 互換スクリプトが見つかりました"
+            ls -la scripts/compat/
+          else
+            echo "❌ 互換スクリプトが見つかりません"
+            exit 1
+          fi
+
+      - name: プロジェクト作成（互換モード）
+        if: github.event.inputs.project != ''
+        run: |
+          PROJECT_ID="${{ github.event.inputs.project }}"
+
+          echo "プロジェクト作成（互換モード）: $PROJECT_ID"
+          node scripts/compat/create-project.js "$PROJECT_ID" "$PROJECT_ID" "$PROJECT_ID" \
+            --suppress-warning || echo "プロジェクト作成をスキップ"
+
+      - name: バリデーション実行
+        run: |
+          pnpm validate || echo "⚠️  バリデーションで警告が検出されました"
+
+      - name: ビルド実行
+        if: github.event.inputs.dry-run != 'true'
+        run: |
+          pnpm build:sidebar
+          pnpm build
+
+      - name: ビルドログをアップロード
+        if: always() && github.event.inputs.dry-run != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-compat
+          path: |
+            logs/
+            .backups/
+          retention-days: 7
+
+  # 通知（互換性チェックで警告が検出された場合）
+  notify:
+    runs-on: ubuntu-latest
+    needs: compatibility-check
+    if: needs.compatibility-check.outputs.has-warnings == 'true' && github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 警告通知をPRにコメント
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## ⚠️ 互換性チェックで警告が検出されました
+
+            移行ワークフローの互換性チェックで警告が検出されました。
+
+            ### 次のステップ
+            1. [Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) から \`compat-check-log\` をダウンロード
+            2. ログを確認して警告内容を把握
+            3. 必要に応じて互換レイヤーの使用を検討
+
+            ### 参考ドキュメント
+            - [互換レイヤーガイド](docs/new-generator-plan/guides/compat-layer.md)
+            - [Phase 3-4計画](docs/new-generator-plan/phase-3-4-ci-automation.md)
+
+            **サポート終了日**: 2026-03-31
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  # サマリー
+  summary:
+    runs-on: ubuntu-latest
+    needs: [compatibility-check, migration-report, migrate-new-cli, migrate-compat]
+    if: always()
+    steps:
+      - name: サマリー表示
+        run: |
+          echo "## 🎯 Migration Workflow サマリー" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 実行パラメータ" >> $GITHUB_STEP_SUMMARY
+          echo "- プロジェクト: ${{ github.event.inputs.project || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- バージョン: ${{ github.event.inputs.version || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- モード: ${{ github.event.inputs.mode || 'new-cli' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dry-run: ${{ github.event.inputs.dry-run || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 互換性チェック結果" >> $GITHUB_STEP_SUMMARY
+          echo "- 警告検出: ${{ needs.compatibility-check.outputs.has-warnings }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- 互換性チェックログ: \`compat-check-log\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 移行レポート: \`migration-reports\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.dry-run }}" != "true" ]; then
+            echo "- ビルドログ: \`build-logs-*\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 次のステップ" >> $GITHUB_STEP_SUMMARY
+          echo "1. Artifactsから移行レポートをダウンロード" >> $GITHUB_STEP_SUMMARY
+          echo "2. チェックリストとレポートを確認" >> $GITHUB_STEP_SUMMARY
+          echo "3. 必要に応じて手動での調整を実施" >> $GITHUB_STEP_SUMMARY

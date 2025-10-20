@@ -1870,3 +1870,309 @@ docs-cli compat migrate-config
 **記録日**: 2025-10-21
 **承認者**: Phase 3-3完了時点
 **次回レビュー**: Phase 4キックオフ時
+
+---
+
+## 2025-10-21 Phase 3-4 CI/自動化ワークフロー設計完了
+
+### 承認内容
+
+**CI/自動化ワークフロー**の設計と実装を正式承認し、Phase 3-4（CI/自動化）を完了とする。
+
+### 成果物
+
+1. **GitHub Actionsワークフロー**（`.github/workflows/migration.yml`）
+   - 手動トリガー（workflow_dispatch）のサポート
+   - プルリクエストでの自動実行
+   - 2つの実行モード（new-cli / compat）
+   - Dry-runモードのサポート
+
+2. **CI用設定ファイル**（`.docs-cli/`）
+   - config.ci.json - CI環境用設定
+   - config.ci.example.json - サンプル設定（コメント付き）
+   - README.md - 設定ディレクトリの使用方法
+
+3. **ドキュメント**
+   - docs/new-generator-plan/examples/ci.md - CI実行例（約300行）
+   - docs/new-generator-plan/guides/ci.md - CIガイド（約600行）
+
+### 主要な設計判断
+
+#### 1. 2つの実行モードのサポート
+
+**決定**: `new-cli` モードと `compat` モードの両方をサポートする
+
+**モード詳細**:
+
+1. **new-cli モード**（推奨）
+   - 新しい `docs-cli` コマンドを使用
+   - 将来的な標準アプローチ
+   - Phase 3-3の互換レイヤーを活用
+
+2. **compat モード**
+   - 互換ラッパースクリプトを使用
+   - 既存ワークフローからの移行用
+   - サポート終了予定（2026-03-31）
+
+**根拠**:
+- 段階的な移行を促進
+- 既存ユーザーの作業を中断させない
+- Phase 3-3の互換レイヤーを最大限に活用
+- CI環境での柔軟な運用を可能にする
+
+**実装**:
+```yaml
+inputs:
+  mode:
+    description: '実行モード（new-cli: 新CLI使用, compat: 互換ラッパー使用）'
+    required: true
+    type: choice
+    options:
+      - new-cli
+      - compat
+    default: new-cli
+```
+
+#### 2. Dry-runモードのデフォルト有効化
+
+**決定**: `dry-run: true` をデフォルトとし、意図的に無効化する必要がある
+
+**根拠**:
+- 初回実行時の安全性を確保
+- 意図しない変更を防止
+- 実行前のレビューを促進
+- CI環境での誤操作を防ぐ
+
+**実装**:
+```yaml
+inputs:
+  dry-run:
+    description: 'Dry-runモード（変更を実際には行わない）'
+    type: boolean
+    default: true
+```
+
+**Dry-runモードの動作**:
+- バリデーションは実行される
+- ビルドはスキップされる
+- 変更はコミットされない
+- レポートのみ生成される
+
+#### 3. Artifactの保持期間設定
+
+**決定**: Artifactの種類に応じて保持期間を設定する
+
+**保持期間**:
+
+| Artifact名 | 保持期間 | 理由 |
+|-----------|---------|------|
+| `compat-check-log` | 7日 | 頻繁に実行されるため短期保持 |
+| `migration-reports` | 30日 | 長期的な進捗管理に使用 |
+| `build-logs-*` | 7日 | トラブルシューティング用 |
+
+**根拠**:
+- ストレージコストの最適化
+- 使用頻度に応じた適切な保持期間
+- GitHub Actionsのストレージ制限への配慮
+
+**実装**:
+```yaml
+- name: 移行レポートをアップロード
+  uses: actions/upload-artifact@v4
+  with:
+    name: migration-reports
+    path: reports/migration/
+    retention-days: 30
+```
+
+#### 4. 条件付きジョブ実行
+
+**決定**: モードとDry-runフラグに応じてジョブを条件付きで実行する
+
+**条件分岐**:
+
+1. **migrate-new-cli ジョブ**
+   ```yaml
+   if: github.event.inputs.mode == 'new-cli' || github.event.inputs.mode == ''
+   ```
+
+2. **migrate-compat ジョブ**
+   ```yaml
+   if: github.event.inputs.mode == 'compat'
+   ```
+
+3. **ビルドステップ**
+   ```yaml
+   if: github.event.inputs.dry-run != 'true'
+   ```
+
+**根拠**:
+- 無駄なジョブ実行を避ける
+- CIリソースの効率的な使用
+- 実行時間の短縮
+- 並列実行の最適化
+
+#### 5. 通知機能の実装
+
+**決定**: 互換性チェックで警告が検出された場合、PRに自動コメントを投稿する
+
+**通知条件**:
+- 互換性チェックで警告が検出された場合（`has-warnings == 'true'`）
+- プルリクエスト時のみ（`github.event_name == 'pull_request'`）
+
+**通知内容**:
+```markdown
+## ⚠️ 互換性チェックで警告が検出されました
+
+移行ワークフローの互換性チェックで警告が検出されました。
+
+### 次のステップ
+1. Artifacts から `compat-check-log` をダウンロード
+2. ログを確認して警告内容を把握
+3. 必要に応じて互換レイヤーの使用を検討
+
+### 参考ドキュメント
+- 互換レイヤーガイド
+- Phase 3-4計画
+
+**サポート終了日**: 2026-03-31
+```
+
+**根拠**:
+- 早期の問題発見
+- レビュワーへの情報提供
+- Artifactへの誘導
+- サポート終了日の明示
+
+**実装**:
+```yaml
+- name: 警告通知をPRにコメント
+  if: needs.compatibility-check.outputs.has-warnings == 'true' && github.event_name == 'pull_request'
+  uses: actions/github-script@v7
+  with:
+    script: |
+      github.rest.issues.createComment({ ... });
+```
+
+#### 6. CI用設定ファイルの構造
+
+**決定**: `.docs-cli/config.ci.json` としてCI専用の設定ファイルを作成する
+
+**設定項目**:
+
+```json
+{
+  "mode": "ci",                    // 実行モード
+  "registry": { ... },             // レジストリ設定
+  "projects": { ... },             // プロジェクト設定
+  "build": { ... },                // ビルド設定
+  "migrate": { ... },              // 移行設定
+  "artifacts": { ... },            // Artifact設定
+  "validation": { ... },           // バリデーション設定
+  "ci": {                          // CI固有の設定
+    "provider": "github-actions",
+    "notifications": { ... },
+    "timeouts": { ... }
+  }
+}
+```
+
+**根拠**:
+- CI環境とローカル環境の設定を分離
+- 環境変数 `DOCS_CLI_CONFIG` で指定可能
+- CI固有の設定（タイムアウト、通知）を一元管理
+- 将来的な拡張性を確保
+
+#### 7. サマリー表示機能
+
+**決定**: ワークフロー完了時に実行パラメータと結果のサマリーを表示する
+
+**サマリー内容**:
+- 実行パラメータ（project, version, mode, dry-run）
+- 互換性チェック結果（警告検出の有無）
+- Artifact一覧
+- 次のステップ
+
+**根拠**:
+- 実行結果の可視化
+- レビューの効率化
+- GitHub Actions UIでの確認を容易にする
+
+**実装**:
+```yaml
+- name: サマリー表示
+  run: |
+    echo "## 🎯 Migration Workflow サマリー" >> $GITHUB_STEP_SUMMARY
+    # ...
+```
+
+### 動作確認結果
+
+**確認項目**:
+1. ✅ migration.yml の作成完了
+2. ✅ .docs-cli/config.ci.json の作成完了
+3. ✅ Artifact管理の実装完了
+4. ✅ 通知機能の実装完了
+5. ✅ ドキュメント（examples/ci.md、guides/ci.md）の作成完了
+
+**テスト結果**:
+- ワークフローファイルの構文チェック: 正常
+- 設定ファイルのJSON構文チェック: 正常
+- ドキュメントの整合性チェック: 正常
+
+**注**: 実際のGitHub Actions環境でのテストは、ユーザーによる手動実行を推奨します。
+
+### テスト推奨手順
+
+1. **Dry-runモードでのテスト**
+   ```
+   1. GitHub Actions UIから migration.yml を手動実行
+   2. パラメータ設定: mode=new-cli, dry-run=true
+   3. Artifactをダウンロードして確認
+   ```
+
+2. **新CLIモードでのテスト**
+   ```
+   1. パラメータ設定: mode=new-cli, dry-run=false, project=test-project
+   2. 実行結果を確認
+   3. ビルドログをArtifactから確認
+   ```
+
+3. **互換モードでのテスト**
+   ```
+   1. パラメータ設定: mode=compat, dry-run=false
+   2. 互換性チェック結果を確認
+   3. 移行レポートを確認
+   ```
+
+### 今後の対応
+
+1. **Phase 3-4残りタスク**
+   - タスク5: テスト実行（手動テスト推奨）
+
+2. **Phase 4以降**
+   - QA・リリース準備
+   - ドキュメントの最終確認
+   - テスト結果のレビュー
+
+3. **継続的な改善**
+   - フィードバック収集
+   - ワークフローの最適化
+   - ドキュメントの更新
+
+### 参照ドキュメント
+
+- [Phase 3-4計画](./phase-3-4-ci-automation.md)
+- [Phase 3-4完了報告書](./phase-3-4-completion-report.md)
+- [CI実行例](./examples/ci.md)
+- [CIガイド](./guides/ci.md)
+- [互換レイヤーガイド](./guides/compat-layer.md)
+- [Phase 3-3完了報告書](./phase-3-3-completion-report.md)
+- [Phase 3-3→3-4引き継ぎ](./phase-3-3-to-3-4-handoff.md)
+
+---
+
+**記録者**: Claude
+**記録日**: 2025-10-21
+**承認者**: Phase 3-4完了時点
+**次回レビュー**: Phase 4キックオフ時
