@@ -1,0 +1,53 @@
+name: Deploy Demo
+
+# demoブランチへのプッシュ時に自動デプロイ
+on:
+  push:
+    branches:
+      - demo
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        timeout-minutes: 10
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: libx-docs-demo
+          directory: dist
+          # ステージング環境にデプロイ
+          environment: staging
+
+      # Optional: Lighthouseスコア測定（CI/CD統合）
+      # - name: Run Lighthouse CI
+      #   run: |
+      #     npm install -g @lhci/cli lighthouse chrome-launcher
+      #     lhci autorun
+      #   env:
+      #     LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
