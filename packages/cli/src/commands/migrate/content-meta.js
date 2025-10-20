@@ -3,16 +3,17 @@
  *
  * ドキュメントの各言語版について、コンテンツメタ情報を生成します。
  * - path: コンテンツファイルの相対パス
- * - status: published / missing / draft
+ * - status: published / missing / draft / in-review
  * - syncHash: SHA-256ハッシュ
  * - lastUpdated: 最終更新日時
  * - source: リポジトリ情報
  * - reviewer: レビュー担当者
- * - wordCount: 語数
+ * - wordCount: 語数（コードブロック除外、本文のみ）
  */
 
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
+import matter from 'gray-matter';
 import * as logger from '../../utils/logger.js';
 import { calculateFileHash } from '../../utils/hash.js';
 import {
@@ -20,6 +21,76 @@ import {
   getLastCommitter,
   getSourceInfo,
 } from '../../utils/git.js';
+
+/**
+ * ドキュメントのコンテンツステータスを判定
+ *
+ * 判定ロジック:
+ * 1. ファイルが存在しない → "missing"
+ * 2. フロントマターに `inReview: true` → "in-review"
+ * 3. フロントマターに `draft: true` → "draft"
+ * 4. それ以外 → "published"
+ *
+ * @param {string} filePath - ファイルパス
+ * @param {Object} frontmatter - フロントマターデータ
+ * @returns {string} ステータス (published / missing / draft / in-review)
+ */
+function determineContentStatus(filePath, frontmatter) {
+  if (!existsSync(filePath)) {
+    return 'missing';
+  }
+
+  // in-reviewチェック（優先度高）
+  if (frontmatter?.inReview === true || frontmatter?.['in-review'] === true) {
+    return 'in-review';
+  }
+
+  // draftチェック
+  if (frontmatter?.draft === true) {
+    return 'draft';
+  }
+
+  // デフォルトはpublished
+  return 'published';
+}
+
+/**
+ * MDX本文の語数をカウント（コードブロック除外）
+ *
+ * カウント対象:
+ * - 本文テキストのみ
+ *
+ * カウント対象外:
+ * - コードブロック（``` ～ ```）
+ * - インラインコード（`code`）
+ * - マークダウン記号（#, *, _, など）
+ *
+ * @param {string} content - MDX本文
+ * @returns {number} 語数
+ */
+function countWords(content) {
+  if (!content || typeof content !== 'string') {
+    return 0;
+  }
+
+  // コードブロックを除外（```言語名\n～\n```）
+  let cleaned = content.replace(/```[\s\S]*?```/g, '');
+
+  // インラインコードを除外（`code`）
+  cleaned = cleaned.replace(/`[^`]+`/g, '');
+
+  // HTMLコメントを除外（<!-- ～ -->）
+  cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
+
+  // マークダウン記号を空白に置換
+  cleaned = cleaned
+    .replace(/[#*_\[\]()]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // 空白で分割して語数をカウント
+  return cleaned ? cleaned.split(/\s+/).length : 0;
+}
 
 /**
  * ドキュメントのコンテンツメタ情報を生成
@@ -59,10 +130,25 @@ export function generateContentMeta(projectPath, document, versionIds, langCodes
         continue;
       }
 
+      // フロントマターを解析してステータス判定
+      let frontmatter = {};
+      let mdxContent = '';
+      try {
+        const fileContent = readFileSync(filePath, 'utf-8');
+        const parsed = matter(fileContent);
+        frontmatter = parsed.data;
+        mdxContent = parsed.content;
+      } catch (error) {
+        logger.warn(`  ${lang}: フロントマター解析エラー - ${error.message}`);
+      }
+
+      // コンテンツステータスを判定
+      const status = determineContentStatus(filePath, frontmatter);
+
       // コンテンツメタを構築
       const meta = {
         path: convertToContentPath(relativePath),
-        status: document.status === 'draft' ? 'draft' : 'published',
+        status: status,
       };
 
       // syncHashを計算
@@ -90,16 +176,17 @@ export function generateContentMeta(projectPath, document, versionIds, langCodes
         meta.source = sourceInfo;
       }
 
-      // wordCountを追加
-      if (fileInfo.wordCount !== undefined) {
-        meta.wordCount = fileInfo.wordCount;
+      // wordCountを計算（コードブロック除外）
+      const wordCount = countWords(mdxContent);
+      if (wordCount > 0) {
+        meta.wordCount = wordCount;
       }
 
       // 言語別メタ情報を保存
       content[lang] = meta;
 
       logger.info(
-        `  ${lang}: 完了 (status: ${meta.status}, syncHash: ${meta.syncHash?.substring(0, 8)}...)`
+        `  ${lang}: 完了 (status: ${meta.status}, wordCount: ${meta.wordCount || 0}, syncHash: ${meta.syncHash?.substring(0, 8)}...)`
       );
     }
   }

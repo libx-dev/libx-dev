@@ -14,6 +14,7 @@ import { parseProjectConfig, parseProjectDecorations } from './config-parser.js'
 import { scanAllCategories } from './category-scanner.js';
 import { scanAllDocuments } from './document-scanner.js';
 import { generateAllContentMeta } from './content-meta.js';
+import { parseGlossary } from './glossary-parser.js';
 
 /**
  * migrate from-libx コマンドのメイン処理
@@ -25,6 +26,11 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
   logger.info('='.repeat(60));
   logger.info('migrate from-libx: 既存プロジェクトの変換を開始');
   logger.info('='.repeat(60));
+
+  // バックアップマネージャーを初期化（エラー時のロールバック用）
+  const backupManager = new BackupManager({
+    backupDir: cmdOpts.backup || '.backups'
+  });
 
   try {
     // === 引数の検証 ===
@@ -65,7 +71,12 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     let registry;
     if (existsSync(targetPath)) {
       logger.info(`既存のレジストリを読み込み: ${targetPath}`);
-      const content = readFileSync(targetPath, "utf-8"); registry = JSON.parse(content);
+      try {
+        const content = readFileSync(targetPath, "utf-8");
+        registry = JSON.parse(content);
+      } catch (error) {
+        throw new Error(`レジストリの読み込みに失敗しました: ${error.message}`);
+      }
     } else {
       logger.info('新しいレジストリを初期化');
       registry = {
@@ -85,7 +96,6 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
 
     // === バックアップの作成 ===
     if (!globalOpts.dryRun && existsSync(targetPath)) {
-      const backupManager = new BackupManager({ backupDir: cmdOpts.backup || '.backups' });
       logger.info(`バックアップを作成中...`);
       backupManager.backupFile(targetPath);
       logger.success('バックアップ作成完了');
@@ -93,7 +103,7 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     }
 
     // === プロジェクト設定の解析 ===
-    logger.info('[1/6] プロジェクト設定を解析中...');
+    logger.info('[1/7] プロジェクト設定を解析中...');
     const {
       projectData,
       categoryTranslations,
@@ -102,12 +112,12 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     } = parseProjectConfig(sourcePath, projectId);
 
     // === プロジェクト装飾情報の取得 ===
-    logger.info('[2/6] プロジェクト装飾情報を取得中...');
+    logger.info('[2/7] プロジェクト装飾情報を取得中...');
     const decorations = parseProjectDecorations(topPagePath, projectId);
     Object.assign(projectData, decorations);
 
     // === カテゴリのスキャン ===
-    logger.info('[3/6] カテゴリをスキャン中...');
+    logger.info('[3/7] カテゴリをスキャン中...');
     const categories = scanAllCategories(
       sourcePath,
       versions,
@@ -117,7 +127,7 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     projectData.categories = categories;
 
     // === ドキュメントのスキャン ===
-    logger.info('[4/6] ドキュメントをスキャン中...');
+    logger.info('[4/7] ドキュメントをスキャン中...');
     const documents = scanAllDocuments(
       sourcePath,
       projectId,
@@ -126,13 +136,20 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     );
 
     // === コンテンツメタの生成 ===
-    logger.info('[5/6] コンテンツメタを生成中...');
+    logger.info('[5/7] コンテンツメタを生成中...');
     const documentsWithMeta = generateAllContentMeta(
       sourcePath,
       documents,
       versions,
       supportedLangs
     );
+
+    // === Glossary（用語集）の解析 ===
+    logger.info('[6/7] Glossary（用語集）を解析中...');
+    const glossary = parseGlossary(sourcePath, projectId);
+    if (glossary.length > 0) {
+      projectData.glossary = glossary;
+    }
 
     // カテゴリごとにドキュメントを整理
     for (const category of categories) {
@@ -155,7 +172,7 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     projectData.documents = documentsWithMeta;
 
     // === レジストリへの統合 ===
-    logger.info('[6/6] レジストリに統合中...');
+    logger.info('[7/7] レジストリに統合中...');
 
     // 既存プロジェクトを削除（上書き）
     registry.projects = registry.projects.filter((p) => p.id !== projectId);
@@ -230,14 +247,50 @@ export default async function migrateFromLibx(globalOpts, cmdOpts) {
     logger.info('  2. プロジェクト一覧を表示: docs-cli list projects');
     logger.info('  3. ドキュメント一覧を表示: docs-cli list docs ' + projectId);
   } catch (error) {
+    logger.error('='.repeat(60));
     logger.error('変換中にエラーが発生しました');
-    logger.error(error.message);
+    logger.error('='.repeat(60));
+    logger.error(`エラー: ${error.message}`);
 
     if (error.stack && globalOpts.verbose) {
       logger.error('スタックトレース:');
       console.error(error.stack);
     }
 
+    // バックアップが存在する場合はロールバックを実行
+    if (!globalOpts.dryRun && backupManager.backups.size > 0) {
+      logger.info('');
+      logger.warn('エラーが発生したため、ロールバックを実行します...');
+
+      try {
+        await backupManager.rollback();
+        logger.success('ロールバックが完了しました');
+        logger.info('');
+        logger.info('バックアップから復元するには以下のコマンドを実行してください:');
+        logger.info(`  docs-cli migrate rollback --backup-dir ${backupManager.backupDir}`);
+      } catch (rollbackError) {
+        logger.error(`ロールバックに失敗しました: ${rollbackError.message}`);
+        logger.info('');
+        logger.info('手動でバックアップから復元してください:');
+        logger.info(`  バックアップディレクトリ: ${backupManager.sessionDir}`);
+      }
+    }
+
+    logger.info('');
+    logger.info('トラブルシューティング:');
+    logger.info('  1. ソースディレクトリとプロジェクトIDを確認してください');
+    logger.info('  2. 設定ファイル（project.config.json）の形式を確認してください');
+    logger.info('  3. --verbose オプションで詳細なエラー情報を表示できます');
+    logger.info('  4. バックアップは .backups/ ディレクトリに保存されています');
+
     process.exit(1);
+  } finally {
+    // クリーンアップ: 古いバックアップを削除（最大5件保持）
+    if (!globalOpts.dryRun) {
+      BackupManager.cleanup({
+        backupDir: cmdOpts.backup || '.backups',
+        keepCount: 5,
+      });
+    }
   }
 }
