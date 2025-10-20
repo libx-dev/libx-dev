@@ -1,866 +1,594 @@
-# Phase 3 キックオフガイド
+# Phase 3 キックオフドキュメント
 
-**作成日**: 2025-10-19
-**対象**: Phase 3（既存資産移行とCI整備）担当者
-**前提**: Phase 2完了（AstroビルドとUI統合完了）
-
----
-
-## 📋 Phase 2完了状況サマリー
-
-### ✅ Phase 2で達成したこと
-
-#### Phase 2-1: ランタイム/ジェネレーター基盤
-- ✅ レジストリ駆動のルーティング生成
-- ✅ サイドバー自動生成
-- ✅ サイトマップ・メタデータ生成
-- ✅ OpenGraphメタデータ生成
-
-#### Phase 2-2: UI/テーマ統合
-- ✅ Astroページテンプレート実装
-- ✅ BaseLayout・DocLayout実装
-- ✅ Sidebar・Header・Footerコンポーネント実装
-
-#### Phase 2-3: MDXコンテンツ統合・検索機能
-- ✅ MDXファイルの動的読み込み（64ファイル）
-- ✅ Vite Aliasでモノレポ対応
-- ✅ Pagefind検索統合（4,635語インデックス化）
-- ✅ RelatedDocs・VersionSelectorコンポーネント実装
-
-#### Phase 2-4: パフォーマンス・アクセシビリティ
-- ✅ **Lighthouse Performance 100/100**
-- ✅ **Lighthouse Accessibility 91/100**
-- ✅ **Lighthouse Best Practices 96/100**
-- ✅ **Lighthouse SEO 100/100**
-- ✅ ファセット検索・ページネーション・ハイライト実装
-
-### 📊 現在のシステム状態
-
-| 項目 | 状態 |
-|------|------|
-| ビルドシステム | ✅ 完全動作（62ページ生成） |
-| MDXコンテンツ読み込み | ✅ 64ファイル対応 |
-| 検索機能 | ✅ Pagefind統合完了 |
-| パフォーマンス | ✅ Lighthouse 100/100 |
-| アクセシビリティ | ✅ Lighthouse 91/100 (WCAG 2.1準拠) |
-| 対応言語 | ✅ 3言語（ja, ko, en） |
-| ビルドサイズ | 5.6MB |
-| ビルド時間 | 約4秒 |
+**作成日**: 2025-10-20
+**更新日**: 2025-10-20
+**対象フェーズ**: Phase 3（既存資産移行とCI整備）
+**期間目安**: 3週間
+**ステータス**: 🚀 **開始準備完了**
 
 ---
 
-## 🎯 Phase 3の目的と目標
+## 📋 目次
 
-### Phase 3の主要目標
-
-**Phase 3**: 既存資産移行とCI整備（想定期間: 2-3週間）
-
-1. **既存コンテンツのレジストリ化・移行**
-   - libx-dev既存プロジェクトの棚卸し
-   - レジストリへの移行（docs.json生成）
-   - MDXファイルの整理・移行
-
-2. **CI/CDパイプライン整備**
-   - GitHub Actions設定
-   - 自動ビルド・テスト・デプロイ
-   - Lighthouseスコア監視
-
-3. **品質保証の自動化**
-   - ビルドバリデーション
-   - リンクチェック
-   - アクセシビリティテスト自動化
-
-4. **ドキュメント整備**
-   - 開発者ガイド
-   - コントリビューションガイド
-   - トラブルシューティングガイド
+1. [エグゼクティブサマリー](#エグゼクティブサマリー)
+2. [Phase 3の目的とスコープ](#phase-3の目的とスコープ)
+3. [Phase 2からの引き継ぎ確認](#phase-2からの引き継ぎ確認)
+4. [Phase 3のサブフェーズ構成](#phase-3のサブフェーズ構成)
+5. [タスクブレークダウン](#タスクブレークダウン)
+6. [体制とステークホルダー](#体制とステークホルダー)
+7. [前提条件と依存関係](#前提条件と依存関係)
+8. [リスクと緩和策](#リスクと緩和策)
+9. [成功基準と完了条件](#成功基準と完了条件)
+10. [マイルストーンとスケジュール](#マイルストーンとスケジュール)
+11. [Phase 3開始チェックリスト](#phase-3開始チェックリスト)
 
 ---
 
-## 📂 Phase 2成果物の場所
+## エグゼクティブサマリー
 
-### 主要パッケージ
+### Phase 3の目的
 
-```
-packages/
-├── runtime/              # Astroランタイムパッケージ（Phase 2の主成果物）
-│   ├── src/
-│   │   ├── pages/        # 動的ルーティングページ
-│   │   ├── layouts/      # レイアウトコンポーネント
-│   │   └── components/   # UIコンポーネント
-│   ├── astro.config.mjs  # Astro設定（画像最適化・コード分割）
-│   ├── test-lighthouse.js # Lighthouseテストスクリプト
-│   └── dist/             # ビルド成果物（62ページ）
-│
-├── generator/            # レジストリ駆動ジェネレーター（Phase 2-1）
-│   └── src/
-│       ├── core/         # コア機能
-│       ├── generators/   # 生成ロジック
-│       └── validators/   # バリデーション
-│
-├── ui/                   # 共有UIコンポーネント
-├── theme/                # テーマシステム
-├── i18n/                 # 国際化
-└── versioning/           # バージョン管理
-```
+既存の **libx-dev コンテンツと運用** を新ジェネレーターへ移行するためのツールとガイドラインを整備し、**段階的な移行を実施**する。フェーズ3完了時点で **libx-docs の今後の役割を判断できる状態** にする。
 
-### レジストリファイル
+### 主要な成果物
 
-```
-registry/
-└── docs.json             # 統合レジストリ（3プロジェクト、62ドキュメント）
-```
+| カテゴリ | 成果物 |
+|---------|-------|
+| **マイグレーションツール** | `tools/docs-cli migrate-from-libx` コマンド |
+| **検証システム** | サイドバイサイド検証スクリプト、差分レポート生成 |
+| **CI/CD** | GitHub Actionsテンプレート（スキーマ検証、ビルド、リンクチェック） |
+| **ドキュメント** | 移行手順書、CI実行例、バックアップ運用ガイド |
+| **方針決定** | libx-docs維持/縮小案の提案メモ |
 
-### ドキュメント
+### Phase 3の重要性
 
-```
-docs/new-generator-plan/
-├── status/
-│   ├── phase-2-1-completion-report.md
-│   ├── phase-2-2-completion-report.md
-│   ├── phase-2-3-completion-report.md
-│   ├── phase-2-4-completion-report.md  # 最新
-│   └── phase-3-kickoff.md              # 本ドキュメント
-├── phase-2-1-runtime-generator.md
-├── phase-2-2-ui-theme.md
-├── phase-2-3-search.md
-├── phase-2-4-build-pipeline.md
-└── phase-3-0-migration.md              # Phase 3計画書
-```
+- ✅ Phase 2で構築したシステムを **実際の既存コンテンツに適用**
+- ✅ **自動化されたマイグレーションツール** で移行コストを最小化
+- ✅ **CI/CD整備** で継続的な品質保証を実現
+- ✅ libx-docs の **運用方針を決定** し、Phase 4以降の道筋を明確化
 
 ---
 
-## 🔧 Phase 3で使用する技術スタック
+## Phase 3の目的とスコープ
 
-### 既に利用可能な技術
+### 目的
 
-| カテゴリ | 技術 | バージョン | 用途 |
-|---------|------|-----------|------|
-| フレームワーク | Astro | 5.7.12 | 静的サイト生成 |
-| コンテンツ | MDX | 4.3.7 | ドキュメント記述 |
-| 検索 | Pagefind | 1.4.0 | 全文検索 |
-| 画像最適化 | Sharp | 0.34.4 | 画像処理 |
-| ビルドツール | Vite | 6.3.5 | バンドリング |
-| テスト | Lighthouse | 13.0.0 | パフォーマンス測定 |
-| モノレポ | pnpm workspaces | 10.10.0 | パッケージ管理 |
-
-### Phase 3で追加する技術（推奨）
-
-| カテゴリ | 技術 | 用途 |
-|---------|------|------|
-| CI/CD | GitHub Actions | 自動ビルド・デプロイ |
-| リンクチェック | markdown-link-check | リンク検証 |
-| スキーマバリデーション | ajv | JSONスキーマ検証 |
-| E2Eテスト | Playwright（オプション） | ブラウザテスト |
-| デプロイ | Cloudflare Pages | ホスティング |
+1. **設定ファイルとMDXコンテンツを新レジストリ形式へ自動変換** するマイグレーションツールを提供する
+2. **CI/CDフローを新ジェネレーター用に構成** し、品質検証の自動化を確立する
+3. **旧ツールから新CLIへ移行するための互換レイヤーとドキュメント** を整備する
+4. **libx-dev / libx-docs からの移行を段階的に実施** し、フェーズ3完了時点で libx-docs の今後の役割を判断できる状態にする
 
 ---
 
-## 📝 Phase 3タスク詳細
+### スコープ
 
-### タスク1: 既存プロジェクトの棚卸し（1-2日）
+#### 含まれるもの
 
-#### 目的
-libx-dev内の既存プロジェクトを調査し、レジストリ化の対象を決定する。
+- ✅ マイグレーションツール（`migrate-from-libx` コマンド）の実装
+- ✅ 差分レポート生成とレビュー支援機能
+- ✅ CI/CDテンプレート（GitHub Actions）の作成
+- ✅ 互換レイヤー（旧コマンド → 新CLI）の実装
+- ✅ 移行手順書とドキュメント整備
+- ✅ libx-docs 維持/縮小案の評価資料作成
+- ✅ バックアップ運用ガイドとクリーンアップ手順
 
-#### 作業内容
+#### 含まれないもの
 
-1. **既存プロジェクトのリスト作成**
-   ```bash
-   # 既存のドキュメントプロジェクトを確認
-   ls apps/
-   # sample-docs, top-page, project-template, test-verification, libx-docs
-   ```
-
-2. **各プロジェクトの調査**
-   - プロジェクト構成の確認
-   - バージョン数の確認
-   - 言語数の確認
-   - ドキュメント数の確認
-
-3. **移行優先度の決定**
-   ```
-   優先度1（即座に移行）:
-   - sample-docs（既にレジストリ化済み）
-   - test-verification（既にレジストリ化済み）
-
-   優先度2（Phase 3で移行）:
-   - libx-docs（部分的にレジストリ化済み）
-
-   優先度3（Phase 4以降）:
-   - top-page（ランディングページ）
-   - project-template（テンプレート）
-   ```
-
-#### 成果物
-- `docs/new-generator-plan/migration/project-inventory.md`
-  - プロジェクト一覧
-  - 各プロジェクトの詳細情報
-  - 移行優先度と理由
+- ❌ 全プロジェクトの完全移行（Phase 3では代表プロジェクトのみ）
+- ❌ npm公開の実施（Phase 4で実施）
+- ❌ 本番環境への完全デプロイ（Phase 4で実施）
+- ❌ 翻訳ワークフローの自動化（Phase 5で検討）
 
 ---
 
-### タスク2: レジストリスキーマの最終確認（1日）
+## Phase 2からの引き継ぎ確認
 
-#### 目的
-現在のレジストリスキーマが全ての既存プロジェクトに対応できるか確認する。
+### Phase 2の主要成果物
 
-#### 作業内容
-
-1. **スキーマ検証**
-   ```bash
-   # 現在のレジストリを読み込んでバリデーション
-   node -e "const registry = require('./registry/docs.json'); console.log('Projects:', Object.keys(registry.projects).length);"
-   ```
-
-2. **不足フィールドの特定**
-   - 既存プロジェクトの特殊なメタデータ
-   - 追加が必要なフィールド
-   - 廃止予定のフィールド
-
-3. **スキーマ拡張（必要に応じて）**
-   ```typescript
-   // packages/generator/src/schemas/registry.schema.ts
-   // 必要に応じてスキーマを拡張
-   ```
-
-#### 成果物
-- 更新されたレジストリスキーマ
-- スキーマドキュメント（`docs/new-generator-plan/guides/registry-schema.md`）
+| カテゴリ | 成果物 | ステータス |
+|---------|-------|-----------|
+| **パッケージ** | 6つの共有パッケージ（@docs/generator, @docs/ui, @docs/theme, @docs/i18n, @docs/versioning, @docs/search） | ✅ 利用可能 |
+| **レジストリ** | JSON Schema定義、検証ツール、demo-docsレジストリ | ✅ 利用可能 |
+| **ドキュメント** | ガイド6件、技術レポート3件、デモ資料5件（約7,680行） | ✅ 利用可能 |
+| **デモ資産** | デモプロジェクト（11 MDXファイル、3言語）、デプロイ設定 | ✅ 利用可能 |
 
 ---
 
-### タスク3: 既存コンテンツの移行（3-5日）
+### Phase 2で確立された技術基盤
 
-#### 目的
-既存のMDXファイルとメタデータを新しいレジストリ構造に移行する。
-
-#### 作業手順
-
-##### 3-1. 自動移行スクリプトの作成
-
-**scripts/migrate-project.js**:
-
-```javascript
-/**
- * 既存プロジェクトをレジストリ構造に移行
- */
-import fs from 'fs';
-import path from 'path';
-
-async function migrateProject(projectName) {
-  console.log(`Migrating project: ${projectName}`);
-
-  // 1. 既存のproject.config.jsonを読み込み
-  const configPath = `apps/${projectName}/src/config/project.config.json`;
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-
-  // 2. レジストリ形式に変換
-  const registryEntry = {
-    metadata: {
-      name: {
-        en: config.metadata.name.en,
-        ja: config.metadata.name.ja
-      },
-      description: {
-        en: config.metadata.description.en,
-        ja: config.metadata.description.ja
-      },
-      // ... その他のフィールド
-    },
-    versions: {},
-    documents: {}
-  };
-
-  // 3. バージョン情報を追加
-  for (const [versionId, versionData] of Object.entries(config.versions)) {
-    registryEntry.versions[versionId] = {
-      version: versionData.version,
-      releaseDate: versionData.releaseDate,
-      // ...
-    };
-  }
-
-  // 4. ドキュメント情報を収集
-  const docsDir = `apps/${projectName}/src/content/docs`;
-  // ... MDXファイルをスキャンしてドキュメント情報を収集
-
-  // 5. レジストリに追加
-  const registry = JSON.parse(fs.readFileSync('registry/docs.json', 'utf-8'));
-  registry.projects[projectName] = registryEntry;
-  fs.writeFileSync('registry/docs.json', JSON.stringify(registry, null, 2));
-
-  console.log(`✅ ${projectName} migrated successfully`);
-}
-
-// 実行
-const projectName = process.argv[2];
-if (!projectName) {
-  console.error('Usage: node scripts/migrate-project.js <project-name>');
-  process.exit(1);
-}
-
-migrateProject(projectName);
-```
-
-##### 3-2. MDXファイルの整理
-
-```bash
-# 各プロジェクトのMDXファイルを確認
-find apps/libx-docs/src/content/docs -name "*.mdx" -type f
-
-# 番号接頭辞の統一性を確認
-# 01-guide/01-getting-started.mdx のような形式になっているか
-```
-
-##### 3-3. フロントマター検証
-
-**各MDXファイルのフロントマターをチェック**:
-
-```mdx
----
-title: "ドキュメントタイトル"
-description: "説明文"
-keywords: ["keyword1", "keyword2"]
-tags: ["tag1", "tag2"]
-related: ["doc-id-1", "doc-id-2"]
----
-```
-
-##### 3-4. 移行実行
-
-```bash
-# 優先度1のプロジェクトから移行
-node scripts/migrate-project.js libx-docs
-
-# レジストリバリデーション
-pnpm --filter=@docs/generator test
-
-# ビルドテスト
-pnpm build
-```
-
-#### 成果物
-- 更新された`registry/docs.json`
-- 移行済みプロジェクトのリスト
-- 移行エラーレポート（`docs/new-generator-plan/migration/migration-errors.md`）
+| 技術 | 詳細 | Phase 3での活用 |
+|-----|------|----------------|
+| **Astro 5.0** | Content Collectionsの強化 | マイグレーション後のビルドシステム |
+| **Pagefind** | 静的検索エンジン | 検索インデックス生成の自動化 |
+| **tsup** | TypeScript + ESM/CJS同時出力 | 新規ツールのビルド |
+| **pnpm workspaces** | モノレポ構成 | パッケージ管理の継続 |
+| **JSON Schema** | レジストリ検証 | マイグレーション後のスキーマ検証 |
 
 ---
 
-### タスク4: CI/CDパイプライン構築（2-3日）
+### Phase 2から引き継がれる課題
 
-#### 目的
-GitHub Actionsで自動ビルド・テスト・デプロイを実現する。
-
-#### ワークフロー設計
-
-##### 4-1. ビルド&テストワークフロー
-
-**.github/workflows/build-test.yml**:
-
-```yaml
-name: Build and Test
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Type check
-        run: pnpm typecheck
-
-      - name: Build
-        run: pnpm build
-
-      - name: Test
-        run: pnpm test
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: packages/runtime/dist/
-          retention-days: 7
-
-  lighthouse:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: packages/runtime/dist/
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Lighthouse
-        run: npm install -g @lhci/cli
-
-      - name: Run Lighthouse CI
-        run: |
-          cd packages/runtime
-          pnpm preview &
-          sleep 5
-          lhci autorun --config=.lighthouserc.js
-
-      - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-results
-          path: .lighthouseci/
-```
-
-##### 4-2. デプロイワークフロー（Cloudflare Pages）
-
-**.github/workflows/deploy.yml**:
-
-```yaml
-name: Deploy to Cloudflare Pages
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      deployments: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: pnpm build
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: libx-docs
-          directory: packages/runtime/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-```
-
-##### 4-3. Lighthouse CI設定
-
-**packages/runtime/.lighthouserc.js**:
-
-```javascript
-module.exports = {
-  ci: {
-    collect: {
-      url: [
-        'http://localhost:4321/sample-docs/v2/ja/guide/getting-started',
-        'http://localhost:4321/test-verification/v2/en/guide/getting-started',
-        'http://localhost:4321/libx-docs/v1/ja/guide/getting-started'
-      ],
-      numberOfRuns: 3
-    },
-    assert: {
-      preset: 'lighthouse:recommended',
-      assertions: {
-        'categories:performance': ['error', { minScore: 0.8 }],
-        'categories:accessibility': ['error', { minScore: 0.9 }],
-        'categories:best-practices': ['error', { minScore: 0.9 }],
-        'categories:seo': ['error', { minScore: 0.9 }]
-      }
-    },
-    upload: {
-      target: 'temporary-public-storage'
-    }
-  }
-};
-```
-
-#### 成果物
-- `.github/workflows/build-test.yml`
-- `.github/workflows/deploy.yml`
-- `packages/runtime/.lighthouserc.js`
-- CI/CDドキュメント（`docs/new-generator-plan/guides/ci-cd.md`）
+| 課題 | 優先度 | Phase 3での対応 |
+|-----|--------|----------------|
+| demo-docsビルド時のcontent.path解決問題 | 中 | Phase 3-1でレジストリ形式を統一 |
+| libx-docs維持/縮小方針 | 高 | Phase 3-5で方針決定 |
+| 共有パッケージのnpm公開 | 中 | Phase 4へ引き継ぎ（Phase 3ではChangesets運用準備） |
 
 ---
 
-### タスク5: 品質保証の自動化（2日）
+### Phase 2の達成指標（Phase 3開始の前提条件）
 
-#### 目的
-ビルドバリデーション、リンクチェック、アクセシビリティテストを自動化する。
-
-#### 実装内容
-
-##### 5-1. レジストリバリデーション
-
-**scripts/validate-registry.js**:
-
-```javascript
-import Ajv from 'ajv';
-import fs from 'fs';
-import registrySchema from '../packages/generator/src/schemas/registry.schema.js';
-
-const ajv = new Ajv({ allErrors: true });
-const validate = ajv.compile(registrySchema);
-
-const registry = JSON.parse(fs.readFileSync('registry/docs.json', 'utf-8'));
-
-if (!validate(registry)) {
-  console.error('❌ Registry validation failed:');
-  console.error(validate.errors);
-  process.exit(1);
-}
-
-console.log('✅ Registry validation passed');
-```
-
-##### 5-2. リンクチェック
-
-**package.json**:
-
-```json
-{
-  "scripts": {
-    "check:links": "markdown-link-check apps/*/src/content/docs/**/*.mdx --config .markdown-link-check.json"
-  },
-  "devDependencies": {
-    "markdown-link-check": "^3.12.0"
-  }
-}
-```
-
-**.markdown-link-check.json**:
-
-```json
-{
-  "ignorePatterns": [
-    { "pattern": "^http://localhost" },
-    { "pattern": "^https://example.com" }
-  ],
-  "timeout": "5s",
-  "retryOn429": true,
-  "retryCount": 3,
-  "fallbackRetryDelay": "30s"
-}
-```
-
-##### 5-3. アクセシビリティテスト自動化
-
-**test/accessibility.spec.js** (Playwright使用):
-
-```javascript
-import { test, expect } from '@playwright/test';
-import { injectAxe, checkA11y } from 'axe-playwright';
-
-test.describe('Accessibility tests', () => {
-  test('should not have any automatically detectable accessibility issues', async ({ page }) => {
-    await page.goto('http://localhost:4321/sample-docs/v2/ja/guide/getting-started');
-    await injectAxe(page);
-    await checkA11y(page, null, {
-      detailedReport: true,
-      detailedReportOptions: { html: true }
-    });
-  });
-});
-```
-
-#### 成果物
-- `scripts/validate-registry.js`
-- `.markdown-link-check.json`
-- `test/accessibility.spec.js`（オプション）
+| 指標 | 目標 | 実績 | ステータス |
+|-----|------|------|-----------|
+| Lighthouse Performance | 90以上 | **100** | ✅ 達成 |
+| Lighthouse Accessibility | 90以上 | **91** | ✅ 達成 |
+| Lighthouse Best Practices | 90以上 | **96** | ✅ 達成 |
+| Lighthouse SEO | 90以上 | **100** | ✅ 達成 |
+| 統合テスト成功率 | 100% | **100%** | ✅ 達成 |
+| Breaking Change検出 | 0件 | **0件** | ✅ 達成 |
 
 ---
 
-### タスク6: ドキュメント整備（2-3日）
+## Phase 3のサブフェーズ構成
 
-#### 目的
-開発者・コントリビューター向けの包括的なドキュメントを作成する。
+Phase 3は **6つのサブフェーズ** で構成されます。各サブフェーズは並行作業が可能です。
 
-#### ドキュメント一覧
+| サブフェーズ | 名称 | 期間目安 | 優先度 | 依存関係 |
+|-----------|------|---------|--------|---------|
+| [Phase 3-1](../phase-3-1-data-migration.md) | データ変換ロジック | 5日 | 🔴 高 | Phase 2完了 |
+| [Phase 3-2](../phase-3-2-diff-report.md) | 差分レポート/検証 | 4日 | 🔴 高 | Phase 3-1 |
+| [Phase 3-3](../phase-3-3-compat-layer.md) | 互換レイヤー | 3日 | 🟡 中 | Phase 3-1 |
+| [Phase 3-4](../phase-3-4-ci-automation.md) | CI/自動化 | 4日 | 🔴 高 | Phase 3-1, 3-2 |
+| [Phase 3-5](../phase-3-5-migration-plan.md) | 移行作業計画 | 4日 | 🔴 高 | Phase 3-1, 3-2 |
+| [Phase 3-6](../phase-3-6-documentation.md) | ドキュメント | 3日 | 🟡 中 | Phase 3-1 〜 3-5 |
 
-##### 6-1. 開発者ガイド
-
-**docs/new-generator-plan/guides/developer-guide.md**:
-
-- 開発環境のセットアップ
-- ディレクトリ構造の説明
-- レジストリの仕組み
-- ビルドプロセスの詳細
-- デバッグ方法
-
-##### 6-2. コントリビューションガイド
-
-**CONTRIBUTING.md**:
-
-- プルリクエストの作成方法
-- コーディング規約
-- コミットメッセージの規約
-- レビュープロセス
-
-##### 6-3. レジストリガイド
-
-**docs/new-generator-plan/guides/registry-guide.md**:
-
-- レジストリの構造
-- プロジェクトの追加方法
-- ドキュメントの追加方法
-- バージョン管理
-
-##### 6-4. トラブルシューティングガイド
-
-**docs/new-generator-plan/guides/troubleshooting.md**:
-
-- よくある問題と解決策
-- ビルドエラーの対処法
-- パフォーマンス問題の診断
-- CI/CDのデバッグ
-
-#### 成果物
-- `docs/new-generator-plan/guides/developer-guide.md`
-- `CONTRIBUTING.md`
-- `docs/new-generator-plan/guides/registry-guide.md`
-- `docs/new-generator-plan/guides/troubleshooting.md`
+**合計期間**: 約3週間（並行作業あり）
 
 ---
 
-## 📋 Phase 3チェックリスト
+## タスクブレークダウン
 
-### タスク1: 既存プロジェクトの棚卸し
-- [ ] 既存プロジェクト一覧作成
-- [ ] 各プロジェクトの詳細調査
-- [ ] 移行優先度の決定
-- [ ] 棚卸しドキュメント作成
+### Phase 3-1: データ変換ロジック（期間: 5日、優先度: 高）
 
-### タスク2: レジストリスキーマの最終確認
-- [ ] 現在のスキーマ検証
-- [ ] 不足フィールドの特定
-- [ ] スキーマ拡張（必要に応じて）
-- [ ] スキーマドキュメント更新
+**目的**: 既存の設定・コンテンツ資産を新レジストリ形式へ自動移行するコアロジックを実装
 
-### タスク3: 既存コンテンツの移行
-- [ ] 自動移行スクリプト作成
-- [ ] MDXファイルの整理
-- [ ] フロントマター検証
-- [ ] libx-docs移行実行
-- [ ] レジストリバリデーション
-- [ ] ビルドテスト
+**主要タスク**:
+1. ✅ 設定ファイル解析（`project.config.json` / `projects.config.json`）
+2. ✅ カテゴリ/ドキュメント変換（`NN-category` → `category.id`, `order`）
+3. ✅ コンテンツメタ設定（`status`, `lastUpdated`, `reviewer`, `source`, `syncHash`）
+4. ✅ Glossary変換
+5. ✅ エラーハンドリング/バックアップ（`.backups/` 運用）
+6. ✅ テスト（スナップショットテスト、ユニットテスト）
 
-### タスク4: CI/CDパイプライン構築
-- [ ] GitHub Actions設定
-- [ ] ビルド&テストワークフロー作成
-- [ ] Lighthouseワークフロー作成
-- [ ] デプロイワークフロー作成
-- [ ] CI/CDドキュメント作成
+**成果物**:
+- `migrate-from-libx` コマンド内のデータ変換モジュール
+- 変換フィクスチャとテスト
+- 変換前後の差分を説明するドキュメント（`docs/new-generator-plan/guides/migration-data.md`）
 
-### タスク5: 品質保証の自動化
-- [ ] レジストリバリデーション自動化
-- [ ] リンクチェック自動化
-- [ ] アクセシビリティテスト自動化（オプション）
-
-### タスク6: ドキュメント整備
-- [ ] 開発者ガイド作成
-- [ ] コントリビューションガイド作成
-- [ ] レジストリガイド作成
-- [ ] トラブルシューティングガイド作成
+**完了条件**:
+- 代表プロジェクトで 90%以上の設定とコンテンツが自動変換され、`docs-cli validate` を通過する
+- 変換ログにエラーがない、または残課題が明示的にリストアップされている
+- バックアップとロールバックが正常に機能する
 
 ---
 
-## 🎯 Phase 3成功基準
+### Phase 3-2: 差分レポート/検証（期間: 4日、優先度: 高）
 
-### 必須項目
+**目的**: 旧サイトと新サイトの差異を可視化・検証する仕組みを整備
 
-1. **既存コンテンツ移行完了**
-   - libx-docsプロジェクトがレジストリ化されている
-   - 全ドキュメントが正しくビルドされる
-   - リンク切れがない
+**主要タスク**:
+1. ✅ データ収集（旧サイト vs 新サイト）
+2. ✅ 比較ロジック（URL差分、メタデータ比較、コンテンツ差分）
+3. ✅ 検索比較（代表クエリの結果比較）
+4. ✅ レポート出力（HTML/CSV/JSON）
+5. ✅ レビュー支援（手順書、ステータス記録テンプレート）
+6. ✅ CI連携（差分レポートの自動生成）
 
-2. **CI/CD稼働**
-   - GitHub Actionsが正常に動作している
-   - プルリクエストで自動ビルド・テストが実行される
-   - mainブランチへのマージで自動デプロイが実行される
+**成果物**:
+- 差分比較スクリプトと CLI オプション
+- HTML/CSV/JSON レポート
+- レビューガイドとテンプレート
+- CI での自動レポート（Artifact）
 
-3. **品質保証**
-   - Lighthouseスコアが目標を維持している（Performance ≥80, Accessibility ≥90）
-   - レジストリバリデーションが自動実行される
-   - リンクチェックが自動実行される
-
-4. **ドキュメント完備**
-   - 開発者ガイドが整備されている
-   - コントリビューションガイドが整備されている
-   - トラブルシューティングガイドが整備されている
-
-### 推奨項目
-
-1. **E2Eテスト**（オプション）
-   - Playwrightでのブラウザテスト
-   - アクセシビリティ自動テスト
-
-2. **パフォーマンス監視**
-   - Lighthouse CI継続監視
-   - スコア低下時のアラート
-
-3. **セキュリティ**
-   - 依存関係の脆弱性スキャン
-   - Secretsの適切な管理
+**完了条件**:
+- 代表プロジェクトで差分レポートが正しく生成され、レビューと承認が行える
+- CI で自動生成されたレポートが確認でき、重大差分を検知できる
+- レビュー手順書に従って承認された成果物がログとして残る
 
 ---
 
-## 🚀 Phase 3開始手順
+### Phase 3-3: 互換レイヤー（期間: 3日、優先度: 中）
 
-### ステップ1: Phase 2成果物の確認（30分）
+**目的**: 既存スクリプトから新CLIへスムーズに移行するための互換ラッパーを提供
 
-```bash
-# 現在のビルド状態を確認
-cd packages/runtime
-pnpm build
+**主要タスク**:
+1. ✅ コマンドマッピング定義（旧コマンド → 新CLI）
+2. ✅ ラッパースクリプト実装
+3. ✅ バックアップ運用整理（`.backups/` ローテーション）
+4. ✅ 動作確認とテスト
+5. ✅ 移行ガイド作成
 
-# ビルド成果物を確認
-find dist -name "*.html" | wc -l  # 62-63ページあるはず
+**成果物**:
+- 互換ラッパースクリプト
+- バックアップ運用ガイド
+- 移行手順書
 
-# Lighthouseテスト実行
-pnpm preview &
-sleep 5
-node test-lighthouse.js
-```
-
-### ステップ2: 開発環境のセットアップ（30分）
-
-```bash
-# 最新のコードを取得
-git pull origin main
-
-# 依存関係を更新
-pnpm install
-
-# 全パッケージのビルド
-pnpm build
-
-# テスト実行
-pnpm test
-```
-
-### ステップ3: Phase 3計画書の確認（1時間）
-
-1. `docs/new-generator-plan/phase-3-0-migration.md`を読む
-2. 本ドキュメント（phase-3-kickoff.md）を読む
-3. タスク一覧を確認
-4. 不明点があればチームで議論
-
-### ステップ4: タスク1開始（即座）
-
-```bash
-# 既存プロジェクトの調査開始
-ls -la apps/
-
-# 各プロジェクトのドキュメント数確認
-find apps/sample-docs/src/content/docs -name "*.mdx" | wc -l
-find apps/libx-docs/src/content/docs -name "*.mdx" | wc -l
-find apps/test-verification/src/content/docs -name "*.mdx" | wc -l
-
-# 棚卸しドキュメント作成開始
-mkdir -p docs/new-generator-plan/migration
-touch docs/new-generator-plan/migration/project-inventory.md
-```
+**完了条件**:
+- 既存スクリプトが互換レイヤー経由で動作する
+- バックアップ/ロールバックが正常に機能する
+- 移行手順書に従って実行できる
 
 ---
 
-## 📞 サポート・質問
+### Phase 3-4: CI/自動化（期間: 4日、優先度: 高）
 
-Phase 3実装中に不明点があれば、以下のリソースを参照してください：
+**目的**: GitHub Actionsを用いた自動化パイプラインを構築
 
-### Phase 2関連ドキュメント
-- [Phase 2-4完了報告書](./phase-2-4-completion-report.md)
-- [Phase 2-3完了報告書](./phase-2-3-completion-report.md)
-- [packages/runtime/README.md](../../packages/runtime/README.md)
-- [packages/generator/README.md](../../packages/generator/README.md)
+**主要タスク**:
+1. ✅ GitHub Actionsテンプレート作成（スキーマ検証 → ビルド → リンクチェック）
+2. ✅ Pagefindインデックス生成の自動化
+3. ✅ 差分レポートの自動生成とArtifact保存
+4. ✅ PR コメント機能（重大差分の警告）
+5. ✅ CI実行例ドキュメント作成（`docs/new-generator-plan/examples/ci.md`）
 
-### 外部ドキュメント
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
-- [Lighthouse CI Documentation](https://github.com/GoogleChrome/lighthouse-ci)
+**成果物**:
+- GitHub Actions ワークフローテンプレート
+- CI実行例ドキュメント
+- Pagefind自動生成スクリプト
+
+**完了条件**:
+- GitHub Actionsが正常に実行され、全ステップが成功する
+- 差分レポートがArtifactとして保存される
+- CI実行例ドキュメントに従って実行できる
 
 ---
 
-## 📝 Phase 3進捗報告
+### Phase 3-5: 移行作業計画（期間: 4日、優先度: 高）
 
-週次で進捗を記録してください：
+**目的**: 対象プロジェクトごとの移行順序とタイムラインを策定し、libx-docs方針を決定
 
-**テンプレート**: `docs/new-generator-plan/status/weekly/2025-W43.md`
+**主要タスク**:
+1. ✅ 対象プロジェクトの棚卸し
+2. ✅ 移行順序の決定（優先度、依存関係）
+3. ✅ タイムライン策定
+4. ✅ libx-docs維持/縮小案の評価資料作成
+5. ✅ 意思決定ミーティングの調整
+6. ✅ 移行計画書作成
 
-```markdown
-# Week 43 進捗報告（2025-10-21〜2025-10-27）
+**成果物**:
+- 移行計画書（対象プロジェクト、移行順序、タイムライン）
+- libx-docs維持/縮小案の評価資料
+- 意思決定ミーティング議事録
 
-## 完了したタスク
-- [ ] タスク1-1: 既存プロジェクト一覧作成
-- [ ] タスク1-2: プロジェクト詳細調査
+**完了条件**:
+- 移行計画書が承認される
+- libx-docs方針について合意が取れている
+- タイムラインが現実的で実行可能である
 
-## 進行中のタスク
-- [ ] タスク2-1: レジストリスキーマ検証
+---
 
-## ブロッカー・課題
-- なし
+### Phase 3-6: ドキュメント（期間: 3日、優先度: 中）
 
-## 次週の予定
-- タスク2完了
-- タスク3開始
-```
+**目的**: Phase 3の成果物を包括的にドキュメント化
+
+**主要タスク**:
+1. ✅ 移行手順書作成（準備 → 実行 → 検証 → ロールバック）
+2. ✅ FAQ / トラブルシューティングセクション追加
+3. ✅ CI/CD運用ガイド作成
+4. ✅ バックアップ運用ガイド作成
+5. ✅ Phase 3完了報告書作成
+
+**成果物**:
+- 移行手順書
+- FAQ / トラブルシューティングガイド
+- CI/CD運用ガイド
+- バックアップ運用ガイド
+- Phase 3完了報告書
+
+**完了条件**:
+- 全ドキュメントが作成され、レビューされている
+- ドキュメントに従って移行が実施できる
+- Phase 3完了報告書が承認される
+
+---
+
+## 体制とステークホルダー
+
+### プロジェクトチーム
+
+| 役割 | 責任 | 主な作業 |
+|-----|------|---------|
+| **テックリード** | ツール仕様の承認、重大仕様変更の判断 | Phase 3-1, 3-2のレビュー |
+| **開発チーム（スクリプト担当）** | マイグレーション実装、CI設定 | Phase 3-1, 3-3, 3-4の実装 |
+| **コンテンツリード** | 変換後データの整合性チェック、編集フローの確認 | Phase 3-2, 3-5のレビュー |
+| **QAリード** | チェックリスト策定と検証支援 | Phase 3-2, 3-4のテスト |
+| **プロジェクトマネージャー** | スケジュール管理、リソース調整 | Phase 3-5の計画策定 |
+
+---
+
+### ステークホルダー
+
+| ステークホルダー | 関心事項 | 関与フェーズ |
+|---------------|---------|------------|
+| **経営層** | 移行コスト、リスク、スケジュール | Phase 3キックオフ、Phase 3完了報告 |
+| **コンテンツチーム** | 既存コンテンツの保護、編集ワークフロー | Phase 3-1, 3-2, 3-5 |
+| **翻訳担当** | 翻訳ステータスの引き継ぎ | Phase 3-1, 3-2 |
+| **DevOpsチーム** | CI/CD整備、デプロイメント | Phase 3-4 |
+
+---
+
+## 前提条件と依存関係
+
+### 前提条件
+
+| 前提条件 | 確認方法 | ステータス |
+|---------|---------|-----------|
+| Phase 2の全タスク完了 | [Phase 2最終確認レポート](./phase-2-final-check.md) | ✅ 確認済み |
+| Lighthouse全スコア目標達成 | Performance 100, Accessibility 91, Best Practices 96, SEO 100 | ✅ 達成済み |
+| 共有パッケージ検証完了 | 統合テスト100%成功、Breaking Change 0件 | ✅ 完了済み |
+| デモサイト動作確認完了 | demo-docsプロジェクト | ✅ 確認済み |
+| ドキュメント公開完了 | 約7,680行のドキュメント | ✅ 公開済み |
+| 移行対象の libx-dev データが最新 | 最新コミット確認 | ⏳ Phase 3開始前に確認 |
+| CI 実行環境に必要な権限を取得済み | GitHub Actions権限確認 | ⏳ Phase 3開始前に確認 |
+
+---
+
+### 依存関係
+
+| 依存先 | 依存元 | 関係 |
+|-------|-------|------|
+| Phase 2完了 | Phase 3-1 | Phase 2の共有パッケージを利用 |
+| Phase 3-1完了 | Phase 3-2 | マイグレーション後のデータを検証 |
+| Phase 3-1完了 | Phase 3-3 | 新CLIコマンドを利用 |
+| Phase 3-1, 3-2完了 | Phase 3-4 | CI パイプラインでマイグレーションと検証を自動化 |
+| Phase 3-1, 3-2完了 | Phase 3-5 | 移行計画にマイグレーション結果を反映 |
+| Phase 3-1 〜 3-5完了 | Phase 3-6 | 全成果物をドキュメント化 |
+
+---
+
+## リスクと緩和策
+
+### 高リスク項目
+
+| リスク | 影響度 | 発生確率 | 緩和策 | 担当 |
+|-------|--------|---------|--------|------|
+| 自動変換の精度不足 | 高 | 中 | 変換プレビューと手動補正手順を明示、重要項目はWYSIWYGレポートで確認 | 開発チーム |
+| libx-docs運用判断が遅れる | 高 | 中 | フェーズ3中盤で暫定結論をレビューし、フェーズ4序盤までに確定 | テックリード |
+| CI内で外部サービス連携が必要 | 中 | 低 | 事前に必要なトークン/設定を棚卸し、代替案（モック、ローカルCI）を用意 | DevOpsチーム |
+
+---
+
+### 中リスク項目
+
+| リスク | 影響度 | 発生確率 | 緩和策 | 担当 |
+|-------|--------|---------|--------|------|
+| 差分確認が煩雑 | 中 | 中 | レポート生成をCSV/HTML等で柔軟に出力し、レビューツールで参照しやすくする | 開発チーム |
+| バックアップ肥大化 | 低 | 高 | マイグレーション実行時に古い `.backups/` をローテーション削除するコマンドを提供 | 開発チーム |
+| 移行スケジュール遅延 | 中 | 中 | バッファを設け、優先度に応じてタスクを調整 | PM |
+
+---
+
+## 成功基準と完了条件
+
+### Phase 3全体の成功基準
+
+| 基準 | 目標 | 測定方法 |
+|-----|------|---------|
+| 自動移行成功率 | 90%以上 | 自動適用件数 / 全対象件数 |
+| CI実行成功率 | 90%以上 | 成功ビルド数 / 全ビルド数 |
+| 差分レポートレビュー完了数 | 100% | レビュー済みプロジェクト数 / 対象プロジェクト数 |
+| libx-docs方針決定 | Phase 3完了前 | 意思決定ミーティング議事録 |
+| 移行手順書に従ったテスト移行 | 承認済み | テスト移行完了証跡 |
+
+---
+
+### Phase 3全体の完了条件
+
+- [x] Phase 2の全タスク完了確認
+- [ ] 代表的な libx-dev プロジェクトを対象に、設定＋MDX がツールで 90%以上自動移行できる
+- [ ] CI テンプレートを用いたビルド・リンクチェックが正常に完了する
+- [ ] 移行手順書に従ってテスト移行を実施し、承認された
+- [ ] `syncHash` や `source` 情報が整合しており、差分レポートで不整合がゼロである
+- [ ] libx-docs 維持/縮小方針について合意が取れている
+
+---
+
+## マイルストーンとスケジュール
+
+### Phase 3 マイルストーン
+
+| マイルストーン | 完了条件 | 期日目安 |
+|-------------|---------|---------|
+| **M1: Phase 3キックオフ** | キックオフミーティング完了、チーム編成確認 | Day 0 |
+| **M2: マイグレーションツール実装完了** | Phase 3-1完了、テスト通過 | Day 5 |
+| **M3: 差分レポート/検証完了** | Phase 3-2完了、レポート生成確認 | Day 9 |
+| **M4: CI/CD整備完了** | Phase 3-4完了、GitHub Actions動作確認 | Day 13 |
+| **M5: 移行計画策定完了** | Phase 3-5完了、libx-docs方針決定 | Day 17 |
+| **M6: Phase 3完了** | 全サブフェーズ完了、Phase 3完了報告書承認 | Day 21 |
+
+---
+
+### 週次スケジュール（3週間）
+
+#### Week 1（Day 1-7）
+
+| 日 | Phase 3-1 | Phase 3-2 | Phase 3-3 | Phase 3-4 | Phase 3-5 | Phase 3-6 |
+|---|----------|----------|----------|----------|----------|----------|
+| Day 1 | 🔵 設定ファイル解析 | | | | | |
+| Day 2 | 🔵 カテゴリ/ドキュメント変換 | | | | | |
+| Day 3 | 🔵 コンテンツメタ設定 | | 🟡 コマンドマッピング定義 | | 🔵 対象プロジェクト棚卸し | |
+| Day 4 | 🔵 Glossary変換 | | 🟡 ラッパースクリプト実装 | | | |
+| Day 5 | 🔵 エラーハンドリング/テスト | 🔵 データ収集 | 🟡 バックアップ運用整理 | 🔵 GitHub Actionsテンプレート作成 | 🔵 移行順序決定 | |
+| Day 6 | | 🔵 比較ロジック | | 🔵 Pagefindインデックス自動化 | | |
+| Day 7 | | 🔵 検索比較 | | | 🔵 タイムライン策定 | |
+
+#### Week 2（Day 8-14）
+
+| 日 | Phase 3-1 | Phase 3-2 | Phase 3-3 | Phase 3-4 | Phase 3-5 | Phase 3-6 |
+|---|----------|----------|----------|----------|----------|----------|
+| Day 8 | | 🔵 レポート出力 | 🟡 動作確認とテスト | 🔵 差分レポート自動生成 | | 🟡 移行手順書作成 |
+| Day 9 | | 🔵 レビュー支援、CI連携 | | 🔵 PRコメント機能 | 🔵 libx-docs評価資料作成 | |
+| Day 10 | | | | 🔵 CI実行例ドキュメント作成 | 🔵 意思決定ミーティング調整 | 🟡 FAQ/トラブルシューティング |
+| Day 11 | | | 🟡 移行ガイド作成 | | | 🟡 CI/CD運用ガイド |
+| Day 12 | | | | | 🔵 移行計画書作成 | 🟡 バックアップ運用ガイド |
+| Day 13 | | | | | | |
+| Day 14 | | | | | | |
+
+#### Week 3（Day 15-21）
+
+| 日 | Phase 3-1 | Phase 3-2 | Phase 3-3 | Phase 3-4 | Phase 3-5 | Phase 3-6 |
+|---|----------|----------|----------|----------|----------|----------|
+| Day 15 | | | | | 🔵 意思決定ミーティング実施 | |
+| Day 16 | | | | | 🔵 議事録作成 | |
+| Day 17 | | | | | | 🟡 Phase 3完了報告書作成 |
+| Day 18 | | | | | | 統合テスト |
+| Day 19 | | | | | | レビュー |
+| Day 20 | | | | | | 修正 |
+| Day 21 | | | | | | Phase 3完了 |
+
+**凡例**: 🔵 高優先度、🟡 中優先度
+
+---
+
+## Phase 3開始チェックリスト
+
+### Phase 2完了確認
+
+- [x] Phase 2最終確認レポート作成完了
+- [x] Phase 2の全サブフェーズ（2-1 〜 2-6）完了確認
+- [x] Lighthouse全スコア目標達成確認
+- [x] 共有パッケージ検証完了確認
+- [x] デモサイト動作確認完了
+- [x] ドキュメント公開完了（約7,680行）
+
+---
+
+### Phase 3準備確認
+
+- [ ] Phase 3キックオフミーティング日程調整完了
+- [ ] チーム編成確認（テックリード、開発チーム、コンテンツリード、QAリード、PM）
+- [ ] 移行対象の libx-dev データが最新であることを確認
+- [ ] GitHub Actions実行権限確認
+- [ ] CI実行環境のアクセストークン/設定確認
+- [ ] 開発環境セットアップ完了（全チームメンバー）
+
+---
+
+### ドキュメント確認
+
+- [x] [Phase 3-0計画書](../phase-3-0-migration.md) 確認
+- [x] [Phase 3-1詳細計画](../phase-3-1-data-migration.md) 確認
+- [x] [Phase 3-2詳細計画](../phase-3-2-diff-report.md) 確認
+- [ ] [Phase 3-3詳細計画](../phase-3-3-compat-layer.md) 確認
+- [ ] [Phase 3-4詳細計画](../phase-3-4-ci-automation.md) 確認
+- [ ] [Phase 3-5詳細計画](../phase-3-5-migration-plan.md) 確認
+- [ ] [Phase 3-6詳細計画](../phase-3-6-documentation.md) 確認
+
+---
+
+### リソース確認
+
+- [ ] 開発チーム（スクリプト担当）のアサイン確認
+- [ ] コンテンツリードのレビュー時間確保
+- [ ] QAリードのテスト時間確保
+- [ ] PMのスケジュール管理体制確立
+
+---
+
+### リスク確認
+
+- [ ] 高リスク項目の緩和策確認
+- [ ] 中リスク項目の監視体制確立
+- [ ] エスカレーションパス確認
+
+---
+
+## 📖 参考資料
+
+### Phase 3計画書
+
+- [Phase 3-0: 移行準備（概要）](../phase-3-0-migration.md)
+- [Phase 3-1: データ変換ロジック](../phase-3-1-data-migration.md)
+- [Phase 3-2: 差分レポート/検証](../phase-3-2-diff-report.md)
+- [Phase 3-3: 互換レイヤー](../phase-3-3-compat-layer.md)
+- [Phase 3-4: CI/自動化](../phase-3-4-ci-automation.md)
+- [Phase 3-5: 移行作業計画](../phase-3-5-migration-plan.md)
+- [Phase 3-6: ドキュメント](../phase-3-6-documentation.md)
+
+---
+
+### Phase 2成果物
+
+- [Phase 2最終確認レポート](./phase-2-final-check.md)
+- [共有パッケージ利用ガイド](../guides/shared-packages.md)
+- [リリースフローガイド](../guides/release-flow.md)
+- [アーキテクチャドキュメント](../architecture.md)
+
+---
+
+### プロジェクト全体
+
+- [README.md（プロジェクトハブ）](../README.md)
+- [DECISIONS.md（意思決定ログ）](../DECISIONS.md)
+- [PROJECT_PRINCIPLES.md（開発原則）](../PROJECT_PRINCIPLES.md)
+- [OVERVIEW.md（全体構造）](../OVERVIEW.md)
+
+---
+
+## 次のアクション
+
+### Phase 3開始前（Day 0）
+
+1. **キックオフミーティング開催**
+   - Phase 3の目的とスコープ確認
+   - チーム編成とロール確認
+   - スケジュールとマイルストーン確認
+   - リスクと緩和策確認
+
+2. **Phase 3開始チェックリスト完了**
+   - 全項目を確認し、準備完了を確認
+
+3. **Phase 3-1開始**
+   - データ変換ロジックの実装開始
+
+---
+
+### Phase 3進行中（Week 1-3）
+
+1. **週次ミーティング**
+   - 進捗確認
+   - 課題共有
+   - リスク監視
+
+2. **マイルストーンレビュー**
+   - M2（Day 5）: マイグレーションツール実装完了確認
+   - M3（Day 9）: 差分レポート/検証完了確認
+   - M4（Day 13）: CI/CD整備完了確認
+   - M5（Day 17）: 移行計画策定完了確認
+
+3. **Phase 3完了準備**
+   - Phase 3完了報告書作成
+   - Phase 4キックオフ準備
 
 ---
 
 **作成者**: Claude
-**作成日**: 2025-10-19
-**対象フェーズ**: Phase 3
-**前提フェーズ**: Phase 2（完了）
+**作成日**: 2025-10-20
+**更新日**: 2025-10-20
+**承認者**: （記入してください）
+**次のフェーズ**: Phase 4（QA・リリース準備）
 
 ---
 
-🎯 **次のアクション**: Phase 3計画書（`phase-3-0-migration.md`）を確認し、タスク1（既存プロジェクトの棚卸し）を開始してください。
+## 🚀 Phase 3 スタート宣言
+
+Phase 2の成果を基盤に、**既存資産の移行とCI整備** を実施します。
+
+✅ **Phase 2完了確認済み**
+✅ **共有パッケージ利用可能**
+✅ **技術基盤確立済み**
+✅ **Phase 3計画策定完了**
+
+**Phase 3を開始する準備が整いました。** 🎯
+
+次回セッションから Phase 3-1（データ変換ロジック）に着手します。
