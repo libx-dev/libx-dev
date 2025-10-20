@@ -1,0 +1,389 @@
+---
+title: "Configuration"
+description: "Configuration options and customization for the documentation generator"
+---
+
+# Configuration
+
+Learn how to configure and customize your documentation site.
+
+## Registry Configuration
+
+The registry file (`registry/docs.json`) is the central configuration file for your documentation.
+
+### Project Configuration
+
+```json
+{
+  "projects": [
+    {
+      "id": "my-docs",
+      "displayName": {
+        "en": "My Documentation",
+        "ja": "私のドキュメント"
+      },
+      "description": {
+        "en": "Official documentation",
+        "ja": "公式ドキュメント"
+      },
+      "languages": [...],
+      "versions": [...],
+      "categories": [...],
+      "documents": [...]
+    }
+  ]
+}
+```
+
+### Language Configuration
+
+Define supported languages:
+
+```json
+{
+  "languages": [
+    {
+      "code": "en",
+      "displayName": "English",
+      "status": "active",
+      "default": true
+    },
+    {
+      "code": "ja",
+      "displayName": "日本語",
+      "status": "active",
+      "fallback": "en"
+    },
+    {
+      "code": "ko",
+      "displayName": "한국어",
+      "status": "active",
+      "fallback": "en"
+    }
+  ]
+}
+```
+
+**Supported languages**: en, ja, ko, zh-Hans, zh-Hant, es, pt-BR, de, fr, ru, ar, id, tr, hi, vi
+
+### Version Configuration
+
+Define documentation versions:
+
+```json
+{
+  "versions": [
+    {
+      "id": "v2",
+      "name": "Version 2.0",
+      "isLatest": true,
+      "status": "stable",
+      "date": "2025-10-20T00:00:00.000Z"
+    },
+    {
+      "id": "v1",
+      "name": "Version 1.0",
+      "isLatest": false,
+      "status": "deprecated",
+      "date": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Version status options**: `stable`, `beta`, `deprecated`
+
+### Category Configuration
+
+Organize documents into categories:
+
+```json
+{
+  "categories": [
+    {
+      "id": "guide",
+      "name": {
+        "en": "Guide",
+        "ja": "ガイド"
+      },
+      "order": 1,
+      "description": {
+        "en": "Getting started guides",
+        "ja": "はじめに"
+      }
+    },
+    {
+      "id": "api",
+      "name": {
+        "en": "API Reference",
+        "ja": "APIリファレンス"
+      },
+      "order": 2
+    }
+  ]
+}
+```
+
+### Document Configuration
+
+Define individual documents:
+
+```json
+{
+  "documents": [
+    {
+      "docId": "getting-started",
+      "projectId": "my-docs",
+      "versionId": "v1",
+      "categoryId": "guide",
+      "order": 1,
+      "slug": "getting-started",
+      "title": {
+        "en": "Getting Started",
+        "ja": "はじめに"
+      },
+      "description": {
+        "en": "Quick start guide",
+        "ja": "クイックスタートガイド"
+      },
+      "visibility": "public"
+    }
+  ]
+}
+```
+
+## Theme Configuration
+
+Customize the visual appearance using CSS variables.
+
+### Color Palette
+
+```css
+:root {
+  /* Primary colors */
+  --color-primary-50: #f0f9ff;
+  --color-primary-500: #3b82f6;
+  --color-primary-900: #1e3a8a;
+
+  /* Accent colors */
+  --color-accent-500: #8b5cf6;
+
+  /* Text colors */
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+
+  /* Background colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+}
+```
+
+### Typography
+
+```css
+:root {
+  /* Font families */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'Fira Code', monospace;
+
+  /* Font sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}
+```
+
+### Spacing
+
+```css
+:root {
+  /* Spacing scale */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-4: 1rem;
+  --spacing-8: 2rem;
+  --spacing-16: 4rem;
+}
+```
+
+## Build Configuration
+
+Configure the build process in `astro.config.mjs`.
+
+### Basic Configuration
+
+```javascript
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  // Site URL (for sitemap generation)
+  site: 'https://docs.example.com',
+
+  // Base path
+  base: '/',
+
+  // Integrations
+  integrations: [mdx()],
+
+  // Build output directory
+  outDir: './dist',
+
+  // Image optimization
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/sharp'
+    }
+  }
+});
+```
+
+### Performance Optimization
+
+```javascript
+export default defineConfig({
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('astro')) return 'vendor-astro';
+              if (id.includes('shiki')) return 'vendor-shiki';
+              return 'vendor';
+            }
+            if (id.includes('@docs/ui')) return 'ui';
+            if (id.includes('@docs/generator')) return 'generator';
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### SSR Configuration
+
+```javascript
+export default defineConfig({
+  vite: {
+    ssr: {
+      noExternal: [
+        '@docs/generator',
+        '@docs/ui',
+        '@docs/theme',
+        '@docs/i18n',
+        '@docs/versioning'
+      ]
+    }
+  }
+});
+```
+
+## Search Configuration
+
+Configure Pagefind search indexing.
+
+### Basic Setup
+
+```json
+{
+  "scripts": {
+    "postbuild": "pagefind --site dist --glob \"**/*.html\""
+  }
+}
+```
+
+### Advanced Configuration
+
+Create `pagefind.yml`:
+
+```yaml
+site: dist
+glob: "**/*.html"
+exclude:
+  - "404.html"
+  - "search.html"
+force_language: "en"
+```
+
+## Deployment Configuration
+
+### Cloudflare Pages
+
+Create `wrangler.toml`:
+
+```toml
+name = "my-docs"
+compatibility_date = "2025-01-01"
+
+[build]
+command = "pnpm build"
+build_output_directory = "dist"
+
+[env.production]
+route = "docs.example.com"
+```
+
+### GitHub Actions
+
+Create `.github/workflows/deploy.yml`:
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: my-docs
+          directory: dist
+```
+
+## Environment Variables
+
+Configure environment-specific settings:
+
+```bash
+# .env
+PUBLIC_SITE_URL=https://docs.example.com
+PUBLIC_ANALYTICS_ID=G-XXXXXXXXXX
+
+# Development
+NODE_ENV=development
+```
+
+## Next Steps
+
+- [Components](../api/components) - Explore UI components
+- [Utilities](../api/utilities) - Learn about utility functions
+- [Basic Usage](../examples/basic-usage) - See practical examples
+
+---
+
+Your documentation site is now fully configured! 🎨

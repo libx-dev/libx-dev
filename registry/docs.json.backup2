@@ -1287,7 +1287,6 @@
         "ja": "共有パッケージを活用した新ドキュメントジェネレーターのデモ",
         "ko": "공유 패키지를 활용한 새 문서 생성기 데모"
       },
-      "visibility": "public",
       "languages": [
         {
           "code": "en",
@@ -1320,232 +1319,161 @@
       "categories": [
         {
           "id": "guide",
-          "order": 1,
-          "titles": {
+          "name": {
             "en": "Guide",
             "ja": "ガイド",
             "ko": "가이드"
           },
-          "docs": [
-            "getting-started",
-            "installation",
-            "configuration"
-          ]
+          "order": 1,
+          "description": {
+            "en": "Getting started and user guides",
+            "ja": "はじめに、ユーザーガイド",
+            "ko": "시작하기 및 사용자 가이드"
+          }
         },
         {
           "id": "api",
-          "order": 2,
-          "titles": {
+          "name": {
             "en": "API Reference",
             "ja": "APIリファレンス",
             "ko": "API 참조"
           },
-          "docs": [
-            "components",
-            "utilities"
-          ]
+          "order": 2,
+          "description": {
+            "en": "API documentation and reference",
+            "ja": "APIドキュメントとリファレンス",
+            "ko": "API 문서 및 참조"
+          }
         },
         {
           "id": "examples",
-          "order": 3,
-          "titles": {
+          "name": {
             "en": "Examples",
             "ja": "サンプル",
             "ko": "예제"
           },
-          "docs": [
-            "basic-usage"
-          ]
+          "order": 3,
+          "description": {
+            "en": "Code examples and use cases",
+            "ja": "コード例とユースケース",
+            "ko": "코드 예제 및 사용 사례"
+          }
         }
       ],
       "documents": [
         {
-          "id": "getting-started",
-          "slug": "guide/getting-started",
+          "docId": "getting-started",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 1,
+          "slug": "getting-started",
           "title": {
             "en": "Getting Started",
             "ja": "はじめに",
             "ko": "시작하기"
           },
-          "summary": {
+          "description": {
             "en": "Quick start guide for the new documentation generator",
             "ja": "新ドキュメントジェネレーターのクイックスタートガイド",
             "ko": "새 문서 생성기 빠른 시작 가이드"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/getting-started/en.mdx",
-              "status": "published"
-            },
-            "ja": {
-              "path": "content/getting-started/ja.mdx",
-              "status": "published"
-            },
-            "ko": {
-              "path": "content/getting-started/ko.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         },
         {
-          "id": "installation",
-          "slug": "guide/installation",
+          "docId": "installation",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 2,
+          "slug": "installation",
           "title": {
             "en": "Installation",
             "ja": "インストール",
             "ko": "설치"
           },
-          "summary": {
+          "description": {
             "en": "Installation guide and requirements",
             "ja": "インストールガイドと要件",
             "ko": "설치 가이드 및 요구 사항"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/installation/en.mdx",
-              "status": "published"
-            },
-            "ja": {
-              "path": "content/installation/ja.mdx",
-              "status": "published"
-            },
-            "ko": {
-              "path": "content/installation/ko.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         },
         {
-          "id": "configuration",
-          "slug": "guide/configuration",
+          "docId": "configuration",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 3,
+          "slug": "configuration",
           "title": {
             "en": "Configuration",
             "ja": "設定",
             "ko": "구성"
           },
-          "summary": {
+          "description": {
             "en": "Configuration options and customization",
             "ja": "設定オプションとカスタマイズ",
             "ko": "구성 옵션 및 사용자 정의"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/configuration/en.mdx",
-              "status": "published"
-            },
-            "ja": {
-              "path": "content/configuration/ja.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         },
         {
-          "id": "components",
-          "slug": "api/components",
+          "docId": "components",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "api",
+          "order": 1,
+          "slug": "components",
           "title": {
             "en": "Components",
             "ja": "コンポーネント",
             "ko": "컴포넌트"
           },
-          "summary": {
+          "description": {
             "en": "UI components API reference",
             "ja": "UIコンポーネントAPIリファレンス",
             "ko": "UI 컴포넌트 API 참조"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/components/en.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         },
         {
-          "id": "utilities",
-          "slug": "api/utilities",
+          "docId": "utilities",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "api",
+          "order": 2,
+          "slug": "utilities",
           "title": {
             "en": "Utilities",
             "ja": "ユーティリティ",
             "ko": "유틸리티"
           },
-          "summary": {
+          "description": {
             "en": "Utility functions and helpers",
             "ja": "ユーティリティ関数とヘルパー",
             "ko": "유틸리티 함수 및 헬퍼"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/utilities/en.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         },
         {
-          "id": "basic-usage",
-          "slug": "examples/basic-usage",
+          "docId": "basic-usage",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "examples",
+          "order": 1,
+          "slug": "basic-usage",
           "title": {
             "en": "Basic Usage",
             "ja": "基本的な使用方法",
             "ko": "기본 사용법"
           },
-          "summary": {
+          "description": {
             "en": "Basic usage examples",
             "ja": "基本的な使用例",
             "ko": "기본 사용 예제"
           },
-          "versions": [
-            "v1"
-          ],
-          "status": "published",
-          "visibility": "public",
-          "keywords": [],
-          "tags": [],
-          "content": {
-            "en": {
-              "path": "content/basic-usage/en.mdx",
-              "status": "published"
-            }
-          },
-          "license": "MIT"
+          "visibility": "public"
         }
       ]
     }

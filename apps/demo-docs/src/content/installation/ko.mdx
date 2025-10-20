@@ -1,0 +1,96 @@
+---
+title: "설치"
+description: "문서 생성기의 설치 가이드 및 요구 사항"
+---
+
+# 설치
+
+이 가이드는 새 문서 생성기의 설치 프로세스 및 시스템 요구 사항을 다룹니다.
+
+## 시스템 요구 사항
+
+시작하기 전에 시스템이 다음 요구 사항을 충족하는지 확인하세요:
+
+- **Node.js**: 18.x 이상
+- **pnpm**: 8.x 이상 (권장) 또는 npm 9.x 이상
+- **운영 체제**: Windows, macOS 또는 Linux
+
+## 설치 방법
+
+### 옵션 1: 모노레포 워크스페이스 (권장)
+
+libx-dev 모노레포 내에서 작업하는 경우:
+
+```bash
+# 저장소 복제
+git clone https://github.com/your-org/libx-dev.git
+cd libx-dev
+
+# 의존성 설치
+pnpm install
+
+# runtime 패키지로 이동
+cd packages/runtime
+
+# 개발 서버 시작
+pnpm dev
+```
+
+### 옵션 2: 독립 실행형 프로젝트
+
+독립 실행형 프로젝트용 (npm 패키지가 게시된 경우):
+
+```bash
+# 새 Astro 프로젝트 생성
+pnpm create astro@latest my-docs
+
+# 공유 패키지 설치
+pnpm add @docs/generator @docs/ui @docs/theme @docs/i18n @docs/versioning
+
+# Astro 의존성 설치
+pnpm add astro @astrojs/mdx
+```
+
+## 검증
+
+설치 확인:
+
+```bash
+# Node.js 버전 확인
+node --version
+# 예상: v18.x.x 이상
+
+# pnpm 버전 확인
+pnpm --version
+# 예상: 8.x.x 이상
+
+# 프로젝트 빌드
+pnpm build
+# 예상: 빌드가 성공적으로 완료
+
+# 개발 서버 시작
+pnpm dev
+# 예상: http://localhost:4321에서 서버 실행
+```
+
+## 문제 해결
+
+### 일반적인 문제
+
+#### 문제: "Cannot find module '@docs/generator'"
+
+**해결책**: 워크스페이스 의존성이 연결되어 있는지 확인:
+
+```bash
+pnpm install --shamefully-hoist
+```
+
+## 다음 단계
+
+- [구성](configuration) - 구성 옵션에 대해 알아보기
+- [컴포넌트](../api/components) - 사용 가능한 UI 컴포넌트 탐색
+- [기본 사용법](../examples/basic-usage) - 사용 예제 보기
+
+---
+
+설치 완료! 빌드를 시작할 준비가 되셨나요? 🎉

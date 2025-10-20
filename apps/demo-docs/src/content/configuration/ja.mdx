@@ -1,0 +1,198 @@
+---
+title: "設定"
+description: "ドキュメントジェネレーターの設定オプションとカスタマイズ"
+---
+
+# 設定
+
+ドキュメントサイトの設定とカスタマイズ方法を学びます。
+
+## レジストリ設定
+
+レジストリファイル（`registry/docs.json`）は、ドキュメントの中央設定ファイルです。
+
+### プロジェクト設定
+
+```json
+{
+  "projects": [
+    {
+      "id": "my-docs",
+      "displayName": {
+        "en": "My Documentation",
+        "ja": "私のドキュメント"
+      },
+      "description": {
+        "en": "Official documentation",
+        "ja": "公式ドキュメント"
+      },
+      "languages": [...],
+      "versions": [...],
+      "categories": [...],
+      "documents": [...]
+    }
+  ]
+}
+```
+
+### 言語設定
+
+サポートする言語を定義:
+
+```json
+{
+  "languages": [
+    {
+      "code": "ja",
+      "displayName": "日本語",
+      "status": "active",
+      "default": true
+    },
+    {
+      "code": "en",
+      "displayName": "English",
+      "status": "active",
+      "fallback": "ja"
+    }
+  ]
+}
+```
+
+**サポートされている言語**: en, ja, ko, zh-Hans, zh-Hant, es, pt-BR, de, fr, ru, ar, id, tr, hi, vi
+
+### バージョン設定
+
+ドキュメントのバージョンを定義:
+
+```json
+{
+  "versions": [
+    {
+      "id": "v2",
+      "name": "バージョン 2.0",
+      "isLatest": true,
+      "status": "stable",
+      "date": "2025-10-20T00:00:00.000Z"
+    },
+    {
+      "id": "v1",
+      "name": "バージョン 1.0",
+      "isLatest": false,
+      "status": "deprecated",
+      "date": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+**バージョンステータスオプション**: `stable`, `beta`, `deprecated`
+
+## テーマ設定
+
+CSS変数を使用して外観をカスタマイズします。
+
+### カラーパレット
+
+```css
+:root {
+  /* プライマリカラー */
+  --color-primary-50: #f0f9ff;
+  --color-primary-500: #3b82f6;
+  --color-primary-900: #1e3a8a;
+
+  /* アクセントカラー */
+  --color-accent-500: #8b5cf6;
+
+  /* テキストカラー */
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+
+  /* 背景カラー */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+}
+```
+
+### タイポグラフィ
+
+```css
+:root {
+  /* フォントファミリー */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'Fira Code', monospace;
+
+  /* フォントサイズ */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+}
+```
+
+## ビルド設定
+
+`astro.config.mjs`でビルドプロセスを設定します。
+
+### 基本設定
+
+```javascript
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  // サイトURL（サイトマップ生成用）
+  site: 'https://docs.example.com',
+
+  // ベースパス
+  base: '/',
+
+  // インテグレーション
+  integrations: [mdx()],
+
+  // ビルド出力ディレクトリ
+  outDir: './dist'
+});
+```
+
+## 検索設定
+
+Pagefind検索インデックスを設定します。
+
+### 基本セットアップ
+
+```json
+{
+  "scripts": {
+    "postbuild": "pagefind --site dist --glob \"**/*.html\""
+  }
+}
+```
+
+## デプロイ設定
+
+### Cloudflare Pages
+
+`wrangler.toml`を作成:
+
+```toml
+name = "my-docs"
+compatibility_date = "2025-01-01"
+
+[build]
+command = "pnpm build"
+build_output_directory = "dist"
+
+[env.production]
+route = "docs.example.com"
+```
+
+## 次のステップ
+
+- [コンポーネント](../api/components) - UIコンポーネントを探索
+- [ユーティリティ](../api/utilities) - ユーティリティ関数について学ぶ
+- [基本的な使用方法](../examples/basic-usage) - 実践例を見る
+
+---
+
+ドキュメントサイトが完全に設定されました！🎨

@@ -1,0 +1,285 @@
+---
+title: "Utilities"
+description: "Utility functions and helpers"
+---
+
+# Utility Functions
+
+The shared packages provide various utility functions for common tasks.
+
+## Generator Utilities
+
+From `@docs/generator`:
+
+### loadRegistry
+
+Load and parse the registry file.
+
+```typescript
+import { loadRegistry } from '@docs/generator';
+
+const registry = loadRegistry('registry/docs.json');
+```
+
+**Returns:** `Registry` object
+
+### generateRoutes
+
+Generate static routes from registry.
+
+```typescript
+import { generateRoutes } from '@docs/generator';
+
+export async function getStaticPaths() {
+  const registry = loadRegistry('registry/docs.json');
+  return generateRoutes(registry, { env: 'production' });
+}
+```
+
+**Parameters:**
+- `registry`: Registry object
+- `options`: Generation options
+  - `env`: `'development' | 'production'`
+  - `includeHidden`: boolean
+
+**Returns:** Array of route objects
+
+### generateSidebar
+
+Generate sidebar navigation structure.
+
+```typescript
+import { generateSidebar } from '@docs/generator';
+
+const sidebar = generateSidebar(registry, 'demo-docs', 'v1', 'en');
+```
+
+**Parameters:**
+- `registry`: Registry object
+- `projectId`: Project identifier
+- `versionId`: Version identifier
+- `lang`: Language code
+
+**Returns:** `SidebarItem[]`
+
+### generateSitemap
+
+Generate sitemap.xml content.
+
+```typescript
+import { generateSitemap } from '@docs/generator';
+
+const sitemap = generateSitemap(registry, 'https://docs.example.com');
+```
+
+**Returns:** XML string
+
+## i18n Utilities
+
+From `@docs/i18n`:
+
+### getLanguage
+
+Detect language from URL path.
+
+```typescript
+import { getLanguage } from '@docs/i18n';
+
+const lang = getLanguage('/demo-docs/v1/ja/guide/getting-started');
+// Returns: 'ja'
+```
+
+### translate
+
+Get translation for a key.
+
+```typescript
+import { translate } from '@docs/i18n';
+
+const text = translate('common.search', 'ja');
+// Returns: '検索'
+```
+
+**Parameters:**
+- `key`: Translation key
+- `lang`: Language code
+- `fallback`: Fallback text (optional)
+
+### getSupportedLanguages
+
+Get list of supported languages.
+
+```typescript
+import { getSupportedLanguages } from '@docs/i18n';
+
+const languages = getSupportedLanguages();
+// Returns: ['en', 'ja', 'ko', 'zh-Hans', ...]
+```
+
+### formatLanguageName
+
+Format language code to display name.
+
+```typescript
+import { formatLanguageName } from '@docs/i18n';
+
+const name = formatLanguageName('ja', 'en');
+// Returns: 'Japanese'
+
+const nativeName = formatLanguageName('ja', 'ja');
+// Returns: '日本語'
+```
+
+### convertPath
+
+Convert URL path to another language.
+
+```typescript
+import { convertPath } from '@docs/i18n';
+
+const newPath = convertPath(
+  '/demo-docs/v1/en/guide/getting-started',
+  'ja'
+);
+// Returns: '/demo-docs/v1/ja/guide/getting-started'
+```
+
+## Theme Utilities
+
+From `@docs/theme`:
+
+### getColorValue
+
+Get CSS color variable value.
+
+```typescript
+import { getColorValue } from '@docs/theme';
+
+const primary = getColorValue('primary', 500);
+// Returns: '#3b82f6'
+```
+
+### getSpacingValue
+
+Get spacing value.
+
+```typescript
+import { getSpacingValue } from '@docs/theme';
+
+const spacing = getSpacingValue(4);
+// Returns: '1rem'
+```
+
+### getFontSize
+
+Get font size value.
+
+```typescript
+import { getFontSize } from '@docs/theme';
+
+const size = getFontSize('lg');
+// Returns: '1.125rem'
+```
+
+## Versioning Utilities
+
+From `@docs/versioning`:
+
+### compareVersions
+
+Compare two version strings.
+
+```typescript
+import { compareVersions } from '@docs/versioning';
+
+const result = compareVersions('v2.0', 'v1.5');
+// Returns: 1 (v2.0 is newer)
+```
+
+**Returns:**
+- `1`: First version is newer
+- `0`: Versions are equal
+- `-1`: Second version is newer
+
+### sortVersions
+
+Sort array of versions.
+
+```typescript
+import { sortVersions } from '@docs/versioning';
+
+const versions = ['v1.0', 'v2.1', 'v1.5'];
+const sorted = sortVersions(versions);
+// Returns: ['v2.1', 'v1.5', 'v1.0']
+```
+
+### getVersionDiff
+
+Get differences between versions.
+
+```typescript
+import { getVersionDiff } from '@docs/versioning';
+
+const diff = getVersionDiff(registry, 'v1', 'v2');
+// Returns: { added: [...], removed: [...], modified: [...] }
+```
+
+## Type Definitions
+
+All utilities are fully typed with TypeScript:
+
+```typescript
+// Registry types
+interface Registry {
+  projects: Project[];
+  glossaryTerms?: GlossaryTerm[];
+  metadata?: Metadata;
+}
+
+// Sidebar types
+interface SidebarItem {
+  title: string;
+  href?: string;
+  children?: SidebarItem[];
+  collapsed?: boolean;
+}
+
+// Route types
+interface RouteParams {
+  project: string;
+  version: string;
+  lang: string;
+  slug: string;
+}
+```
+
+## Error Handling
+
+Utilities include built-in error handling:
+
+```typescript
+try {
+  const registry = loadRegistry('registry/docs.json');
+} catch (error) {
+  if (error instanceof RegistryNotFoundError) {
+    console.error('Registry file not found');
+  } else if (error instanceof RegistryValidationError) {
+    console.error('Invalid registry format:', error.details);
+  }
+}
+```
+
+## Best Practices
+
+1. **Type Safety**: Use TypeScript for full type checking
+2. **Error Handling**: Always wrap utility calls in try-catch
+3. **Caching**: Cache registry loading results
+4. **Validation**: Validate registry with JSON schema
+
+## Examples
+
+See [Basic Usage](../examples/basic-usage) for complete examples.
+
+---
+
+Utility functions make common tasks simple and type-safe! 🛠️

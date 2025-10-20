@@ -1,0 +1,132 @@
+---
+title: "インストール"
+description: "ドキュメントジェネレーターのインストールガイドと要件"
+---
+
+# インストール
+
+このガイドでは、新しいドキュメントジェネレーターのインストール手順とシステム要件について説明します。
+
+## システム要件
+
+開始する前に、システムが以下の要件を満たしていることを確認してください:
+
+- **Node.js**: 18.x以上
+- **pnpm**: 8.x以上（推奨）またはnpm 9.x以上
+- **オペレーティングシステム**: Windows、macOS、またはLinux
+
+## インストール方法
+
+### オプション1: モノレポワークスペース（推奨）
+
+libx-devモノレポ内で作業する場合:
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/your-org/libx-dev.git
+cd libx-dev
+
+# 依存関係をインストール
+pnpm install
+
+# runtimeパッケージに移動
+cd packages/runtime
+
+# 開発サーバーを起動
+pnpm dev
+```
+
+### オプション2: スタンドアロンプロジェクト
+
+スタンドアロンプロジェクト用（npmパッケージが公開されたとき）:
+
+```bash
+# 新しいAstroプロジェクトを作成
+pnpm create astro@latest my-docs
+
+# 共有パッケージをインストール
+pnpm add @docs/generator @docs/ui @docs/theme @docs/i18n @docs/versioning
+
+# Astro依存関係をインストール
+pnpm add astro @astrojs/mdx
+```
+
+## パッケージインストール
+
+### コアパッケージ
+
+```bash
+# Generator - レジストリ読み込みとルート生成
+pnpm add @docs/generator
+
+# UI Components - 30以上のAstroコンポーネント
+pnpm add @docs/ui
+
+# Theme System - デザイントークンとCSS
+pnpm add @docs/theme
+
+# Internationalization - i18nユーティリティ
+pnpm add @docs/i18n
+
+# Versioning - バージョンセレクターコンポーネント
+pnpm add @docs/versioning
+```
+
+## 検証
+
+インストールを確認:
+
+```bash
+# Node.jsバージョンを確認
+node --version
+# 期待値: v18.x.x以上
+
+# pnpmバージョンを確認
+pnpm --version
+# 期待値: 8.x.x以上
+
+# プロジェクトをビルド
+pnpm build
+# 期待値: ビルドが正常に完了
+
+# 開発サーバーを起動
+pnpm dev
+# 期待値: http://localhost:4321でサーバーが起動
+```
+
+## トラブルシューティング
+
+### よくある問題
+
+#### 問題: "Cannot find module '@docs/generator'"
+
+**解決策**: ワークスペース依存関係がリンクされていることを確認:
+
+```bash
+pnpm install --shamefully-hoist
+```
+
+#### 問題: "AstroビルドがESMエラーで失敗"
+
+**解決策**: `vite.ssr.noExternal`にパッケージを追加:
+
+```javascript
+// astro.config.mjs
+export default defineConfig({
+  vite: {
+    ssr: {
+      noExternal: ['@docs/generator', '@docs/ui', '@docs/theme']
+    }
+  }
+});
+```
+
+## 次のステップ
+
+- [設定](configuration) - 設定オプションについて学ぶ
+- [コンポーネント](../api/components) - 利用可能なUIコンポーネントを探索
+- [基本的な使用方法](../examples/basic-usage) - 使用例を見る
+
+---
+
+インストール完了！ビルドを始める準備はできましたか？🎉

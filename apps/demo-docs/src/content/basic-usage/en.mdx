@@ -1,0 +1,462 @@
+---
+title: "Basic Usage"
+description: "Basic usage examples for the documentation generator"
+---
+
+# Basic Usage Examples
+
+Learn how to use the documentation generator with practical examples.
+
+## Complete Page Example
+
+Here's a complete example of a documentation page using all shared packages:
+
+```astro
+---
+// src/pages/[project]/[version]/[lang]/[...slug].astro
+
+import { loadRegistry, generateRoutes, generateSidebar } from '@docs/generator';
+import {
+  Navigation,
+  Sidebar,
+  TableOfContents,
+  Pagination,
+  Alert,
+  Card,
+  CardGrid,
+  LinkCard
+} from '@docs/ui/components';
+import { VersionSelector } from '@docs/versioning/components';
+import { getLanguage, translate } from '@docs/i18n';
+import '@docs/theme/css/variables.css';
+import '@docs/theme/css/base.css';
+
+// Generate static paths
+export async function getStaticPaths() {
+  const registry = loadRegistry('registry/docs.json');
+  return generateRoutes(registry, { env: 'production' });
+}
+
+// Get page props
+const { docId, title, summary } = Astro.props;
+const { project, version, lang, slug } = Astro.params;
+
+// Load registry and generate sidebar
+const registry = loadRegistry('registry/docs.json');
+const sidebar = generateSidebar(registry, project, version, lang);
+const currentLang = getLanguage(Astro.url.pathname);
+
+// Get versions for selector
+const projectData = registry.projects.find(p => p.id === project);
+const versions = projectData?.versions || [];
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8">
+  <title>{title} - {translate('site.title', currentLang)}</title>
+  <meta name="description" content={summary} />
+</head>
+<body>
+  <!-- Navigation -->
+  <Navigation projectId={project} version={version} lang={lang} />
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <VersionSelector
+        versions={versions}
+        currentVersion={version}
+        currentPath={Astro.url.pathname}
+      />
+      <Sidebar items={sidebar} currentPath={Astro.url.pathname} />
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <Alert type="info">
+        {translate('demo.welcome', currentLang)}
+      </Alert>
+
+      <h1>{title}</h1>
+
+      <CardGrid columns={2}>
+        <LinkCard
+          title={translate('demo.guide', currentLang)}
+          href={`/${project}/${version}/${lang}/guide/getting-started`}
+          description={translate('demo.guide.description', currentLang)}
+        />
+        <LinkCard
+          title={translate('demo.api', currentLang)}
+          href={`/${project}/${version}/${lang}/api/components`}
+          description={translate('demo.api.description', currentLang)}
+        />
+      </CardGrid>
+
+      <slot />
+    </main>
+
+    <!-- Table of Contents -->
+    <aside class="toc">
+      <TableOfContents headings={[]} />
+    </aside>
+  </div>
+</body>
+</html>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 250px 1fr 200px;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar,
+    .toc {
+      display: none;
+    }
+  }
+</style>
+```
+
+## Registry Usage
+
+### Loading a Registry
+
+```typescript
+import { loadRegistry } from '@docs/generator';
+
+// Load from file
+const registry = loadRegistry('registry/docs.json');
+
+// Access projects
+const project = registry.projects.find(p => p.id === 'demo-docs');
+console.log(project.displayName.en); // "Demo Documentation"
+```
+
+### Generating Routes
+
+```typescript
+import { generateRoutes } from '@docs/generator';
+
+// In Astro getStaticPaths
+export async function getStaticPaths() {
+  const registry = loadRegistry('registry/docs.json');
+
+  return generateRoutes(registry, {
+    env: 'production',
+    includeHidden: false
+  });
+}
+```
+
+## UI Components Usage
+
+### Alert Component
+
+```astro
+---
+import { Alert } from '@docs/ui/components';
+---
+
+<Alert type="info" title="Information">
+  This is an informational message.
+</Alert>
+
+<Alert type="warning">
+  This is a warning without a title.
+</Alert>
+
+<Alert type="error" title="Error">
+  Something went wrong!
+</Alert>
+
+<Alert type="success">
+  Operation completed successfully!
+</Alert>
+```
+
+### Card Components
+
+```astro
+---
+import { Card, CardGrid, LinkCard } from '@docs/ui/components';
+---
+
+<!-- Simple cards -->
+<CardGrid columns={3}>
+  <Card title="Feature 1">
+    Description of feature 1
+  </Card>
+  <Card title="Feature 2">
+    Description of feature 2
+  </Card>
+  <Card title="Feature 3">
+    Description of feature 3
+  </Card>
+</CardGrid>
+
+<!-- Link cards -->
+<CardGrid columns={2}>
+  <LinkCard
+    title="Getting Started"
+    href="/guide/getting-started"
+    description="Quick start guide"
+  />
+  <LinkCard
+    title="API Reference"
+    href="/api/components"
+    description="Component documentation"
+  />
+</CardGrid>
+```
+
+### Code Blocks
+
+```astro
+---
+import { Code } from '@docs/ui/components';
+---
+
+<Code lang="javascript" title="example.js" showLineNumbers={true}>
+{`function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+console.log(greet('World'));`}
+</Code>
+```
+
+## i18n Usage
+
+### Language Detection
+
+```typescript
+import { getLanguage } from '@docs/i18n';
+
+// From URL path
+const lang = getLanguage(Astro.url.pathname);
+
+// From Astro params
+const lang = Astro.params.lang || 'en';
+```
+
+### Translation
+
+```typescript
+import { translate } from '@docs/i18n';
+
+// Get translation
+const searchText = translate('common.search', 'ja');
+// Returns: '検索'
+
+// With fallback
+const text = translate('custom.key', 'ja', 'Fallback text');
+```
+
+### Language Switching
+
+```astro
+---
+import { convertPath, getSupportedLanguages } from '@docs/i18n';
+
+const languages = getSupportedLanguages();
+const currentPath = Astro.url.pathname;
+---
+
+<nav>
+  {languages.map(lang => (
+    <a href={convertPath(currentPath, lang)}>
+      {lang.toUpperCase()}
+    </a>
+  ))}
+</nav>
+```
+
+## Theme Usage
+
+### Using CSS Variables
+
+```astro
+---
+import '@docs/theme/css/variables.css';
+import '@docs/theme/css/base.css';
+---
+
+<div class="custom-component">
+  <h2>Styled with theme variables</h2>
+</div>
+
+<style>
+  .custom-component {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    font-family: var(--font-family-sans);
+  }
+
+  .custom-component h2 {
+    color: var(--color-primary-500);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+  }
+</style>
+```
+
+### Dark Mode
+
+```css
+/* Automatic dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #1f2937;
+    --color-text-primary: #f9fafb;
+  }
+}
+```
+
+## Search Integration
+
+### Basic Search Page
+
+```astro
+---
+import { Search } from '@docs/ui/components';
+---
+
+<div class="search-page">
+  <h1>Search Documentation</h1>
+
+  <Search
+    placeholder="Search documentation..."
+    showFilters={true}
+    resultsPerPage={10}
+  />
+</div>
+```
+
+## Version Selector
+
+### Using Version Selector
+
+```astro
+---
+import { VersionSelector } from '@docs/versioning/components';
+
+const versions = [
+  { id: 'v2', name: 'Version 2.0', isLatest: true },
+  { id: 'v1', name: 'Version 1.0', isLatest: false }
+];
+---
+
+<VersionSelector
+  versions={versions}
+  currentVersion="v2"
+  currentPath={Astro.url.pathname}
+/>
+```
+
+## Best Practices
+
+### 1. Type Safety
+
+```typescript
+import type { Registry, SidebarItem } from '@docs/generator';
+
+const registry: Registry = loadRegistry('registry/docs.json');
+const sidebar: SidebarItem[] = generateSidebar(registry, 'demo-docs', 'v1', 'en');
+```
+
+### 2. Error Handling
+
+```typescript
+try {
+  const registry = loadRegistry('registry/docs.json');
+} catch (error) {
+  console.error('Failed to load registry:', error);
+  // Handle error appropriately
+}
+```
+
+### 3. Performance
+
+```astro
+---
+// Cache registry loading
+const registry = await loadRegistry('registry/docs.json');
+
+// Use static generation
+export const prerender = true;
+---
+```
+
+## Common Patterns
+
+### Multi-language Navigation
+
+```astro
+---
+import { getLanguage, getSupportedLanguages } from '@docs/i18n';
+
+const currentLang = getLanguage(Astro.url.pathname);
+const languages = getSupportedLanguages();
+---
+
+<div class="language-selector">
+  {languages.map(lang => (
+    <a
+      href={convertPath(Astro.url.pathname, lang)}
+      class={lang === currentLang ? 'active' : ''}
+    >
+      {formatLanguageName(lang, lang)}
+    </a>
+  ))}
+</div>
+```
+
+### Breadcrumb Navigation
+
+```astro
+---
+import { generateBreadcrumbs } from '@docs/generator';
+
+const breadcrumbs = generateBreadcrumbs(
+  Astro.url.pathname,
+  registry,
+  lang
+);
+---
+
+<nav aria-label="Breadcrumb">
+  <ol>
+    {breadcrumbs.map((item, index) => (
+      <li>
+        {index < breadcrumbs.length - 1 ? (
+          <a href={item.href}>{item.title}</a>
+        ) : (
+          <span aria-current="page">{item.title}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+```
+
+## Next Steps
+
+- [Components API](../api/components) - Detailed component documentation
+- [Utilities API](../api/utilities) - Utility functions reference
+- [Configuration](../guide/configuration) - Advanced configuration
+
+---
+
+These examples should get you started quickly! 🚀

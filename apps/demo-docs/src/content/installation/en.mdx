@@ -1,0 +1,238 @@
+---
+title: "Installation"
+description: "Installation guide and requirements for the documentation generator"
+---
+
+# Installation
+
+This guide covers the installation process and system requirements for the new documentation generator.
+
+## System Requirements
+
+Before you begin, ensure your system meets these requirements:
+
+- **Node.js**: 18.x or higher
+- **pnpm**: 8.x or higher (recommended) or npm 9.x+
+- **Operating System**: Windows, macOS, or Linux
+
+## Installation Methods
+
+### Option 1: Monorepo Workspace (Recommended)
+
+If you're working within the libx-dev monorepo:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/libx-dev.git
+cd libx-dev
+
+# Install dependencies
+pnpm install
+
+# Navigate to the runtime package
+cd packages/runtime
+
+# Start development server
+pnpm dev
+```
+
+### Option 2: Standalone Project
+
+For standalone projects (when npm packages are published):
+
+```bash
+# Create a new Astro project
+pnpm create astro@latest my-docs
+
+# Install shared packages
+pnpm add @docs/generator @docs/ui @docs/theme @docs/i18n @docs/versioning
+
+# Install Astro dependencies
+pnpm add astro @astrojs/mdx
+```
+
+## Package Installation
+
+### Core Packages
+
+```bash
+# Generator - Registry loading and route generation
+pnpm add @docs/generator
+
+# UI Components - 30+ Astro components
+pnpm add @docs/ui
+
+# Theme System - Design tokens and CSS
+pnpm add @docs/theme
+
+# Internationalization - i18n utilities
+pnpm add @docs/i18n
+
+# Versioning - Version selector components
+pnpm add @docs/versioning
+```
+
+### Development Dependencies
+
+```bash
+# TypeScript
+pnpm add -D typescript @types/node
+
+# Build tools
+pnpm add -D tsup
+
+# Search (runtime dependency)
+pnpm add pagefind
+
+# Image optimization
+pnpm add sharp
+```
+
+## Configuration
+
+### 1. Create `astro.config.mjs`
+
+```javascript
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  integrations: [mdx()],
+  vite: {
+    ssr: {
+      noExternal: ['@docs/generator', '@docs/ui', '@docs/theme']
+    }
+  }
+});
+```
+
+### 2. Create `tsconfig.json`
+
+```json
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@docs/generator": ["../../packages/generator/src"],
+      "@docs/ui": ["../../packages/ui/src"],
+      "@docs/theme": ["../../packages/theme/src"]
+    }
+  }
+}
+```
+
+### 3. Create Registry File
+
+Create `registry/docs.json`:
+
+```json
+{
+  "$schemaVersion": "1.0.0",
+  "metadata": {
+    "createdAt": "2025-10-20T00:00:00.000Z",
+    "createdBy": "your-name"
+  },
+  "projects": [
+    {
+      "id": "my-docs",
+      "displayName": {
+        "en": "My Documentation"
+      },
+      "languages": [
+        {
+          "code": "en",
+          "displayName": "English",
+          "default": true,
+          "status": "active"
+        }
+      ],
+      "versions": [
+        {
+          "id": "v1",
+          "name": "Version 1.0",
+          "isLatest": true,
+          "status": "stable"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Verification
+
+Verify your installation:
+
+```bash
+# Check Node.js version
+node --version
+# Expected: v18.x.x or higher
+
+# Check pnpm version
+pnpm --version
+# Expected: 8.x.x or higher
+
+# Build the project
+pnpm build
+# Expected: Build completed successfully
+
+# Start development server
+pnpm dev
+# Expected: Server running at http://localhost:4321
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Issue: "Cannot find module '@docs/generator'"
+
+**Solution**: Ensure workspace dependencies are linked:
+
+```bash
+pnpm install --shamefully-hoist
+```
+
+#### Issue: "Astro build fails with ESM errors"
+
+**Solution**: Add packages to `vite.ssr.noExternal`:
+
+```javascript
+// astro.config.mjs
+export default defineConfig({
+  vite: {
+    ssr: {
+      noExternal: ['@docs/generator', '@docs/ui', '@docs/theme']
+    }
+  }
+});
+```
+
+#### Issue: "Pagefind not indexing content"
+
+**Solution**: Run Pagefind after build:
+
+```bash
+pnpm build
+pnpm pagefind --site dist
+```
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check the [Configuration Guide](configuration)
+2. Review the [FAQ](../guide/getting-started)
+3. Search existing GitHub issues
+4. Create a new issue with reproduction steps
+
+## Next Steps
+
+- [Configuration](configuration) - Learn about configuration options
+- [Components](../api/components) - Explore available UI components
+- [Basic Usage](../examples/basic-usage) - See usage examples
+
+---
+
+Installation complete! Ready to start building? 🎉

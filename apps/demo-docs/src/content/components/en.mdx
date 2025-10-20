@@ -1,0 +1,340 @@
+---
+title: "Components"
+description: "UI components API reference"
+---
+
+# UI Components
+
+The `@docs/ui` package provides 30+ reusable Astro components for building documentation sites.
+
+## Navigation Components
+
+### Navigation
+
+Main navigation bar component.
+
+```astro
+---
+import { Navigation } from '@docs/ui/components';
+---
+
+<Navigation
+  projectId="demo-docs"
+  version="v1"
+  lang="en"
+/>
+```
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `projectId` | `string` | Yes | Project identifier |
+| `version` | `string` | Yes | Current version |
+| `lang` | `string` | Yes | Current language |
+
+### Sidebar
+
+Collapsible sidebar navigation.
+
+```astro
+---
+import { Sidebar } from '@docs/ui/components';
+import { generateSidebar } from '@docs/generator';
+
+const sidebar = generateSidebar(registry, 'demo-docs', 'v1', 'en');
+---
+
+<Sidebar
+  items={sidebar}
+  currentPath={Astro.url.pathname}
+/>
+```
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `items` | `SidebarItem[]` | Yes | Sidebar navigation items |
+| `currentPath` | `string` | Yes | Current page path for highlighting |
+
+### TableOfContents
+
+Table of contents for current page.
+
+```astro
+---
+import { TableOfContents } from '@docs/ui/components';
+---
+
+<TableOfContents headings={headings} />
+```
+
+## Layout Components
+
+### Card
+
+Styled card container.
+
+```astro
+---
+import { Card } from '@docs/ui/components';
+---
+
+<Card title="Feature" variant="elevated">
+  Card content goes here.
+</Card>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | - | Card title |
+| `variant` | `'flat' \| 'elevated'` | `'flat'` | Card style |
+| `padding` | `string` | `'1rem'` | Card padding |
+
+### CardGrid
+
+Grid layout for cards.
+
+```astro
+---
+import { CardGrid, Card } from '@docs/ui/components';
+---
+
+<CardGrid columns={3}>
+  <Card title="Card 1">Content 1</Card>
+  <Card title="Card 2">Content 2</Card>
+  <Card title="Card 3">Content 3</Card>
+</CardGrid>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `columns` | `number` | `2` | Number of columns |
+| `gap` | `string` | `'1rem'` | Gap between cards |
+
+### LinkCard
+
+Card with link functionality.
+
+```astro
+---
+import { LinkCard } from '@docs/ui/components';
+---
+
+<LinkCard
+  title="Getting Started"
+  href="/guide/getting-started"
+  description="Quick start guide"
+/>
+```
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `title` | `string` | Yes | Card title |
+| `href` | `string` | Yes | Link URL |
+| `description` | `string` | No | Card description |
+
+## Content Components
+
+### Alert
+
+Styled alert/notification box.
+
+```astro
+---
+import { Alert } from '@docs/ui/components';
+---
+
+<Alert type="info">
+  This is an informational message.
+</Alert>
+
+<Alert type="warning">
+  This is a warning message.
+</Alert>
+
+<Alert type="error">
+  This is an error message.
+</Alert>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `type` | `'info' \| 'warning' \| 'error' \| 'success'` | `'info'` | Alert type |
+| `title` | `string` | - | Alert title |
+
+### Code
+
+Code block with syntax highlighting.
+
+```astro
+---
+import { Code } from '@docs/ui/components';
+---
+
+<Code lang="javascript" title="example.js">
+{`function hello() {
+  console.log('Hello, world!');
+}`}
+</Code>
+```
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `lang` | `string` | Yes | Programming language |
+| `title` | `string` | No | Code block title |
+| `showLineNumbers` | `boolean` | `false` | Show line numbers |
+
+### Tabs
+
+Tabbed content container.
+
+```astro
+---
+import { Tabs, Tab } from '@docs/ui/components';
+---
+
+<Tabs>
+  <Tab title="JavaScript">
+    JavaScript content
+  </Tab>
+  <Tab title="TypeScript">
+    TypeScript content
+  </Tab>
+</Tabs>
+```
+
+## Utility Components
+
+### Button
+
+Styled button component.
+
+```astro
+---
+import { Button } from '@docs/ui/components';
+---
+
+<Button variant="primary" size="medium">
+  Click Me
+</Button>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `'primary' \| 'secondary' \| 'ghost'` | `'primary'` | Button style |
+| `size` | `'small' \| 'medium' \| 'large'` | `'medium'` | Button size |
+| `disabled` | `boolean` | `false` | Disable button |
+
+### Badge
+
+Small status badge.
+
+```astro
+---
+import { Badge } from '@docs/ui/components';
+---
+
+<Badge variant="success">New</Badge>
+<Badge variant="warning">Beta</Badge>
+<Badge variant="error">Deprecated</Badge>
+```
+
+### Icon
+
+Icon component using icon registry.
+
+```astro
+---
+import { Icon } from '@docs/ui/components';
+---
+
+<Icon name="search" size={24} />
+<Icon name="menu" size={32} color="#3b82f6" />
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | - | Icon name from registry |
+| `size` | `number` | `24` | Icon size in pixels |
+| `color` | `string` | `'currentColor'` | Icon color |
+
+## Search Components
+
+### Search
+
+Full-featured search component.
+
+```astro
+---
+import { Search } from '@docs/ui/components';
+---
+
+<Search
+  placeholder="Search documentation..."
+  showFilters={true}
+/>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `placeholder` | `string` | `'Search...'` | Input placeholder |
+| `showFilters` | `boolean` | `false` | Show filter options |
+| `resultsPerPage` | `number` | `10` | Results per page |
+
+## Pagination
+
+### Pagination
+
+Page navigation controls.
+
+```astro
+---
+import { Pagination } from '@docs/ui/components';
+---
+
+<Pagination
+  currentPage={1}
+  totalPages={10}
+  baseUrl="/search"
+/>
+```
+
+## Accessibility
+
+All components are built with accessibility in mind:
+
+- ✅ Semantic HTML
+- ✅ ARIA attributes
+- ✅ Keyboard navigation support
+- ✅ Focus indicators
+- ✅ Screen reader compatible
+
+## Customization
+
+Components can be customized using CSS variables from `@docs/theme`.
+
+## Examples
+
+See [Basic Usage](../examples/basic-usage) for complete examples.
+
+---
+
+Explore all 30+ components in the [source code](https://github.com/your-org/libx-dev/tree/main/packages/ui)! 📦

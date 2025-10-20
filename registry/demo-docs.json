@@ -1,0 +1,241 @@
+{
+  "$schemaVersion": "1.0.0",
+  "metadata": {
+    "createdAt": "2025-10-20T00:00:00.000Z",
+    "createdBy": "phase-2-6-demo-project"
+  },
+  "projects": [
+    {
+      "id": "demo-docs",
+      "displayName": {
+        "en": "Demo Documentation",
+        "ja": "デモドキュメント",
+        "ko": "데모 문서"
+      },
+      "description": {
+        "en": "Demonstration of the new documentation generator with shared packages",
+        "ja": "共有パッケージを活用した新ドキュメントジェネレーターのデモ",
+        "ko": "공유 패키지를 활용한 새 문서 생성기 데모"
+      },
+      "languages": [
+        {
+          "code": "en",
+          "displayName": "English",
+          "status": "active",
+          "default": true
+        },
+        {
+          "code": "ja",
+          "displayName": "日本語",
+          "status": "active",
+          "fallback": "en"
+        },
+        {
+          "code": "ko",
+          "displayName": "한국어",
+          "status": "active",
+          "fallback": "en"
+        }
+      ],
+      "versions": [
+        {
+          "id": "v1",
+          "name": "Version 1.0",
+          "isLatest": true,
+          "status": "stable",
+          "date": "2025-10-20T00:00:00.000Z"
+        }
+      ],
+      "categories": [
+        {
+          "id": "guide",
+          "name": {
+            "en": "Guide",
+            "ja": "ガイド",
+            "ko": "가이드"
+          },
+          "order": 1,
+          "description": {
+            "en": "Getting started and user guides",
+            "ja": "はじめに、ユーザーガイド",
+            "ko": "시작하기 및 사용자 가이드"
+          }
+        },
+        {
+          "id": "api",
+          "name": {
+            "en": "API Reference",
+            "ja": "APIリファレンス",
+            "ko": "API 참조"
+          },
+          "order": 2,
+          "description": {
+            "en": "API documentation and reference",
+            "ja": "APIドキュメントとリファレンス",
+            "ko": "API 문서 및 참조"
+          }
+        },
+        {
+          "id": "examples",
+          "name": {
+            "en": "Examples",
+            "ja": "サンプル",
+            "ko": "예제"
+          },
+          "order": 3,
+          "description": {
+            "en": "Code examples and use cases",
+            "ja": "コード例とユースケース",
+            "ko": "코드 예제 및 사용 사례"
+          }
+        }
+      ],
+      "documents": [
+        {
+          "docId": "getting-started",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 1,
+          "slug": "getting-started",
+          "title": {
+            "en": "Getting Started",
+            "ja": "はじめに",
+            "ko": "시작하기"
+          },
+          "description": {
+            "en": "Quick start guide for the new documentation generator",
+            "ja": "新ドキュメントジェネレーターのクイックスタートガイド",
+            "ko": "새 문서 생성기 빠른 시작 가이드"
+          },
+          "visibility": "public"
+        },
+        {
+          "docId": "installation",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 2,
+          "slug": "installation",
+          "title": {
+            "en": "Installation",
+            "ja": "インストール",
+            "ko": "설치"
+          },
+          "description": {
+            "en": "Installation guide and requirements",
+            "ja": "インストールガイドと要件",
+            "ko": "설치 가이드 및 요구 사항"
+          },
+          "visibility": "public"
+        },
+        {
+          "docId": "configuration",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "guide",
+          "order": 3,
+          "slug": "configuration",
+          "title": {
+            "en": "Configuration",
+            "ja": "設定",
+            "ko": "구성"
+          },
+          "description": {
+            "en": "Configuration options and customization",
+            "ja": "設定オプションとカスタマイズ",
+            "ko": "구성 옵션 및 사용자 정의"
+          },
+          "visibility": "public"
+        },
+        {
+          "docId": "components",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "api",
+          "order": 1,
+          "slug": "components",
+          "title": {
+            "en": "Components",
+            "ja": "コンポーネント",
+            "ko": "컴포넌트"
+          },
+          "description": {
+            "en": "UI components API reference",
+            "ja": "UIコンポーネントAPIリファレンス",
+            "ko": "UI 컴포넌트 API 참조"
+          },
+          "visibility": "public"
+        },
+        {
+          "docId": "utilities",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "api",
+          "order": 2,
+          "slug": "utilities",
+          "title": {
+            "en": "Utilities",
+            "ja": "ユーティリティ",
+            "ko": "유틸리티"
+          },
+          "description": {
+            "en": "Utility functions and helpers",
+            "ja": "ユーティリティ関数とヘルパー",
+            "ko": "유틸리티 함수 및 헬퍼"
+          },
+          "visibility": "public"
+        },
+        {
+          "docId": "basic-usage",
+          "projectId": "demo-docs",
+          "versionId": "v1",
+          "categoryId": "examples",
+          "order": 1,
+          "slug": "basic-usage",
+          "title": {
+            "en": "Basic Usage",
+            "ja": "基本的な使用方法",
+            "ko": "기본 사용법"
+          },
+          "description": {
+            "en": "Basic usage examples",
+            "ja": "基本的な使用例",
+            "ko": "기본 사용 예제"
+          },
+          "visibility": "public"
+        }
+      ]
+    }
+  ],
+  "glossaryTerms": [
+    {
+      "termId": "registry",
+      "term": {
+        "en": "Registry",
+        "ja": "レジストリ",
+        "ko": "레지스트리"
+      },
+      "definition": {
+        "en": "A JSON-based data structure that defines the documentation structure, including projects, versions, categories, and documents.",
+        "ja": "プロジェクト、バージョン、カテゴリ、ドキュメントを定義するJSONベースのデータ構造です。",
+        "ko": "프로젝트, 버전, 카테고리, 문서를 정의하는 JSON 기반 데이터 구조입니다."
+      },
+      "relatedDocs": ["getting-started", "configuration"]
+    },
+    {
+      "termId": "shared-packages",
+      "term": {
+        "en": "Shared Packages",
+        "ja": "共有パッケージ",
+        "ko": "공유 패키지"
+      },
+      "definition": {
+        "en": "Reusable packages including @docs/generator, @docs/ui, @docs/theme, @docs/i18n, and @docs/versioning that provide core functionality.",
+        "ja": "@docs/generator、@docs/ui、@docs/theme、@docs/i18n、@docs/versioningを含む、コア機能を提供する再利用可能なパッケージです。",
+        "ko": "핵심 기능을 제공하는 @docs/generator, @docs/ui, @docs/theme, @docs/i18n, @docs/versioning을 포함한 재사용 가능한 패키지입니다."
+      },
+      "relatedDocs": ["installation", "components"]
+    }
+  ]
+}
