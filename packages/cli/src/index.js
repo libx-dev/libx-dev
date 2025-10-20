@@ -330,6 +330,27 @@ export async function run() {
     });
 
   // ========================================
+  // サブコマンドグループ: migrate
+  // ========================================
+  const migrateCommand = program
+    .command('migrate')
+    .description('既存プロジェクトを新レジストリ形式へ移行');
+
+  // migrate from-libx
+  migrateCommand
+    .command('from-libx')
+    .description('libx-devプロジェクトを新レジストリ形式へ変換')
+    .option('--source <path>', '変換元プロジェクトのパス', 'apps/sample-docs')
+    .option('--project-id <id>', 'プロジェクトID（必須）')
+    .option('--target <path>', '変換先レジストリパス', 'registry/docs.json')
+    .option('--top-page <path>', 'トップページのパス', 'apps/top-page')
+    .option('--backup <path>', 'バックアップディレクトリ', '.backups')
+    .action(async (options) => {
+      const { default: migrateFromLibxCommand } = await import('./commands/migrate/from-libx.js');
+      await migrateFromLibxCommand(program.opts(), options);
+    });
+
+  // ========================================
   // コマンドのパース
   // ========================================
   await program.parseAsync(process.argv);
