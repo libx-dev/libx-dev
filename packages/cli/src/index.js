@@ -351,6 +351,43 @@ export async function run() {
     });
 
   // ========================================
+  // サブコマンドグループ: compat
+  // ========================================
+  const compatCommand = program
+    .command('compat')
+    .description('互換性チェックと移行支援');
+
+  // compat check
+  compatCommand
+    .command('check')
+    .description('互換性をチェック')
+    .option('--no-schedule', 'サポート終了スケジュールを表示しない', false)
+    .option('--no-guide', '移行ガイドを表示しない', false)
+    .action(async (options) => {
+      const { compatCheck } = await import('./commands/compat.js');
+      await compatCheck(program.opts(), options);
+    });
+
+  // compat report
+  compatCommand
+    .command('report')
+    .description('移行レポートを生成')
+    .option('--output <path>', '出力先ディレクトリ', 'reports/migration')
+    .action(async (options) => {
+      const { compatReport } = await import('./commands/compat.js');
+      await compatReport(program.opts(), options);
+    });
+
+  // compat migrate-config
+  compatCommand
+    .command('migrate-config')
+    .description('設定ファイルを移行')
+    .action(async (options) => {
+      const { compatMigrateConfig } = await import('./commands/compat.js');
+      await compatMigrateConfig(program.opts(), options);
+    });
+
+  // ========================================
   // コマンドのパース
   // ========================================
   await program.parseAsync(process.argv);
