@@ -33,7 +33,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 
     // 各ルートにサイドバー情報を追加
     const routesWithSidebar = routes.map((route: any) => {
-      const sidebarItems = generateSidebar(
+      const generatedSidebar = generateSidebar(
         registry,
         route.params.project,
         route.params.version,
@@ -41,8 +41,23 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
         {
           baseUrl: '/docs/demo-docs',
           env: 'production',
+          debug: true,
         }
       );
+
+      // generatorのSidebarItem[]をUIコンポーネントの形式に変換
+      // generator形式: { title, slug, items: SidebarDocItem[] }
+      // UI形式: { title, items: { title, href }[] }
+      const sidebarItems = generatedSidebar.map((category) => ({
+        title: category.title,
+        items: category.items.map((doc) => ({
+          title: doc.title,
+          href: doc.href,
+          isCurrent: false, // 後でルーティング情報から判定可能
+        })),
+      }));
+
+      console.log(`[demo-docs] Generated ${sidebarItems.length} sidebar categories for ${route.params.version}/${route.params.lang}`);
 
       return {
         ...route,

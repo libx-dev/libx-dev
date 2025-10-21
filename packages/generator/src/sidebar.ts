@@ -196,7 +196,10 @@ export function generateSidebar(
       // ドキュメント項目を作成
       const title = getLocalizedValue(doc.title, lang);
       const cleanBaseUrl = baseUrl === '/' ? '' : baseUrl;
-      const href = `${cleanBaseUrl}/${projectId}/${version}/${lang}/${doc.slug}`;
+      // baseUrlにprojectIdが含まれている場合は重複を避ける
+      const href = cleanBaseUrl.includes(projectId)
+        ? `${cleanBaseUrl}/${version}/${lang}/${doc.slug}`
+        : `${cleanBaseUrl}/${projectId}/${version}/${lang}/${doc.slug}`;
 
       docItems.push({
         title,
