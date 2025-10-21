@@ -146,7 +146,11 @@ function searchDocuments(registry, query, options = {}) {
             matches.title = searchInMultilingualField(doc.title, query, caseSensitive);
             break;
           case 'summary':
-            matches.summary = searchInText(doc.summary, query, caseSensitive);
+            matches.summary = doc.summary && (
+              typeof doc.summary === 'string'
+                ? searchInText(doc.summary, query, caseSensitive)
+                : searchInMultilingualField(doc.summary, query, caseSensitive)
+            );
             break;
           case 'keywords':
             matches.keywords = doc.keywords && searchInArray(doc.keywords, query, caseSensitive);
@@ -160,7 +164,11 @@ function searchDocuments(registry, query, options = {}) {
         matches.id = searchInText(doc.id, query, caseSensitive);
         matches.slug = searchInText(doc.slug, query, caseSensitive);
         matches.title = searchInMultilingualField(doc.title, query, caseSensitive);
-        matches.summary = searchInText(doc.summary, query, caseSensitive);
+        matches.summary = doc.summary && (
+          typeof doc.summary === 'string'
+            ? searchInText(doc.summary, query, caseSensitive)
+            : searchInMultilingualField(doc.summary, query, caseSensitive)
+        );
         matches.keywords = doc.keywords && searchInArray(doc.keywords, query, caseSensitive);
         matches.tags = doc.tags && searchInArray(doc.tags, query, caseSensitive);
       }
