@@ -1,0 +1,124 @@
+name: 🐛 バグレポート (Bug Report)
+description: バグや問題を報告する
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## バグレポート
+
+        バグを報告いただきありがとうございます。以下のフォームに記入してください。
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      description: どのPhaseに関連しますか？
+      options:
+        - Phase 1 (レジストリ/CLI基盤)
+        - Phase 2 (Astroビルド/UI統合)
+        - Phase 3 (移行準備/CI整備)
+        - Phase 4 (QA/リリース準備)
+        - Phase 5 (継続改善)
+        - その他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度 (Priority)
+      description: バグの重大度を選択してください
+      options:
+        - "🔴 Critical - システムが使用不能"
+        - "🟠 High - 主要機能が動作しない"
+        - "🟡 Medium - 一部機能に影響"
+        - "🟢 Low - 軽微な問題"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: バグ概要
+      description: バグの簡潔な説明を記入してください
+      placeholder: 例：demo-docsの検索機能で日本語キーワードが正しく検索できない
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: バグを再現する手順を詳しく記入してください
+      placeholder: |
+        1. http://localhost:4321/demo-docs/ にアクセス
+        2. 検索ボックスに「インストール」と入力
+        3. 検索結果が表示されない
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待される動作
+      description: 期待される正しい動作を記入してください
+      placeholder: 例：「インストール」に関連するドキュメントが検索結果に表示される
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: 実際に発生した動作を記入してください
+      placeholder: 例：検索結果が0件と表示される
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報
+      description: 実行環境の情報を記入してください
+      value: |
+        - OS:
+        - ブラウザ:
+        - Node.js:
+        - pnpm:
+        - プロジェクト:
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: エラーログ・スクリーンショット
+      description: エラーログやスクリーンショットがあれば添付してください
+      placeholder: |
+        ```
+        エラーログをここに貼り付け
+        ```
+
+        スクリーンショットをドラッグ&ドロップ
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 追加情報
+      description: その他、関連する情報があれば記入してください
+      placeholder: 例：関連するIssue #123、Pull Request #456
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: チェックリスト
+      options:
+        - label: 既存のIssueで同じ問題が報告されていないか確認しました
+          required: true
+        - label: 最新のmainブランチで問題が再現することを確認しました
+          required: true
+        - label: ドキュメントを確認しましたが解決方法が見つかりませんでした
+          required: false
