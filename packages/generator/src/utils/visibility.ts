@@ -25,6 +25,14 @@ export function shouldBuildPage(
   visibility: string,
   env?: string
 ): VisibilityCheckResult {
+  // visibilityがundefinedの場合はデフォルトで'public'として扱う
+  if (!visibility) {
+    return {
+      shouldBuild: true,
+      reason: 'visibility not specified, defaulting to public',
+    };
+  }
+
   const normalizedEnv = (env || process.env.NODE_ENV || 'development').toLowerCase();
   const normalizedVisibility = visibility.toLowerCase();
 

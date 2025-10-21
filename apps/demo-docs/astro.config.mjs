@@ -34,11 +34,13 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
+        '@docs/generator': path.resolve(__dirname, '../../packages/generator/src'),
         '@docs/ui': path.resolve(__dirname, '../../packages/ui/src'),
         '@docs/versioning': path.resolve(__dirname, '../../packages/versioning/src'),
         '@docs/search': path.resolve(__dirname, '../../packages/search/src'),
         '@docs/theme': path.resolve(__dirname, '../../packages/theme/src'),
         '@docs/i18n': path.resolve(__dirname, '../../packages/i18n/src'),
+        '@docs/runtime': path.resolve(__dirname, '../../packages/runtime/src'),
       },
     },
     build: {
@@ -53,13 +55,5 @@ export default defineConfig({
         }
       }
     },
-  },
-  // 多言語対応の設定
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'ja', 'ko'],
-    routing: {
-      prefixDefaultLocale: true
-    }
   },
 });

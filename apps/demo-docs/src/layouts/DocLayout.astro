@@ -1,0 +1,117 @@
+---
+/**
+ * demo-docs ドキュメントレイアウト
+ * 共有UIコンポーネントとテーマを使用
+ */
+import { Navigation, Sidebar, Footer } from '@docs/ui/components';
+import '@docs/theme/css/variables.css';
+import '@docs/theme/css/base.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: string;
+  version: string;
+  docId: string;
+  projectId: string;
+  sidebarItems?: any[];
+}
+
+const { title, description, lang, version, docId, projectId, sidebarItems = [] } = Astro.props;
+const baseUrl = '/docs/demo-docs';
+
+// メタデータ
+const pageTitle = `${title} | Demo Documentation`;
+const pageDescription = description || 'Demo documentation site using the new generator';
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={pageDescription} />
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={pageDescription} />
+  <meta property="og:type" content="article" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <div class="layout">
+    <!-- ナビゲーション -->
+    <Navigation
+      items={[]}
+      siteTitle="Demo Documentation"
+    />
+
+    <div class="main-container">
+      <!-- サイドバー -->
+      <aside class="sidebar-container">
+        <Sidebar
+          items={sidebarItems}
+          title="Demo Documentation"
+        />
+      </aside>
+
+      <!-- メインコンテンツ -->
+      <main class="content-container">
+        <slot />
+      </main>
+    </div>
+
+    <!-- フッター -->
+    <Footer />
+  </div>
+</body>
+</html>
+
+<style is:global>
+  :root {
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .main-container {
+    display: flex;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .sidebar-container {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 4rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+    border-right: 1px solid #e5e7eb;
+  }
+
+  .content-container {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-container {
+      display: none;
+    }
+  }
+</style>

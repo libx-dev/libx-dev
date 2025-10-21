@@ -1,0 +1,15 @@
+---
+/**
+ * demo-docs ルートページ
+ * デフォルト言語（en）へリダイレクト
+ */
+const defaultLang = 'en';
+const defaultVersion = 'v1';
+const baseUrl = '/docs/demo-docs';
+
+// デフォルト言語・バージョンへリダイレクト
+return Astro.redirect(`${baseUrl}/${defaultVersion}/${defaultLang}/`);
+---
+
+<!-- フォールバック用のmetaタグ -->
+<meta http-equiv="refresh" content={`0;url=${baseUrl}/${defaultVersion}/${defaultLang}/`} />

@@ -69,6 +69,24 @@ importers:
       '@astrojs/mdx':
         specifier: ^4.1.0
         version: 4.3.7(astro@5.7.12(@types/node@22.18.11)(jiti@1.21.7)(rollup@4.40.2)(typescript@5.8.3)(yaml@2.7.1))
+      '@docs/generator':
+        specifier: workspace:*
+        version: link:../../packages/generator
+      '@docs/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@docs/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
+      '@docs/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      '@docs/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@docs/versioning':
+        specifier: workspace:*
+        version: link:../../packages/versioning
       astro:
         specifier: ^5.0.3
         version: 5.7.12(@types/node@22.18.11)(jiti@1.21.7)(rollup@4.40.2)(typescript@5.8.3)(yaml@2.7.1)

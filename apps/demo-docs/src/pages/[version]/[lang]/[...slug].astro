@@ -1,0 +1,143 @@
+---
+/**
+ * demo-docs 動的ルーティングページ
+ * 新しい@docs/generatorパッケージを使用
+ */
+import { loadRegistry, generateRoutes, generateSidebar } from '@docs/generator';
+import type { GetStaticPathsResult } from 'astro';
+import DocLayout from '../../../layouts/DocLayout.astro';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+// レジストリからルーティング情報を生成
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  console.time('[demo-docs] getStaticPaths execution time');
+
+  try {
+    // プロジェクトルートの絶対パスを取得
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    // src/pages/[version]/[lang]/[...slug].astro から ../../../../../../ でプロジェクトルート
+    const projectRoot = resolve(__dirname, '../../../../../..');
+
+    // レジストリを読み込み
+    const registry = loadRegistry('registry/demo-docs.json', projectRoot);
+    console.log(`[demo-docs] Loaded registry with ${registry.projects.length} project(s)`);
+
+    // ルーティング情報を生成
+    const routes = generateRoutes(registry, {
+      env: import.meta.env.MODE || 'development',
+      projectId: 'demo-docs',
+      debug: true,
+    });
+
+    // 各ルートにサイドバー情報を追加
+    const routesWithSidebar = routes.map((route: any) => {
+      const sidebarItems = generateSidebar(
+        registry,
+        route.params.project,
+        route.params.version,
+        route.params.lang,
+        {
+          baseUrl: '/docs/demo-docs',
+          env: 'production',
+        }
+      );
+
+      return {
+        ...route,
+        props: {
+          ...route.props,
+          sidebarItems,
+        },
+      };
+    });
+
+    console.log(`[demo-docs] Generated ${routesWithSidebar.length} routes`);
+    console.timeEnd('[demo-docs] getStaticPaths execution time');
+
+    return routesWithSidebar;
+  } catch (error) {
+    console.error('[demo-docs] Error in getStaticPaths:', error);
+    console.timeEnd('[demo-docs] getStaticPaths execution time');
+    throw error;
+  }
+}
+
+// propsから必要な情報を取得
+const { docId, title, summary, contentPath, projectId, sidebarItems = [] } = Astro.props;
+const { version, lang, slug } = Astro.params;
+
+// paramsを文字列に変換
+const versionStr = String(version || 'v1');
+const langStr = String(lang || 'en');
+const slugStr = String(slug || '');
+
+console.log(`[demo-docs] Rendering: ${versionStr}/${langStr}/${slugStr} (contentPath: ${contentPath})`);
+---
+
+<DocLayout
+  title={String(title || docId)}
+  description={String(summary || '')}
+  lang={langStr}
+  version={versionStr}
+  docId={docId}
+  projectId={projectId}
+  sidebarItems={sidebarItems}
+>
+  <article class="doc-content">
+    <header>
+      <h1>{title || docId}</h1>
+      {summary && <p class="description">{summary}</p>}
+    </header>
+
+    <div class="content">
+      <p><em>コンテンツパス: {contentPath}</em></p>
+      <p>このページは新しいgeneratorパッケージを使用してレンダリングされています。</p>
+      <p>MDXコンテンツの統合は次のフェーズで実装予定です。</p>
+
+      <h2>ドキュメント情報</h2>
+      <ul>
+        <li><strong>プロジェクトID:</strong> {projectId}</li>
+        <li><strong>ドキュメントID:</strong> {docId}</li>
+        <li><strong>バージョン:</strong> {versionStr}</li>
+        <li><strong>言語:</strong> {langStr}</li>
+        <li><strong>スラッグ:</strong> {slugStr}</li>
+      </ul>
+    </div>
+  </article>
+</DocLayout>
+
+<style>
+  .doc-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary, #666);
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .content {
+    line-height: 1.7;
+  }
+
+  .content ul {
+    list-style: disc;
+    padding-left: 2rem;
+    margin-top: 1rem;
+  }
+
+  .content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .content em {
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9rem;
+  }
+</style>
