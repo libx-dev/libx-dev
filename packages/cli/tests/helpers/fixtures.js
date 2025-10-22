@@ -28,7 +28,6 @@ export function createTestRegistry(options = {}) {
   } = options;
 
   const registry = {
-    $schema: '../docs.schema.json',
     $schemaVersion: '1.0.0',
     metadata: {
       generatorVersion: '1.0.0',
@@ -240,6 +239,48 @@ export function listFiles(dirPath, recursive = false) {
  */
 export function setupTest(testName = 'test') {
   const tempDir = createTempDir(testName);
+
+  // package.jsonを作成してConfigManagerがこのディレクトリをprojectRootとして認識するようにする
+  const packageJsonPath = path.join(tempDir, 'package.json');
+  fs.writeFileSync(packageJsonPath, JSON.stringify({ name: 'test-project' }, null, 2));
+
+  // レジストリディレクトリが作成される前にスキーマファイルパスを準備
+  const registryDir = path.join(tempDir, 'registry');
+  if (!fs.existsSync(registryDir)) {
+    fs.mkdirSync(registryDir, { recursive: true });
+  }
+
+  // スキーマファイルとその依存関係をコピー（バリデーションのため）
+  const schemaSourceDir = path.join(process.cwd(), 'registry');
+  const schemaFile = path.join(schemaSourceDir, 'docs.schema.json');
+  const schemaSubDir = path.join(schemaSourceDir, 'schema');
+
+  if (fs.existsSync(schemaFile)) {
+    fs.copyFileSync(schemaFile, path.join(registryDir, 'docs.schema.json'));
+  }
+
+  // schema/ディレクトリを再帰的にコピー
+  if (fs.existsSync(schemaSubDir)) {
+    const schemaDestDir = path.join(registryDir, 'schema');
+    fs.mkdirSync(schemaDestDir, { recursive: true });
+
+    const copyRecursive = (src, dest) => {
+      const entries = fs.readdirSync(src, { withFileTypes: true });
+      for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        if (entry.isDirectory()) {
+          fs.mkdirSync(destPath, { recursive: true });
+          copyRecursive(srcPath, destPath);
+        } else {
+          fs.copyFileSync(srcPath, destPath);
+        }
+      }
+    };
+
+    copyRecursive(schemaSubDir, schemaDestDir);
+  }
+
   const registryPath = createTestRegistryFile(tempDir);
   const configPath = createTestConfigFile(tempDir);
 

@@ -231,6 +231,13 @@ export function getConfigManager() {
 }
 
 /**
+ * デフォルト設定マネージャーをリセット（テスト用）
+ */
+export function resetConfigManager() {
+  defaultConfigManager = null;
+}
+
+/**
  * デフォルト設定マネージャーを設定
  */
 export function setDefaultConfigManager(configManager) {

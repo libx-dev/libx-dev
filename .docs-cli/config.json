@@ -1,0 +1,10 @@
+{
+  "$schema": "./config.schema.json",
+  "registryPath": "registry/docs.json",
+  "projectRoot": "apps/",
+  "contentRoot": "src/content/docs/",
+  "nonInteractive": false,
+  "defaultLang": "en",
+  "backupRotation": 3,
+  "backupDir": ".backups"
+}

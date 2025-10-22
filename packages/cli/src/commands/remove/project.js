@@ -40,6 +40,7 @@ export default async function removeProjectCommand(projectId, globalOpts, cmdOpt
     if (!project) {
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // プロジェクト情報を表示
@@ -50,6 +51,15 @@ export default async function removeProjectCommand(projectId, globalOpts, cmdOpt
     logger.info(`  バージョン数: ${project.versions?.length || 0}`);
     logger.info(`  言語数: ${project.languages?.length || 0}`);
     logger.newline();
+
+    // dry-runモードの場合は確認プロンプトをスキップ
+    if (globalOpts.dryRun) {
+      logger.info('dry-run モード: 以下の変更が実行されます\n');
+      logger.info(`プロジェクト "${projectId}" をレジストリから削除`);
+      logger.warn('注意: コンテンツファイルは削除されません');
+      process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
+    }
 
     // 確認プロンプト
     if (!cmdOpts.force && !globalOpts.yes) {
@@ -65,14 +75,8 @@ export default async function removeProjectCommand(projectId, globalOpts, cmdOpt
       if (!answers.confirm) {
         logger.info('削除をキャンセルしました');
         process.exit(0);
+        return; // テスト環境でprocess.exitがモックされている場合のため
       }
-    }
-
-    if (globalOpts.dryRun) {
-      logger.info('dry-run モード: 以下の変更が実行されます\n');
-      logger.info(`プロジェクト "${projectId}" をレジストリから削除`);
-      logger.warn('注意: コンテンツファイルは削除されません');
-      process.exit(0);
     }
 
     const backupManager = createBackupManager({
@@ -96,9 +100,11 @@ export default async function removeProjectCommand(projectId, globalOpts, cmdOpt
     logger.info('必要に応じて手動で削除してください:');
     logger.info(`  rm -rf apps/${projectId}`);
 
+    process.exit(0);
   } catch (error) {
     logger.error(`プロジェクト削除に失敗しました: ${error.message}`);
     if (globalOpts.verbose) logger.error(error.stack);
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }
