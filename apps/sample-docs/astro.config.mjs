@@ -46,6 +46,10 @@ export default defineConfig({
       assetsInlineLimit: 0,
       cssCodeSplit: false,
       rollupOptions: {
+        external: [
+          // Pagefindは実行時に動的インポートされるため外部化
+          /\/pagefind\//
+        ],
         output: {
           assetFileNames: 'assets/[name].[hash].[ext]',
           chunkFileNames: 'assets/[name].[hash].js',

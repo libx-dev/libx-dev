@@ -85,16 +85,20 @@ const hasToc = true;
   <div class="doc-layout-container">
     <aside class="sidebar-column print:hidden">
       <div class="sidebar-content">
-        <Sidebar 
-          items={markedSidebarItems} 
-          title={translate(TRANSLATION_KEYS.DOCUMENTATION, lang)} 
+        <Sidebar
+          items={markedSidebarItems}
+          title={translate(TRANSLATION_KEYS.DOCUMENTATION, lang)}
         />
       </div>
     </aside>
-    
+
     <div class="main-column">
       <div class="content-panel">
-        <article class="sl-markdown-content">
+        <article
+          class="sl-markdown-content"
+          data-pagefind-body
+          data-pagefind-meta={`project:sample-docs,version:${version},lang:${lang}`}
+        >
           <slot />
         </article>
       </div>

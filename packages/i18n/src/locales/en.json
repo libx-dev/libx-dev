@@ -77,6 +77,9 @@
     "previous": "Previous",
     "next": "Next"
   },
+  "meta": {
+    "description": "Documentation site built with Astro - Browse comprehensive guides, tutorials, and API references"
+  },
   "license": {
     "templates": {
       "minimal": "This document is a translation of \"{title}\" by {author}.",

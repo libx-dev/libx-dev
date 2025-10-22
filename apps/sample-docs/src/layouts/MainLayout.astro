@@ -6,7 +6,9 @@
 import { Footer } from '@docs/ui/components';
 import { VersionSelector } from '@docs/versioning/components';
 import LanguageSelector from '../components/LanguageSelector.astro';
+import Search from '../components/Search.astro';
 import type { LocaleKey } from '@docs/i18n/locales';
+import { translate } from '@docs/i18n/utils';
 import '../styles/global.css';
 import { getProjectConfig, getDisplayNameAsync } from '../lib/config';
 import { ThemeToggle } from '@docs/ui/components';
@@ -90,7 +92,7 @@ const docTopLink = await generateRedirectUrl(lang, projectConfig.basic.baseUrl);
       })();
     </script>
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="Documentation site built with Astro" />
+    <meta name="description" content={translate('meta.description', lang)} />
     <title>{title} | Docs</title>
     <style>
       html:not([data-has-toc]) {
@@ -125,6 +127,9 @@ const docTopLink = await generateRedirectUrl(lang, projectConfig.basic.baseUrl);
     </script>
   </head>
   <body>
+    <!-- スキップリンク（アクセシビリティ向上） -->
+    <a href="#main-content" class="skip-link">コンテンツへスキップ</a>
+
     <div class="page">
       <header class="header">
         <div class="header-container">
@@ -139,6 +144,9 @@ const docTopLink = await generateRedirectUrl(lang, projectConfig.basic.baseUrl);
               ) : (
                 <a href={`/${lang}`} class="site-title">{displayName}</a>
               )}
+            </div>
+            <div class="search-area">
+              <Search />
             </div>
             <div class="print:hidden right-group">
               {showVersionSelector && version && (
@@ -291,6 +299,29 @@ const docTopLink = await generateRedirectUrl(lang, projectConfig.basic.baseUrl);
     flex-grow: 1;
   }
 
+  /* スキップリンク */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border: 2px solid var(--sl-color-primary);
+    border-radius: 0.25rem;
+    z-index: 10000;
+  }
+
+  .skip-link:focus {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .search-area {
+    display: none; /* モバイルでは非表示 */
+  }
+
   @media (min-width: 50em) {
     .header-content {
       display: grid;
@@ -300,5 +331,13 @@ const docTopLink = await generateRedirectUrl(lang, projectConfig.basic.baseUrl);
       height: 100%;
     }
 
+    .search-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 1rem;
+      max-width: 600px;
+      width: 100%;
+    }
   }
 </style>

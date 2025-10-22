@@ -77,6 +77,9 @@
     "previous": "前へ",
     "next": "次へ"
   },
+  "meta": {
+    "description": "Astroで構築されたドキュメントサイト - 包括的なガイド、チュートリアル、APIリファレンスを提供"
+  },
   "license": {
     "templates": {
       "minimal": "この文書は {author} による「{title}」を翻訳したものです。",

@@ -175,6 +175,10 @@ importers:
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
+    devDependencies:
+      pagefind:
+        specifier: ^1.4.0
+        version: 1.4.0
 
   apps/test-verification:
     dependencies:

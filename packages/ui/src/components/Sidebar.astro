@@ -59,9 +59,9 @@ const sidebarHash = getSidebarHash(items);
 >
   <SidebarResizer />
   {title && (
-    <h3 class="sidebar-title" id="sidebar-title">
+    <div class="sidebar-title" id="sidebar-title" role="heading" aria-level="2">
       {title}
-    </h3>
+    </div>
   )}
   
   <nav aria-labelledby="sidebar-title">
