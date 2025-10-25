@@ -29,6 +29,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build demo-docs
+        run: |
+          cd apps/demo-docs
+          pnpm build
+
       - name: Build sample-docs
         run: |
           cd apps/sample-docs
@@ -37,17 +42,32 @@ jobs:
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.13.x
 
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse CI - demo-docs
+        run: |
+          cd apps/demo-docs
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Run Lighthouse CI - sample-docs
         run: |
           cd apps/sample-docs
           lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
-      - name: Upload Lighthouse reports
+      - name: Upload Lighthouse reports - demo-docs
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lighthouse-reports
+          name: lighthouse-reports-demo-docs
+          path: apps/demo-docs/.lighthouseci/
+          retention-days: 30
+
+      - name: Upload Lighthouse reports - sample-docs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-sample-docs
           path: apps/sample-docs/.lighthouseci/
           retention-days: 30

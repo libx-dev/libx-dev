@@ -88,12 +88,22 @@ const versionStr = String(version || 'v1');
 const langStr = String(lang || 'en');
 const slugStr = String(slug || '');
 
+// 多言語対応: summaryが多言語オブジェクトの場合は言語別に取得
+const getLocalizedText = (text: any, lang: string): string => {
+  if (typeof text === 'object' && text !== null) {
+    return text[lang] || text['en'] || '';
+  }
+  return String(text || '');
+};
+
+const localizedSummary = getLocalizedText(summary, langStr);
+
 console.log(`[demo-docs] Rendering: ${versionStr}/${langStr}/${slugStr} (contentPath: ${contentPath})`);
 ---
 
 <DocLayout
   title={String(title || docId)}
-  description={String(summary || '')}
+  description={localizedSummary}
   lang={langStr}
   version={versionStr}
   docId={docId}
@@ -103,7 +113,7 @@ console.log(`[demo-docs] Rendering: ${versionStr}/${langStr}/${slugStr} (content
   <article class="doc-content">
     <header>
       <h1>{title || docId}</h1>
-      {summary && <p class="description">{summary}</p>}
+      {localizedSummary && <p class="description">{localizedSummary}</p>}
     </header>
 
     <div class="content">
