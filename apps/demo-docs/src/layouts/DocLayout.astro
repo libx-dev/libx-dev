@@ -4,6 +4,7 @@
  * 共有UIコンポーネントとテーマを使用
  */
 import { Navigation, Sidebar, Footer } from '@docs/ui/components';
+import Search from '@docs/runtime/components/Search.astro';
 import '@docs/theme/css/variables.css';
 import '@docs/theme/css/base.css';
 
@@ -49,6 +50,11 @@ const pageDescription = description || 'Demo documentation site using the new ge
       siteTitle="Demo Documentation"
     />
 
+    <!-- 検索 -->
+    <div class="search-wrapper">
+      <Search />
+    </div>
+
     <div class="main-container">
       <!-- サイドバー -->
       <aside class="sidebar-container">
@@ -86,6 +92,15 @@ const pageDescription = description || 'Demo documentation site using the new ge
     min-height: 100vh;
   }
 
+  .search-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
   .main-container {
     display: flex;
     flex: 1;
@@ -112,6 +127,10 @@ const pageDescription = description || 'Demo documentation site using the new ge
   @media (max-width: 768px) {
     .sidebar-container {
       display: none;
+    }
+
+    .search-wrapper {
+      padding: 1rem;
     }
   }
 </style>

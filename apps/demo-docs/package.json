@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "pagefind --site dist --glob \"**/*.html\"",
     "preview": "astro preview"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "@docs/runtime": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "pagefind": "^1.4.0"
   }
 }

@@ -48,6 +48,7 @@ export default defineConfig({
       assetsInlineLimit: 0,
       cssCodeSplit: false,
       rollupOptions: {
+        external: [/\/pagefind\//],
         output: {
           assetFileNames: 'assets/[name].[hash].[ext]',
           chunkFileNames: 'assets/[name].[hash].js',
