@@ -115,6 +115,7 @@ export default async function removeDocCommand(projectId, slug, globalOpts, cmdO
       if (!answers.confirm) {
         logger.info('削除をキャンセルしました');
         process.exit(0);
+        return; // テスト環境でprocess.exitがモックされている場合のため
       }
     }
 
@@ -142,6 +143,7 @@ export default async function removeDocCommand(projectId, slug, globalOpts, cmdO
         logger.warn('注意: コンテンツファイルは削除されません');
       }
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     const backupManager = createBackupManager({
@@ -179,5 +181,6 @@ export default async function removeDocCommand(projectId, slug, globalOpts, cmdO
     logger.error(`ドキュメント削除に失敗しました: ${error.message}`);
     if (globalOpts.verbose) logger.error(error.stack);
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }

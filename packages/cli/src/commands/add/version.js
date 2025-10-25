@@ -189,6 +189,7 @@ export default async function addVersionCommand(projectId, versionId, globalOpts
     if (validationResult !== true) {
       logger.error(validationResult);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 設定とマネージャーの初期化
@@ -206,12 +207,14 @@ export default async function addVersionCommand(projectId, versionId, globalOpts
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       logger.info('利用可能なプロジェクト一覧を確認するには: pnpm docs-cli list projects');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バージョン重複チェック
     if (project.versions.find(v => v.id === versionId)) {
       logger.error(`バージョン "${versionId}" は既に存在します`);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バージョン情報を取得
@@ -228,6 +231,7 @@ export default async function addVersionCommand(projectId, versionId, globalOpts
         logger.info(`  コピー元: ${versionInfo.previousVersionId}`);
       }
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バックアップマネージャーの初期化
@@ -304,5 +308,6 @@ export default async function addVersionCommand(projectId, versionId, globalOpts
 
     // ロールバック処理は呼び出し側（CLI本体）で行う
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }

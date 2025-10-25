@@ -265,6 +265,7 @@ export default async function addLanguageCommand(projectId, langCode, globalOpts
         logger.info(`  ${code.padEnd(10)} ${name}`);
       });
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 設定とマネージャーの初期化
@@ -282,12 +283,14 @@ export default async function addLanguageCommand(projectId, langCode, globalOpts
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       logger.info('利用可能なプロジェクト一覧を確認するには: pnpm docs-cli list projects');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 言語重複チェック
     if (project.languages.find(l => l.code === langCode)) {
       logger.error(`言語 "${langCode}" は既に存在します`);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 言語情報を取得
@@ -307,6 +310,7 @@ export default async function addLanguageCommand(projectId, langCode, globalOpts
         logger.info(`  フォールバック言語: ${langInfo.fallbackLang}`);
       }
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バックアップマネージャーの初期化
@@ -394,5 +398,6 @@ export default async function addLanguageCommand(projectId, langCode, globalOpts
     }
 
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }

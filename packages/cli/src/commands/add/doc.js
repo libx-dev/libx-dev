@@ -212,6 +212,7 @@ export default async function addDocCommand(projectId, slug, globalOpts, cmdOpts
     if (validationResult !== true) {
       logger.error(validationResult);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 設定とマネージャーの初期化
@@ -229,6 +230,7 @@ export default async function addDocCommand(projectId, slug, globalOpts, cmdOpts
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       logger.info('利用可能なプロジェクト一覧を確認するには: pnpm docs-cli list projects');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // ドキュメント情報を取得
@@ -256,6 +258,7 @@ export default async function addDocCommand(projectId, slug, globalOpts, cmdOpts
         logger.info(`  カテゴリ: ${docInfo.categoryId}`);
       }
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バックアップマネージャーの初期化
@@ -359,5 +362,6 @@ export default async function addDocCommand(projectId, slug, globalOpts, cmdOpts
     }
 
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }

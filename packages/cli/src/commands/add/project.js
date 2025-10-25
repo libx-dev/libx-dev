@@ -40,6 +40,7 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
     if (!/^[a-z0-9-]+$/.test(projectId)) {
       logger.error('プロジェクトIDは小文字英数字とハイフンのみ使用できます');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // レジストリマネージャーの初期化
@@ -54,6 +55,7 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
     if (registryManager.findProject(projectId)) {
       logger.error(`プロジェクト "${projectId}" は既に存在します`);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 対話式でプロジェクト情報を取得
@@ -64,6 +66,7 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
       logger.info('dry-run モード: 以下の変更が実行されます\n');
       logger.info(JSON.stringify(projectInfo, null, 2));
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // レジストリファイルをバックアップ
@@ -113,6 +116,7 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
     logger.success(`プロジェクト "${projectId}" の追加が完了しました！`);
 
     process.exit(0);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   } catch (error) {
     logger.error(`プロジェクト追加エラー: ${error.message}`);
 
@@ -125,6 +129,7 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
     await backupManager.rollback();
 
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }
 

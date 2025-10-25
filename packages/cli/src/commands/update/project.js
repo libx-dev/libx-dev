@@ -170,6 +170,7 @@ export default async function updateProjectCommand(projectId, globalOpts, cmdOpt
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       logger.info('利用可能なプロジェクト一覧を確認するには: pnpm docs-cli list projects');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // 更新内容を取得
@@ -178,6 +179,7 @@ export default async function updateProjectCommand(projectId, globalOpts, cmdOpt
     if (Object.keys(updates).length === 0) {
       logger.warn('更新する項目がありません');
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // dry-runチェック
@@ -188,6 +190,7 @@ export default async function updateProjectCommand(projectId, globalOpts, cmdOpt
         logger.info(`  ${key}: ${value}`);
       });
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // バックアップマネージャーの初期化
@@ -247,5 +250,6 @@ export default async function updateProjectCommand(projectId, globalOpts, cmdOpt
     }
 
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }
