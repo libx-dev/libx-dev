@@ -251,19 +251,215 @@ Phase 4-1（QA/テスト）は、当初の目標を大幅に上回る成果を�
 
 ### 1. Pagefind検索機能 ⏳
 
-**現状**: 未実装
+**現状分析** (2025-10-25更新):
 
-**確認内容**:
-- sample-docsプロジェクトのビルド出力を調査
-- Pagefindディレクトリが存在しないことを確認
+✅ **sample-docs**: 完全実装済み
 
-**Phase 4-2での対応**:
-1. Pagefind統合の実装
-2. 検索インデックスサイズの最適化
-3. 検索レスポンス時間の測定
-4. 検索品質検証（キーワード/タグ/関連リンク）
+- Pagefind v1.4.0を使用
+- `postbuild`スクリプト設定: `pagefind --site dist --glob "**/*.html"`
+- 検索UIコンポーネント実装済み（569行、フル機能）
+- ビルド出力に15ファイル（約315KB）のインデックス生成確認
+- 機能:
+  - WCAG 2.1準拠のアクセシビリティ対応
+  - ファセット検索（プロジェクト/バージョン/言語フィルタ）
+  - ページネーション（10件/ページ）
+  - 検索キーワードハイライト
+  - キーボードナビゲーション
+  - エラーハンドリング
 
-**推定工数**: 4時間
+✅ **runtime パッケージ**: 共有実装あり
+
+- Search.astroコンポーネント（565行）
+- sample-docsと同様の機能実装
+- `postbuild`スクリプト設定済み
+
+❌ **demo-docs**: 未実装
+
+- `package.json`に`postbuild`スクリプトなし
+- `pagefind`依存関係なし
+- 検索UIコンポーネントなし
+- ビルド出力にpagefindディレクトリなし
+
+---
+
+**Phase 4-2での対応（5フェーズ構成）**:
+
+#### Phase 1: demo-docsへのPagefind統合（必須）⭐⭐⭐
+
+**推定工数**: 2-3時間
+
+1. **依存関係追加** (`apps/demo-docs/package.json`)
+
+   ```json
+   "devDependencies": {
+     "pagefind": "^1.4.0"
+   }
+   ```
+
+2. **postbuildスクリプト追加**
+
+   ```json
+   "scripts": {
+     "postbuild": "pagefind --site dist --glob \"**/*.html\""
+   }
+   ```
+
+3. **検索UIコンポーネント配置**
+   - オプションA: `packages/runtime/src/components/Search.astro`を再利用（推奨）
+   - オプションB: `apps/sample-docs/src/components/Search.astro`をコピー
+
+4. **レイアウトファイル更新**
+   - `apps/demo-docs/src/layouts/DocLayout.astro`に検索コンポーネント追加
+
+5. **Astro設定更新** (`apps/demo-docs/astro.config.mjs`)
+   - Pagefindの外部化設定追加:
+
+   ```javascript
+   rollupOptions: {
+     external: [/\/pagefind\//]
+   }
+   ```
+
+6. **ビルド確認**
+
+   ```bash
+   cd apps/demo-docs
+   pnpm install
+   pnpm build
+   ls -la dist/pagefind  # インデックス生成確認
+   ```
+
+**成果物**: demo-docsで検索機能が動作、pagefindディレクトリ生成
+
+---
+
+#### Phase 2: 検索品質向上（推奨）⭐⭐
+
+**推定工数**: 3-4時間
+
+1. **Pagefind設定ファイル作成**
+   - `pagefind.toml`または`pagefind.json`を各プロジェクトに追加
+   - 除外パス設定（`/draft/`, `/internal/`等）
+   - 言語設定（`en`, `ja`等）
+   - カスタム重み付け
+
+2. **HTMLメタデータ拡張**
+   - `data-pagefind-meta`属性でカスタムメタデータ追加
+   - プロジェクト名、バージョン、言語、タグ等
+
+3. **検索フィルタの動的生成**
+   - レジストリからプロジェクト/バージョン/言語の選択肢を取得
+   - フィルタUIを動的に生成
+
+**成果物**: pagefind.toml、拡張メタデータ、動的フィルタ
+
+---
+
+#### Phase 3: 統合ビルドスクリプト対応（必須）⭐⭐⭐
+
+**推定工数**: 2-3時間
+
+1. **build-integrated.js調査**
+   - Pagefindディレクトリのコピー処理確認
+   - 必要に応じて修正
+
+2. **パス解決の確認**
+   - Search.astroの`basePath`処理が統合ビルド後も機能するか検証
+   - `import.meta.env.BASE_URL`を使用した動的パス生成
+
+3. **テスト**
+
+   ```bash
+   pnpm build  # 統合ビルド実行
+   ls -la dist/docs/demo-docs/pagefind
+   ls -la dist/docs/sample-docs/pagefind
+   pnpm preview  # プレビューサーバーで検索動作確認
+   ```
+
+**成果物**: 統合ビルドでPagefindが正常動作
+
+---
+
+#### Phase 4: パフォーマンス測定（推奨）⭐⭐
+
+**推定工数**: 2時間
+
+**測定項目**:
+
+1. **インデックスサイズ**: プロジェクトあたり500KB以下
+2. **初回ロード時間**: `pagefind.js`のロード時間 100ms以下
+3. **検索レスポンス時間**: 検索クエリ実行からUI表示まで 300ms以下
+4. **Lighthouse影響**: Performance、Accessibilityスコアへの影響測定（目標: スコア低下なし）
+
+**測定方法**:
+
+```bash
+# インデックスサイズ
+du -sh apps/demo-docs/dist/pagefind
+
+# Lighthouse測定
+lighthouse http://localhost:4321/docs/demo-docs/v1/en/getting-started \
+  --output=html --output=json \
+  --output-path=docs/new-generator-plan/status/lighthouse-reports/demo-docs-with-pagefind
+```
+
+**成果物**: パフォーマンスレポート、最適化提案
+
+---
+
+#### Phase 5: ドキュメント作成（必須）⭐⭐⭐
+
+**推定工数**: 2-3時間
+
+**作成ドキュメント**:
+
+1. **検索機能ガイド** (`docs/new-generator-plan/guides/search.md`)
+   - Pagefind概要
+   - セットアップ手順
+   - メタデータ仕様
+   - カスタマイズ方法
+   - トラブルシューティング
+
+2. **運用マニュアル更新**
+   - ビルド手順にPagefind関連を追加
+   - デプロイ時の注意事項
+
+3. **APIドキュメント**
+   - Search.astroコンポーネントのprops
+   - カスタムフィルタの追加方法
+
+**成果物**: search.md（約1,000行）、更新された運用マニュアル
+
+---
+
+**総推定工数**: 11-15時間（3日間）
+
+**タイムライン**:
+
+- Day 1（4-5時間）: Phase 1 + Phase 3
+- Day 2（4-5時間）: Phase 2 + Phase 4
+- Day 3（3-5時間）: Phase 5 + 最終テスト
+
+**完了基準**:
+
+- ✅ demo-docsで検索機能が動作
+- ✅ 統合ビルド後も検索機能が正常動作
+- ✅ Pagefindインデックスが生成される
+- ✅ 検索UIがアクセシブル
+- ✅ ドキュメント作成完了
+
+**リスクと対策**:
+
+1. **ベースパス問題**: `import.meta.env.BASE_URL`を使用した動的パス生成
+2. **インデックスサイズ肥大化**: 除外パス設定、プロジェクトごとに独立したインデックス
+3. **検索品質**: 同義語辞書設定、カスタム重み付け、検索ログ分析
+
+**参考資料**:
+
+- [Pagefind公式ドキュメント](https://pagefind.app/)
+- [Phase 2-3計画書](../phase-2-3-search.md)
+- [sample-docs実装](../../apps/sample-docs/src/components/Search.astro)
+- [runtime実装](../../packages/runtime/src/components/Search.astro)
 
 ---
 
