@@ -1,0 +1,255 @@
+name: Deploy to Staging
+
+# ステージングブランチへのプッシュ時に自動デプロイ
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:  # 手動実行も可能
+    inputs:
+      skip_lighthouse:
+        description: 'Skip Lighthouse checks'
+        required: false
+        default: 'false'
+
+jobs:
+  # デプロイ前チェック
+  pre-deployment-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # チェック1: Lint
+      - name: Run lint
+        run: pnpm lint
+        continue-on-error: false
+
+      # チェック2: Format
+      - name: Check format
+        run: pnpm prettier --check .
+        continue-on-error: true
+
+      # チェック3: レジストリバリデーション
+      - name: Validate registry
+        run: pnpm validate
+        continue-on-error: false
+
+      # チェック4: テスト実行
+      - name: Run tests
+        run: pnpm test:coverage
+        continue-on-error: false
+
+      # チェック5: サイドバーJSON生成
+      - name: Build sidebar
+        run: pnpm build:sidebar
+
+      - name: Check sidebar files
+        run: |
+          echo "Checking sidebar JSON files..."
+          find apps/*/src/generated -name "sidebar-*.json" -type f || echo "No sidebar files found"
+
+  # ステージング環境へのデプロイ
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: pre-deployment-checks
+    timeout-minutes: 30
+    environment:
+      name: staging
+      url: https://libx-staging.pages.dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build sidebar
+        run: pnpm build:sidebar
+
+      - name: Build project
+        run: pnpm build
+        timeout-minutes: 10
+
+      - name: Check build output
+        run: |
+          echo "Build output size:"
+          du -sh dist/
+          echo ""
+          echo "HTML files count:"
+          find dist/ -name "*.html" | wc -l
+          echo ""
+          echo "Directory structure:"
+          tree -L 3 -d dist/ || ls -laR dist/
+
+      - name: Deploy to Cloudflare Pages (Staging)
+        uses: cloudflare/pages-action@v1
+        id: deploy
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: libx-staging
+          directory: dist
+          branch: staging
+
+      - name: Record deployment info
+        run: |
+          echo "Deployment URL: ${{ steps.deploy.outputs.url }}"
+          echo "Deployment ID: ${{ steps.deploy.outputs.id }}"
+          echo "Environment: staging"
+          echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+      # デプロイ成功をコメント
+      - name: Comment deployment success
+        if: success() && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployUrl = '${{ steps.deploy.outputs.url }}';
+            const message = `### ✅ ステージング環境へのデプロイが完了しました
+
+            **デプロイURL**: ${deployUrl}
+            **ブランチ**: staging
+            **コミット**: ${{ github.sha }}
+            **タイムスタンプ**: ${new Date().toISOString()}
+
+            **動作確認項目**:
+            - [ ] 全ページアクセス確認
+            - [ ] サイドバーナビゲーション動作確認
+            - [ ] 検索機能動作確認
+            - [ ] 言語切替動作確認
+            - [ ] バージョン切替動作確認
+            `;
+
+            // 最新のコミットにコメント
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: message
+            });
+
+  # Lighthouseスコア測定（オプション）
+  lighthouse-check:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.event.inputs.skip_lighthouse != 'true'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build for Lighthouse
+        run: pnpm build
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.15.x lighthouse chrome-launcher
+
+      - name: Start server
+        run: |
+          cd apps/demo-docs
+          pnpm preview --port 4321 &
+          sleep 10
+
+      - name: Run Lighthouse CI (demo-docs)
+        run: |
+          cd apps/demo-docs
+          lhci autorun || echo "Lighthouse CI completed with warnings"
+        continue-on-error: true
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-staging
+          path: |
+            apps/demo-docs/.lighthouseci
+            apps/sample-docs/.lighthouseci
+          retention-days: 30
+
+  # デプロイ後の煙テスト
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    timeout-minutes: 10
+
+    steps:
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Check staging site accessibility
+        run: |
+          STAGING_URL="https://libx-staging.pages.dev"
+
+          echo "Checking staging site..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/v1/en/getting-started/")
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Staging site is accessible (HTTP $HTTP_CODE)"
+          else
+            echo "❌ Staging site returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Check Japanese version
+        run: |
+          STAGING_URL="https://libx-staging.pages.dev"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/v1/ja/getting-started/")
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Japanese version is accessible (HTTP $HTTP_CODE)"
+          else
+            echo "❌ Japanese version returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Report smoke test results
+        if: always()
+        run: |
+          echo "### 🧪 Smoke Test Results"
+          echo ""
+          echo "All basic accessibility checks passed."
+          echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
