@@ -37,12 +37,14 @@ export default async function updateVersionCommand(projectId, versionId, globalO
     if (!project) {
       logger.error(`プロジェクト "${projectId}" が見つかりません`);
       process.exit(1);
+      return;
     }
 
     const version = project.versions.find(v => v.id === versionId);
     if (!version) {
       logger.error(`バージョン "${versionId}" が見つかりません`);
       process.exit(1);
+      return;
     }
 
     const updates = {};
@@ -69,6 +71,7 @@ export default async function updateVersionCommand(projectId, versionId, globalO
     if (Object.keys(updates).length === 0 && cmdOpts.setLatest === undefined) {
       logger.warn('更新する項目がありません');
       process.exit(0);
+      return;
     }
 
     if (globalOpts.dryRun) {
@@ -81,6 +84,7 @@ export default async function updateVersionCommand(projectId, versionId, globalO
         logger.info(`  isLatest: ${cmdOpts.setLatest}`);
       }
       process.exit(0);
+      return;
     }
 
     const backupManager = createBackupManager({
@@ -103,5 +107,6 @@ export default async function updateVersionCommand(projectId, versionId, globalO
     logger.error(`バージョン更新に失敗しました: ${error.message}`);
     if (globalOpts.verbose) logger.error(error.stack);
     process.exit(1);
+    return;
   }
 }
