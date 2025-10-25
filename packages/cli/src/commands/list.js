@@ -50,15 +50,18 @@ export default async function listCommand(entity, globalOpts, cmdOpts) {
       default:
         logger.error(`不明なエンティティタイプ: ${entity}`);
         process.exit(1);
+        return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     process.exit(0);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   } catch (error) {
     logger.error(`一覧表示エラー: ${error.message}`);
     if (globalOpts.verbose) {
       logger.error(error.stack);
     }
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }
 
@@ -111,6 +114,7 @@ async function listDocs(registry, options, logger, jsonMode) {
   if (!project) {
     logger.error(`プロジェクトが見つかりません: ${projectId}`);
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 
   let docs = project.documents || [];
@@ -163,6 +167,7 @@ async function listVersions(registry, options, logger, jsonMode) {
   if (!project) {
     logger.error(`プロジェクトが見つかりません: ${projectId}`);
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 
   let versions = project.versions || [];
@@ -210,6 +215,7 @@ async function listLanguages(registry, options, logger, jsonMode) {
   if (!project) {
     logger.error(`プロジェクトが見つかりません: ${projectId}`);
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 
   let languages = project.languages || [];

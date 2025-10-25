@@ -33,6 +33,7 @@ export default async function validateCommand(registryPath, globalOpts, cmdOpts)
     if (!existsSync(finalRegistryPath)) {
       logger.error(`レジストリファイルが見つかりません: ${finalRegistryPath}`);
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
 
     // レジストリを読み込み
@@ -88,12 +89,15 @@ export default async function validateCommand(registryPath, globalOpts, cmdOpts)
     if (!result.valid) {
       logger.error('バリデーション失敗');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     } else if (cmdOpts.strict && result.warnings.length > 0) {
       logger.error('バリデーション失敗（厳格モード: 警告あり）');
       process.exit(1);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     } else {
       logger.success('バリデーション成功');
       process.exit(0);
+      return; // テスト環境でprocess.exitがモックされている場合のため
     }
   } catch (error) {
     logger.error(`バリデーション実行エラー: ${error.message}`);
@@ -101,5 +105,6 @@ export default async function validateCommand(registryPath, globalOpts, cmdOpts)
       logger.error(error.stack);
     }
     process.exit(2);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }

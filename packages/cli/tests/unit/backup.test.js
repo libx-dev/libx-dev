@@ -48,7 +48,7 @@ describe('BackupManager', () => {
       const result = backupManager.backupFile(testEnv.registryPath);
 
       expect(result).toBeDefined();
-      expect(result).toContain('"$schema"');
+      expect(result).toContain('"$schemaVersion"');
 
       // バックアップファイルが作成されている
       const relativePath = path.relative(testEnv.tempDir, testEnv.registryPath);

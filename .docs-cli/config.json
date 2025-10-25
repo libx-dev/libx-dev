@@ -5,6 +5,6 @@
   "contentRoot": "src/content/docs/",
   "nonInteractive": false,
   "defaultLang": "en",
-  "backupRotation": 3,
+  "backupRotation": 5,
   "backupDir": ".backups"
 }

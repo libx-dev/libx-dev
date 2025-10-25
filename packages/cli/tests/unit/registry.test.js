@@ -42,7 +42,7 @@ describe('RegistryManager', () => {
 
     it('レジストリを読み込める', () => {
       const registry = manager.load();
-      expect(registry).toHaveProperty('$schema');
+      expect(registry).toHaveProperty('$schemaVersion');
       expect(registry).toHaveProperty('projects');
     });
 

@@ -35,6 +35,7 @@ export default async function initCommand(globalOpts, cmdOpts) {
       if (!overwrite) {
         logger.info('初期化をキャンセルしました');
         process.exit(0);
+        return; // テスト環境でprocess.exitがモックされている場合のため
       }
     }
 
@@ -87,11 +88,13 @@ export default async function initCommand(globalOpts, cmdOpts) {
     logger.separator();
 
     process.exit(0);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   } catch (error) {
     logger.error(`設定ファイルの初期化に失敗しました: ${error.message}`);
     if (globalOpts.verbose) {
       logger.error(error.stack);
     }
     process.exit(1);
+    return; // テスト環境でprocess.exitがモックされている場合のため
   }
 }
