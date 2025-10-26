@@ -26,7 +26,8 @@ libx-dev/
 │   ├── i18n/           # 国際化ユーティリティ
 │   └── versioning/     # バージョン管理機能
 ├── apps/               # ドキュメントプロジェクト
-│   └── demo-docs/      # デモプロジェクト
+│   ├── demo-docs/      # デモプロジェクト
+│   └── top-page/       # トップページ（プロジェクト一覧）
 ├── registry/           # レジストリファイル
 │   ├── docs.json       # メインレジストリ
 │   ├── demo-docs.json  # デモプロジェクト用レジストリ
@@ -72,6 +73,9 @@ libx-dev/
    ```bash
    # デモプロジェクトの開発サーバーを起動
    pnpm dev
+
+   # トップページの開発サーバーを起動
+   pnpm dev:top-page
    ```
 
    ブラウザで `http://localhost:4321` を開いてドキュメントサイトを確認できます。
@@ -165,12 +169,59 @@ pnpm docs-cli add project user-guide \
 ### ビルドコマンド
 
 ```bash
-# デモプロジェクトをビルド
+# 全プロジェクトを統合ビルド（推奨）
 pnpm build
 
-# ビルドをプレビュー
-pnpm preview
+# 統合ビルド（詳細オプション付き）
+pnpm build:integrated        # 通常の統合ビルド
+pnpm build:local            # ローカル開発用ビルド（ベースパス削除）
+pnpm build:clean            # dist/ディレクトリのクリーンアップのみ
+
+# 個別プロジェクトのビルド
+pnpm build:demo-docs        # demo-docsのみ
+pnpm build:top-page         # top-pageのみ
+
+# プレビュー（統合ビルド後）
+pnpm preview                # ローカルサーバー起動 (http://localhost:8080)
+
+# 個別プロジェクトのプレビュー
+pnpm preview:demo-docs      # demo-docsのみ (http://localhost:4321)
+pnpm preview:top-page       # top-pageのみ (http://localhost:4321)
 ```
+
+**重要**: `pnpm build` は全プロジェクトを統合して `dist/` ディレクトリに出力します：
+- `/` → トップページ（プロジェクト一覧）
+- `/docs/demo-docs/` → demo-docsプロジェクト
+- その他のプロジェクトも `/docs/{project-id}/` に配置
+
+### 統合ビルドの詳細オプション
+
+統合ビルドスクリプトは、レジストリベースで自動的にプロジェクトを検出してビルドします。
+
+```bash
+# 直接実行（より詳細なオプション）
+node scripts/build-integrated.js [オプション]
+
+# オプション:
+#   --local           ローカル開発環境用のビルド（ベースパス削除）
+#   --skip-build      ビルドをスキップしてコピーのみ実行
+#   --project <id>    特定プロジェクトのみビルド（例: demo-docs）
+#   --clean           dist/のクリーンアップのみ実行
+#   --help            ヘルプを表示
+
+# 使用例:
+node scripts/build-integrated.js --help                    # ヘルプ表示
+node scripts/build-integrated.js --local                   # ローカル開発用ビルド
+node scripts/build-integrated.js --project demo-docs       # demo-docsのみビルド
+node scripts/build-integrated.js --skip-build              # コピーのみ
+```
+
+統合ビルドの特徴：
+
+- **レジストリ駆動**: `registry/*.json` から自動的にプロジェクトを検出
+- **重複排除**: 複数のレジストリに同じプロジェクトがある場合も正しく処理
+- **柔軟な設定**: ローカル/本番環境用のビルドを切り替え可能
+- **詳細な進捗表示**: 各ステップの所要時間を表示
 
 ### デプロイ
 

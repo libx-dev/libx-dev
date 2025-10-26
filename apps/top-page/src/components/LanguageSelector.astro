@@ -1,0 +1,51 @@
+---
+/**
+ * LanguageSelector - 言語切り替えコンポーネント
+ */
+import { Dropdown, DropdownItem } from '@docs/ui/components';
+import type { LocaleKey } from '@docs/i18n/locales';
+import { getTopPageConfig } from '../lib/registry-loader';
+
+interface Props {
+  currentLang: LocaleKey;
+}
+
+const { currentLang } = Astro.props;
+
+// サポートされている言語を取得
+const config = await getTopPageConfig();
+const supportedLangs = config.supportedLangs;
+
+// 言語表示名のマッピング
+const langNames: Record<LocaleKey, string> = {
+  en: 'English',
+  ja: '日本語',
+  'zh-Hans': '简体中文',
+  'zh-Hant': '繁體中文',
+  es: 'Español',
+  'pt-BR': 'Português (Brasil)',
+  ko: '한국어',
+  de: 'Deutsch',
+  fr: 'Français',
+  ru: 'Русский',
+  ar: 'العربية',
+  id: 'Bahasa Indonesia',
+  tr: 'Türkçe',
+  hi: 'हिन्दी',
+  vi: 'Tiếng Việt',
+};
+
+// 現在の言語の表示名
+const currentLangName = langNames[currentLang] || currentLang;
+---
+
+<Dropdown label={currentLangName} ariaLabel="言語選択">
+  {supportedLangs.map((lang) => (
+    <DropdownItem
+      href={`/${lang}/`}
+      active={lang === currentLang}
+    >
+      {langNames[lang] || lang}
+    </DropdownItem>
+  ))}
+</Dropdown>

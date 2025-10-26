@@ -1,0 +1,154 @@
+/**
+ * グローバルスタイル
+ * Starlightのデザインシステムを踏襲したトップページ用スタイル
+ */
+
+/* Starlightテーマのインポート */
+@import '@docs/theme/css/variables.css';
+@import '@docs/theme/css/base.css';
+
+/* リセットとベーススタイル */
+:root {
+  /* Starlightカラーパレットを継承 */
+  --sl-nav-height: 3.5rem;
+  --sl-nav-gap: 1rem;
+  --sl-content-width: 87.5rem; /* 1400px */
+}
+
+/* ボディスタイル */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--sl-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif);
+  line-height: 1.6;
+  color: var(--sl-color-text, #111827);
+  background-color: var(--sl-color-bg, #ffffff);
+}
+
+/* ダークモード */
+:global(.dark) body {
+  color: var(--sl-color-white, #f9fafb);
+  background-color: var(--sl-color-bg, #17181c);
+}
+
+/* コンテナ */
+.container {
+  max-width: var(--sl-content-width);
+  width: 100%;
+  padding: 0 1.5rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 50em) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* セクション */
+.section {
+  padding: 4rem 0;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--sl-color-text, #111827);
+}
+
+:global(.dark) .section-title {
+  color: var(--sl-color-white, #f9fafb);
+}
+
+.section-description {
+  font-size: 1.125rem;
+  color: var(--sl-color-gray-7, #374151);
+  margin-bottom: 2rem;
+}
+
+:global(.dark) .section-description {
+  color: var(--sl-color-gray-3, #d1d5db);
+}
+
+/* ヒーローセクション */
+.hero-section {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(to bottom, var(--sl-color-blue-9, #1e3a8a), var(--sl-color-indigo-9, #312e81));
+  border-radius: 0.5rem;
+  margin: 2rem auto;
+  max-width: var(--sl-content-width);
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  color: var(--sl-color-white, #ffffff);
+  line-height: 1.2;
+}
+
+@media (max-width: 50em) {
+  .hero-title {
+    font-size: 2rem;
+  }
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  color: var(--sl-color-gray-2, #e5e7eb);
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 50em) {
+  .hero-description {
+    font-size: 1rem;
+  }
+}
+
+/* プロジェクトグリッド */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 50em) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* スクロールバーカスタマイズ */
+::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sl-color-gray-1, #f9fafb);
+}
+
+:global(.dark) ::-webkit-scrollbar-track {
+  background: var(--sl-color-gray-9, #111827);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sl-color-gray-4, #9ca3af);
+  border-radius: 0.375rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-gray-5, #6b7280);
+}
+
+/* プリントモード */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+}
