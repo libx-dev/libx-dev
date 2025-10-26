@@ -39,8 +39,14 @@
   // @ts-ignore - Pagefindは動的に読み込まれる
   async function initSearch() {
     try {
+      // ベースパスを動的に取得してPagefindのパスを構築
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      // ベースパスの末尾にスラッシュを確実に追加
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const pagefindPath = `${normalizedBase}pagefind/pagefind.js`;
+
       // @ts-ignore
-      const pagefind = await import('/pagefind/pagefind.js');
+      const pagefind = await import(/* @vite-ignore */ pagefindPath);
 
       await pagefind.options({
         excerptLength: 30,
