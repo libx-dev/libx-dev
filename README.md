@@ -1,27 +1,50 @@
 # libx
 
-複数のAstroプロジェクトをモノレポ構造で管理するドキュメントサイトです。主に英語の技術ドキュメントを日本語に翻訳したコンテンツを扱います。
+新しいドキュメントサイトジェネレーターシステムです。レジストリベースのアーキテクチャにより、複数のドキュメントプロジェクトを効率的に管理します。
 
 ## 特徴
 
-- モノレポ構造による効率的な管理
-- 共通UIコンポーネントとテーマ
-- 多言語対応（英語・日本語）
-- ドキュメントのバージョン管理
-- Cloudflare Pagesへの自動デプロイ
+- **レジストリ駆動**: JSON形式のレジストリファイルで全てのドキュメントを管理
+- **Astro統合**: Astroインテグレーションとして動作する`@docs/generator`パッケージ
+- **強力なCLI**: `docs-cli`による効率的なドキュメント管理
+- **多言語対応**: 複数言語のドキュメントを簡単に管理
+- **バージョン管理**: ドキュメントのバージョニング機能を標準装備
+- **全文検索**: Pagefindによる高速な全文検索
+- **型安全**: TypeScriptによる型安全なスキーマ検証
 
 ## プロジェクト構造
 
 ```
 libx-dev/
-├── packages/         # 共有パッケージ
-│   ├── ui/           # 共通UIコンポーネント
-│   ├── theme/        # 共通テーマ
-│   ├── i18n/         # 国際化ユーティリティ
-│   └── versioning/   # バージョン管理機能
-├── apps/             # 各ドキュメントプロジェクト
-├── config/           # 共通設定
-└── scripts/          # ユーティリティスクリプト
+├── packages/           # コアパッケージ
+│   ├── cli/            # docs-cli コマンドラインツール
+│   ├── generator/      # Astroインテグレーション・サイトジェネレーター
+│   ├── runtime/        # ランタイムコンポーネント
+│   ├── validator/      # レジストリ検証ツール
+│   ├── ui/             # 共通UIコンポーネント
+│   ├── theme/          # 共通テーマシステム
+│   ├── i18n/           # 国際化ユーティリティ
+│   └── versioning/     # バージョン管理機能
+├── apps/               # ドキュメントプロジェクト
+│   └── demo-docs/      # デモプロジェクト
+├── registry/           # レジストリファイル
+│   ├── docs.json       # メインレジストリ
+│   ├── demo-docs.json  # デモプロジェクト用レジストリ
+│   └── schema/         # JSONスキーマ定義
+├── scripts/            # ユーティリティスクリプト
+│   ├── validate-registry.js  # レジストリ検証
+│   ├── capture-screenshots.js # スクリーンショット取得
+│   ├── compat/         # 互換レイヤー（旧スクリプトとの互換性）
+│   ├── dev/            # 開発ユーティリティ
+│   ├── plugins/        # remarkプラグイン
+│   └── schemas/        # スキーマファイル
+├── config/             # 共通設定
+│   ├── eslint/         # ESLint設定
+│   └── tsconfig/       # TypeScript設定
+├── templates/          # プロジェクトテンプレート
+├── test-projects/      # テストプロジェクト
+└── docs/               # プロジェクトドキュメント
+    └── new-generator-plan/  # 新ジェネレーター計画書
 ```
 
 ## 開発環境のセットアップ
@@ -47,13 +70,11 @@ libx-dev/
 
 3. 開発サーバーの起動：
    ```bash
-   # すべてのプロジェクトを起動
+   # デモプロジェクトの開発サーバーを起動
    pnpm dev
-   
-   # 特定のプロジェクトのみ起動
-   pnpm --filter=project-template dev
-   pnpm --filter=top-page dev
    ```
+
+   ブラウザで `http://localhost:4321` を開いてドキュメントサイトを確認できます。
 
 ### ローカルサーバーでの確認
 
@@ -69,346 +90,325 @@ bash scripts/dev/start_server.sh
 
 サーバーが起動すると `http://localhost:8080` でサイトにアクセスできます。
 
-**注意**: `start_server.sh` スクリプトは `scripts/dev/` ディレクトリに配置されています。
+## docs-cli の使用方法
 
-## 新規プロジェクトの追加方法
+`docs-cli` は、ドキュメントプロジェクトの管理を簡単にする強力なコマンドラインツールです。
 
-### 自動プロジェクト作成スクリプト（推奨）
-
-新しいドキュメントプロジェクトを自動で作成するスクリプトを利用できます：
+### 基本的な使用方法
 
 ```bash
-# 基本的な使用
-pnpm create:project プロジェクト名 "英語表示名" "日本語表示名"
+# CLIのヘルプを表示
+pnpm docs-cli --help
 
-# 例: API文書プロジェクトを作成
-pnpm create:project api-docs "API Documentation" "API文書"
+# プロジェクトの作成
+pnpm docs-cli add project my-docs \
+  --display-name-en "My Documentation" \
+  --display-name-ja "私のドキュメント"
 
-# オプション付きで作成
-pnpm create:project my-project "My Documentation" "私のドキュメント" \
-  --description-en="Comprehensive documentation" \
-  --description-ja="包括的なドキュメント" \
-  --icon="book" \
-  --tags="documentation,guide"
+# 言語の追加
+pnpm docs-cli add language my-docs ja
 
-# テストスキップで高速作成
-pnpm create:project quick-project "Quick Project" "クイックプロジェクト" --skip-test
+# バージョンの追加
+pnpm docs-cli add version my-docs v2.0
+
+# ドキュメントの作成
+pnpm docs-cli add document my-docs v1.0 en guides "Getting Started"
+
+# プロジェクト一覧の表示
+pnpm docs-cli list projects
+
+# バージョン一覧の表示
+pnpm docs-cli list versions my-docs
 ```
 
-このスクリプトは以下の処理を自動で実行します：
-- テンプレートプロジェクト（project-template）のコピー
-- 全設定ファイルの自動更新（package.json、astro.config.mjs、project.config.json等）
-- 依存関係の自動インストール
-- 動作確認テスト
-- トップページへのプロジェクト追加
+### レジストリの検証
 
-#### 利用可能なオプション
+```bash
+# 基本的な検証
+pnpm validate
 
-| オプション | 説明 | デフォルト値 |
-|-----------|------|-------------|
-| `--description-en` | 英語説明文 | "Documentation for [表示名]" |
-| `--description-ja` | 日本語説明文 | "[表示名]のドキュメントです" |
-| `--icon` | アイコン名 | "file-text" |
-| `--tags` | カンマ区切りタグ | "documentation" |
-| `--template` | テンプレートプロジェクト | "project-template" |
-| `--skip-test` | 動作テストをスキップ | false |
+# 厳密な検証（警告もエラーとして扱う）
+pnpm validate:strict
 
-#### 利用可能なアイコン
-`file-text`, `book`, `code`, `settings`, `database`, `globe`, `layers`, `package` など
+# 完全な検証（コンテンツファイルの存在確認含む）
+pnpm validate:full
+```
 
-### 手動でのプロジェクト作成
+詳細は [docs-cli ガイド](docs/new-generator-plan/guides/docs-cli.md)を参照してください。
 
-自動スクリプトを使わない場合の手動作成方法：
+## 新規プロジェクトの作成
 
-1. 新しいAstroプロジェクトを作成：
-   ```bash
-   pnpm create astro apps/new-project --template minimal
-   ```
+新しいドキュメントプロジェクトを作成するには、`docs-cli`を使用します：
 
-2. 共有パッケージの依存関係を追加：
-   ```bash
-   pnpm --filter=new-project add @docs/ui @docs/theme @docs/i18n @docs/versioning
-   ```
+```bash
+# 基本的なプロジェクト作成
+pnpm docs-cli add project api-docs \
+  --display-name-en "API Documentation" \
+  --display-name-ja "API文書"
 
-3. プロジェクト設定の調整：
-   - `astro.config.mjs`の設定
-   - `src/config/project.config.ts`の設定
-   - 多言語対応の設定
-   - バージョン管理の設定
+# より詳細な設定で作成
+pnpm docs-cli add project user-guide \
+  --display-name-en "User Guide" \
+  --display-name-ja "ユーザーガイド" \
+  --description-en "Comprehensive user documentation" \
+  --description-ja "包括的なユーザードキュメント"
+```
 
-手動作成の詳細手順は`docs/NEW_PROJECT_CREATION_GUIDE.md`を参照してください。
+プロジェクト作成後、自動的に以下が行われます：
+- レジストリへの登録
+- 初期バージョン（v1.0）の作成
+- デフォルト言語（英語・日本語）の設定
+- サンプルドキュメントの生成
 
 ## ビルドとデプロイ
 
 ### ビルドコマンド
 
-以下のコマンドを使用してプロジェクトをビルドできます：
-
 ```bash
-# 新しいドキュメントプロジェクトを作成
-pnpm create:project
-
-# 統合ビルドを実行（すべてのアプリケーションをビルドして統合）
+# デモプロジェクトをビルド
 pnpm build
 
-# ローカル開発環境用のビルドを実行（ベースパスなし）
-pnpm build:local
-
-# 各アプリケーションを個別にビルド
-pnpm build:separate
-
-# サイドバーJSONファイルを生成
-pnpm build:sidebar
-
+# ビルドをプレビュー
+pnpm preview
 ```
 
 ### デプロイ
 
 #### Cloudflare Pagesへのデプロイ
 
-現在はCloudflare Wrangler CLIを使用してデプロイします。
+```bash
+# ビルドしてCloudflare Pagesにデプロイ
+pnpm deploy
+
+# または段階的に
+pnpm build
+pnpm deploy:pages
+```
+
 プロジェクト名：`libx`
 
-#### 手動デプロイ
+## レジストリシステム
 
-ローカル環境から手動でデプロイする場合：
+新しいドキュメントサイトジェネレーターの中核となる機能です。
 
-```bash
-# Cloudflare Pagesに直接デプロイ
-pnpm build && pnpm deploy:pages
+### レジストリファイルの構造
 
-# または一連のビルドプロセスとデプロイを実行
-# 1. サイドバーを構築
-# 2. 統合ビルドを実行
-# 3. ビルド出力を../libx/にコピー
-pnpm build:deploy
-
-# ビルド出力を../libx/にコピーのみ実行
-pnpm copy:docs
-```
-
-## libx-coreリポジトリへのコピー
-
-このプロジェクトの主要な部分のみを抽出してlibx-coreリポジトリにコピーするためのスクリプトが用意されています。
-
-### コピー対象
-
-**含まれるもの:**
-- `packages/` - 全共有パッケージ（ui, theme, i18n, versioning）
-- `apps/project-template/` - プロジェクトテンプレート
-- `apps/top-page/` - トップページアプリ
-- `config/` - 共通設定ファイル
-- `scripts/` - 自動化スクリプト
-- 設定ファイル（package.json, pnpm-workspace.yaml, .eslintrc.cjs等）
-
-**除外されるもの:**
-- `node_modules/`, `dist/` 等のビルド成果物
-- 不要なapps（sample-docs, test-verification）
-- 開発専用ファイル（pnpm-lock.yaml, .github/workflows/）
-- AI開発支援ファイル（CLAUDE.md, .claude/ 等）
-- 既存のREADME.mdとLICENSEは保護（上書きしない）
-
-### 使用方法
-
-#### 推奨：選択的同期スクリプト（sync-to-libx-core.js）
-Gitの履歴をすっきり保つため、必要なファイルのみを明示的に同期します：
-
-```bash
-# ドライラン（実際には同期しない、確認用）
-pnpm sync:libx-core:dry-run
-
-# 実際に選択的同期を実行
-pnpm sync:libx-core
-
-# 詳細ログ付きで実行
-pnpm sync:libx-core:verbose
-
-# 直接スクリプトを実行
-node scripts/sync-to-libx-core.js --dry-run --verbose
-node scripts/sync-to-libx-core.js
-
-# ヘルプを表示
-node scripts/sync-to-libx-core.js --help
-```
-
-**選択的同期の特徴:**
-- ✅ 必要なファイル・ディレクトリのみを明示的に指定
-- ✅ Gitの履歴に不要な削除記録が残らない
-- ✅ README.mdとLICENSEファイルを自動保護
-- ✅ Git状態の自動確認とレポート
-
-#### 従来方式：全体コピースクリプト（copy-to-libx-core.js）
-除外ルールベースでファイルをコピーします：
-
-```bash
-# ドライラン（実際にはコピーしない、確認用）
-pnpm copy:libx-core:dry-run
-
-# 実際にコピーを実行
-pnpm copy:libx-core
-
-# 直接スクリプトを実行
-node scripts/copy-to-libx-core.js --dry-run
-node scripts/copy-to-libx-core.js --help
-```
-
-**重要な注意事項:**
-- 事前に `../libx-core/` ディレクトリが存在し、Gitリポジトリである必要があります
-- 必ず最初にドライランで確認してからコピー/同期を実行してください
-- 既存のlibx-coreのREADME.mdとLICENSEファイルは保護されます
-- **推奨**: Gitの履歴をクリーンに保つため、`sync-to-libx-core.js`を使用してください
-
-## 自動プロジェクト検出機能
-
-`apps/top-page`では自動プロジェクト検出機能を使用しており、`apps/`ディレクトリ内のプロジェクトを自動的に検出してトップページに表示します。
-
-### プロジェクト装飾設定
-
-`apps/top-page/src/config/projects.config.json`でプロジェクトのアイコンやタグなどの装飾情報を設定できます：
+レジストリファイル（`registry/*.json`）には、ドキュメントプロジェクトの全ての情報が記録されます：
 
 ```json
 {
-  "projectDecorations": {
-    "sample-docs": {
-      "icon": "file-text",
-      "tags": ["sample", "documentation"],
-      "isNew": true
+  "project": {
+    "id": "my-docs",
+    "title": {
+      "en": "My Documentation",
+      "ja": "私のドキュメント"
     }
-  }
+  },
+  "versions": [
+    {
+      "id": "v1.0",
+      "label": "Version 1.0"
+    }
+  ],
+  "languages": [
+    {
+      "code": "en",
+      "label": "English"
+    }
+  ],
+  "documents": [
+    {
+      "slug": "getting-started",
+      "version": "v1.0",
+      "lang": "en",
+      "category": "guides",
+      "title": "Getting Started"
+    }
+  ]
 }
 ```
 
-## libx-docs コンテンツ同期
+### レジストリスキーマ
 
-このプロジェクトでは、libx-docsリポジトリからのコンテンツ自動同期機能を提供しています。
+レジストリは厳密なJSONスキーマで検証されます：
+- `registry/schema/project.schema.json` - プロジェクトスキーマ
+- `registry/schema/version.schema.json` - バージョンスキーマ
+- `registry/schema/language.schema.json` - 言語スキーマ
+- `registry/schema/document.schema.json` - ドキュメントスキーマ
 
-### 基本的な同期
-
-```bash
-# 全プロジェクトを同期（高速な構造検知）
-node scripts/sync-content.js
-
-# 特定プロジェクトを同期
-node scripts/sync-content.js sample-docs
-
-# ファイル内容も含めた詳細な変更検知
-node scripts/sync-content.js sample-docs --content-hash
-```
-
-### その他のオプション
-
-```bash
-# バリデーションのみ実行
-node scripts/sync-content.js --validate-only
-
-# パフォーマンステスト
-node scripts/sync-content.js sample-docs --benchmark
-
-# ドライラン（変更を実行せず確認のみ）
-node scripts/sync-content.js --dry-run --verbose
-```
-
-詳細は `docs/LIBX_DOCS_SYNC.md` を参照してください。
+詳細は [レジストリガイド](docs/new-generator-plan/guides/registry.md)を参照してください。
 
 ## ドキュメント管理
 
-### プロジェクト作成
-
-新しいドキュメントプロジェクトを作成するには：
-
-```bash
-# 新しいプロジェクトを作成
-pnpm create:project project-name "Project Name" "プロジェクト名"
-```
-
-詳細なオプションについては上記の「新規プロジェクトの追加方法」セクションを参照してください。
-
-### 設定ファイル
-
-ドキュメントの設定は以下のファイルで管理されています：
-
-```text
-apps/[project-name]/src/config/
-└── project.config.json   # プロジェクト統合設定（JSON形式、メタデータ、バージョン、カテゴリ翻訳）
-
-apps/top-page/src/config/
-└── projects.config.json  # トップページのプロジェクト一覧設定（JSON形式）
-```
-
 ### 新しいバージョンの追加
 
-新しいドキュメントバージョンを作成するには、以下のコマンドを実行します：
-
 ```bash
-# 基本的な使用方法
-node scripts/create-version.js [project-name] [version]
+# プロジェクトに新しいバージョンを追加
+pnpm docs-cli add version my-docs v2.0
 
-# 例: sample-docsプロジェクトにv3バージョンを追加
-node scripts/create-version.js sample-docs v3
+# 前バージョンからコンテンツをコピーしない場合
+pnpm docs-cli add version my-docs v2.0 --no-copy
 
-# インタラクティブモードで実行（推奨）
-node scripts/create-version.js sample-docs v3 --interactive
-
-# 前バージョンからのコピーを行わない場合
-node scripts/create-version.js sample-docs v3 --no-copy
+# カスタム表示名を指定
+pnpm docs-cli add version my-docs v2.0 --name "Version 2.0 (Beta)"
 ```
-
-このコマンド（改良版）は以下の処理を自動で行います：
-
-- `project.config.json`のバージョン設定更新
-- 全言語に対応したディレクトリ構造作成
-- 前バージョンからのコンテンツコピー（オプション）
-- バージョン管理の自動更新
 
 ### 新しい言語の追加
 
-**🚀 推奨**: 自動化スクリプトを使用して新しい言語を追加できます：
-
 ```bash
-# 基本的な言語追加
-node scripts/add-language.js [project-name] [language-code]
+# プロジェクトに新しい言語を追加
+pnpm docs-cli add language my-docs de
 
-# 例: sample-docsプロジェクトにドイツ語を追加
-node scripts/add-language.js sample-docs de
+# カスタム表示名を指定
+pnpm docs-cli add language my-docs de --display-name "Deutsch"
 
-# カスタム表示名・説明付き
-node scripts/add-language.js sample-docs de "Deutsch" "Deutsche Dokumentation"
-
-# 高度なオプション使用
-node scripts/add-language.js sample-docs ko --template-lang=ja --skip-test
+# テンプレート言語を指定（既存の言語からコピー）
+pnpm docs-cli add language my-docs ko --template-lang ja
 ```
 
-自動化スクリプトは以下の処理を自動で行います：
-
-- 設定ファイルの更新（`project.config.json`、`projects.config.json`）
-- 言語用ディレクトリ構造の作成
-- テンプレートファイルの生成（翻訳マーカー付き）
-- ビルドテストの自動実行
-- エラー時の自動ロールバック
-
-**サポート言語**: en, ja, zh-Hans, zh-Hant, es, pt-BR, ko, de, fr, ru, ar, id, tr, hi, vi
-
-詳細な手順と手動方法については`docs/LANGUAGE_ADDITION_GUIDE.md`を参照してください。
+**サポートされている言語**:
+en, ja, zh-Hans, zh-Hant, es, pt-BR, ko, de, fr, ru, ar, id, tr, hi, vi
 
 ### 新しいドキュメントの追加
 
-新しいドキュメントを作成するには、以下のコマンドを実行します：
-
 ```bash
-# 基本的な使用方法
-node scripts/create-document.js <project-name> <lang> <version> [category] [title]
+# ドキュメントを作成
+pnpm docs-cli add document my-docs v1.0 en guides "Getting Started"
 
-# 例: sample-docsの英語版v2にガイドドキュメントを追加
-node scripts/create-document.js sample-docs en v2 guide "Getting Started"
+# カテゴリなしで作成
+pnpm docs-cli add document my-docs v1.0 en "" "Introduction"
 
-# インタラクティブモードで実行（推奨）
-node scripts/create-document.js sample-docs ja v2 --interactive
+# 複数のドキュメントを効率的に作成
+pnpm docs-cli add document my-docs v1.0 en api "Authentication"
+pnpm docs-cli add document my-docs v1.0 en api "Rate Limiting"
+pnpm docs-cli add document my-docs v1.0 en api "Error Handling"
 ```
 
-このコマンド（改良版）は以下の処理を自動で行います：
+## テストとCI/CD
 
-- 既存プロジェクト構造の自動解析
-- カテゴリとファイル番号の自動採番
-- 適切なディレクトリ構造での配置
-- MDXテンプレートファイルの自動生成
-- インタラクティブなカテゴリ選択機能
+### テストの実行
+
+```bash
+# 全てのテストを実行
+pnpm test
+
+# ウォッチモードでテスト
+pnpm test:watch
+
+# UIモードでテスト
+pnpm test:ui
+
+# カバレッジレポート付きテスト
+pnpm test:coverage
+
+# CLIパッケージのテストのみ
+pnpm test:cli
+
+# バリデーターパッケージのテストのみ
+pnpm test:validator
+```
+
+### コード品質
+
+```bash
+# Lintの実行
+pnpm lint
+
+# コードフォーマット
+pnpm format
+```
+
+詳細は [テストガイド](docs/new-generator-plan/guides/testing.md) と [CI/CDガイド](docs/new-generator-plan/guides/ci-cd.md) を参照してください。
+
+## パッケージリリース
+
+このプロジェクトは [Changesets](https://github.com/changesets/changesets) を使用してバージョン管理を行っています。
+
+```bash
+# 変更セットを作成
+pnpm changeset
+
+# バージョンを更新
+pnpm version-packages
+
+# パッケージを公開
+pnpm release
+```
+
+詳細は [リリースフローガイド](docs/new-generator-plan/guides/release-flow.md) を参照してください。
+
+## 互換性レイヤー
+
+旧システムからの移行を支援するため、`scripts/compat/`に互換レイヤースクリプトが用意されています。
+
+```bash
+# 旧スクリプト（互換レイヤー経由）
+node scripts/compat/create-project.js my-docs "My Documentation" "私のドキュメント"
+
+# 新CLI（推奨）
+pnpm docs-cli add project my-docs \
+  --display-name-en "My Documentation" \
+  --display-name-ja "私のドキュメント"
+```
+
+⚠️ **注意**: 互換レイヤースクリプトは非推奨です。新しい`docs-cli`コマンドへの移行を推奨します。
+
+詳細は [scripts/compat/README.md](scripts/compat/README.md) を参照してください。
+
+## トラブルシューティング
+
+### よくある問題
+
+**Q: ビルドが失敗する**
+```bash
+# node_modulesを削除して再インストール
+rm -rf node_modules
+pnpm install
+```
+
+**Q: レジストリ検証エラー**
+```bash
+# 詳細な検証を実行
+pnpm validate:full
+
+# スキーマの確認
+cat registry/schema/project.schema.json
+```
+
+**Q: docs-cliが見つからない**
+```bash
+# CLIパッケージをビルド
+pnpm --filter=@docs/cli build
+
+# または直接実行
+node packages/cli/bin/docs-cli.js --help
+```
+
+## ドキュメント
+
+プロジェクトの詳細なドキュメントは `docs/new-generator-plan/` に格納されています：
+
+- [アーキテクチャ概要](docs/new-generator-plan/architecture.md)
+- [プロジェクト原則](docs/new-generator-plan/PROJECT_PRINCIPLES.md)
+- [完全な計画書](docs/new-generator-plan/OVERVIEW.md)
+
+### 主要ガイド
+
+- [docs-cli ガイド](docs/new-generator-plan/guides/docs-cli.md)
+- [レジストリガイド](docs/new-generator-plan/guides/registry.md)
+- [共有パッケージガイド](docs/new-generator-plan/guides/shared-packages.md)
+- [テストガイド](docs/new-generator-plan/guides/testing.md)
+- [CI/CDガイド](docs/new-generator-plan/guides/ci-cd.md)
+- [リリースフローガイド](docs/new-generator-plan/guides/release-flow.md)
+
+## ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。
+
+## コントリビューション
+
+プロジェクトへの貢献を歓迎します。Issue や Pull Request をお気軽にお寄せください。
+
+---
+
+**開発者向けノート**: このREADMEは新ドキュメントサイトジェネレーター（Phase 2完了）に基づいて作成されています。旧システムの情報が必要な場合は、[旧システム削除計画](docs/new-generator-plan/LEGACY_CLEANUP_PLAN.md)を参照してください。
