@@ -1,0 +1,327 @@
+---
+/**
+ * demo-docs バージョン/言語別インデックスページ
+ * カテゴリ別ドキュメント一覧を表示
+ */
+import { loadRegistry, generateSidebar } from '@docs/generator';
+import type { GetStaticPathsResult } from 'astro';
+import DocLayout from '../../../layouts/DocLayout.astro';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+// レジストリからルーティング情報を生成
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  console.time('[demo-docs-index] getStaticPaths execution time');
+
+  try {
+    // プロジェクトルートの絶対パスを取得
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    // src/pages/[version]/[lang]/index.astro から ../../../../.. でプロジェクトルート
+    const projectRoot = resolve(__dirname, '../../../../..');
+
+    // レジストリを読み込み
+    const registry = loadRegistry('registry/demo-docs.json', projectRoot);
+    console.log(`[demo-docs-index] Loaded registry with ${registry.projects.length} project(s)`);
+
+    const project = registry.projects.find(p => p.id === 'demo-docs');
+    if (!project) {
+      throw new Error('Project "demo-docs" not found in registry');
+    }
+
+    // バージョン × 言語の組み合わせを生成
+    const paths: GetStaticPathsResult = [];
+
+    for (const version of project.versions) {
+      for (const language of project.languages) {
+        // サイドバー生成
+        const generatedSidebar = generateSidebar(
+          registry,
+          project.id,
+          version.id,
+          language.code,
+          {
+            baseUrl: '/docs/demo-docs',
+            env: 'production',
+            debug: true,
+          }
+        );
+
+        // generatorのSidebarItem[]をUIコンポーネントの形式に変換
+        const sidebarItems = generatedSidebar.map((category) => ({
+          title: category.title,
+          items: category.items.map((doc) => ({
+            title: doc.title,
+            href: doc.href,
+            isCurrent: false,
+          })),
+        }));
+
+        // カテゴリ情報を取得
+        const categories = project.categories || [];
+        const categoryData = categories.map(category => {
+          const categoryDocs = category.docs.map(docId => {
+            const doc = project.documents.find(d => d.id === docId);
+            if (!doc) return null;
+
+            // このドキュメントがこのバージョンをサポートしているかチェック
+            if (!doc.versions.includes(version.id)) return null;
+
+            // この言語のコンテンツが存在するかチェック
+            const content = doc.content[language.code];
+            if (!content || content.status !== 'published') return null;
+
+            return {
+              id: doc.id,
+              slug: doc.slug,
+              title: doc.title[language.code] || doc.title.en || Object.values(doc.title)[0],
+              summary: doc.summary[language.code] || doc.summary.en || Object.values(doc.summary)[0],
+              href: `/docs/demo-docs/${version.id}/${language.code}/${doc.slug}/`,
+            };
+          }).filter(Boolean);
+
+          return {
+            id: category.id,
+            title: category.titles[language.code] || category.titles.en || Object.values(category.titles)[0],
+            description: category.description[language.code] || category.description.en || Object.values(category.description)[0],
+            docs: categoryDocs,
+          };
+        }).filter(category => category.docs.length > 0);
+
+        paths.push({
+          params: {
+            version: version.id,
+            lang: language.code,
+          },
+          props: {
+            projectId: project.id,
+            projectTitle: project.displayName[language.code] || project.displayName.en,
+            projectDescription: project.description[language.code] || project.description.en,
+            versionName: version.name,
+            versionId: version.id,
+            langCode: language.code,
+            langName: language.displayName,
+            categories: categoryData,
+            sidebarItems,
+          },
+        });
+
+        console.log(`[demo-docs-index] Generated index for ${version.id}/${language.code}`);
+      }
+    }
+
+    console.log(`[demo-docs-index] Generated ${paths.length} index pages`);
+    console.timeEnd('[demo-docs-index] getStaticPaths execution time');
+
+    return paths;
+  } catch (error) {
+    console.error('[demo-docs-index] Error in getStaticPaths:', error);
+    console.timeEnd('[demo-docs-index] getStaticPaths execution time');
+    throw error;
+  }
+}
+
+// propsから必要な情報を取得
+const {
+  projectId,
+  projectTitle,
+  projectDescription,
+  versionName,
+  versionId,
+  langCode,
+  langName,
+  categories = [],
+  sidebarItems = []
+} = Astro.props;
+
+const pageTitle = `${projectTitle} - ${versionName}`;
+---
+
+<DocLayout
+  title={pageTitle}
+  description={projectDescription}
+  lang={langCode}
+  version={versionId}
+  docId="index"
+  projectId={projectId}
+  sidebarItems={sidebarItems}
+>
+  <div class="index-content">
+    <header class="index-header">
+      <h1>{projectTitle}</h1>
+      <p class="description">{projectDescription}</p>
+      <div class="metadata">
+        <span class="badge">{versionName}</span>
+        <span class="badge">{langName}</span>
+      </div>
+    </header>
+
+    <section class="categories-section">
+      <h2>ドキュメント一覧</h2>
+
+      {categories.length === 0 && (
+        <p class="no-content">このバージョン・言語には利用可能なドキュメントがありません。</p>
+      )}
+
+      {categories.map((category: any) => (
+        <div class="category">
+          <h3 class="category-title">{category.title}</h3>
+          {category.description && (
+            <p class="category-description">{category.description}</p>
+          )}
+
+          <div class="doc-grid">
+            {category.docs.map((doc: any) => (
+              <a href={doc.href} class="doc-card">
+                <h4 class="doc-title">{doc.title}</h4>
+                {doc.summary && (
+                  <p class="doc-summary">{doc.summary}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+  </div>
+</DocLayout>
+
+<style>
+  .index-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .index-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .index-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: var(--color-text-primary, #1a1a1a);
+  }
+
+  .description {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary, #666);
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+  }
+
+  .metadata {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--color-bg-secondary, #f3f4f6);
+    color: var(--color-text-primary, #1a1a1a);
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .categories-section {
+    margin-top: 2rem;
+  }
+
+  .categories-section > h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 2rem 0;
+    color: var(--color-text-primary, #1a1a1a);
+  }
+
+  .category {
+    margin-bottom: 3rem;
+  }
+
+  .category-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-primary, #1a1a1a);
+  }
+
+  .category-description {
+    color: var(--color-text-secondary, #666);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+  }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .doc-card {
+    display: block;
+    padding: 1.5rem;
+    background-color: var(--color-bg-card, #ffffff);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .doc-card:hover {
+    border-color: var(--color-accent, #0066cc);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+
+  .doc-card:focus {
+    outline: 2px solid var(--color-focus, #ff6b00);
+    outline-offset: 2px;
+  }
+
+  .doc-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-primary, #1a1a1a);
+  }
+
+  .doc-summary {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .no-content {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text-secondary, #666);
+    background-color: var(--color-bg-secondary, #f3f4f6);
+    border-radius: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .index-header h1 {
+      font-size: 2rem;
+    }
+
+    .description {
+      font-size: 1rem;
+    }
+
+    .doc-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
