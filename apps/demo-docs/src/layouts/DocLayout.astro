@@ -5,6 +5,7 @@
  */
 import { Navigation, Sidebar, Footer } from '@docs/ui/components';
 import Search from '@docs/runtime/components/Search.astro';
+import LanguageSelector from '../components/LanguageSelector.astro';
 import '@docs/theme/css/variables.css';
 import '@docs/theme/css/base.css';
 
@@ -18,8 +19,7 @@ interface Props {
   sidebarItems?: any[];
 }
 
-const { title, description, lang, version, docId, projectId, sidebarItems = [] } = Astro.props;
-const baseUrl = '/docs/demo-docs';
+const { title, description, lang, version, sidebarItems = [] } = Astro.props;
 
 // メタデータ
 const pageTitle = `${title} | Demo Documentation`;
@@ -51,7 +51,14 @@ const pageDescription = description || 'Demo documentation site using the new ge
     <Navigation
       items={[]}
       siteTitle="Demo Documentation"
-    />
+    >
+      <!-- 言語セレクターをスロットに渡す -->
+      <LanguageSelector
+        slot="language-selector"
+        currentLang={lang}
+        version={version}
+      />
+    </Navigation>
 
     <!-- 検索 -->
     <div class="search-wrapper">

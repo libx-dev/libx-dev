@@ -88,7 +88,7 @@ function isCurrentPage(item: NavItem): boolean {
       </nav>
       
       <div class="header-actions">
-        
+
         <div class="header-right">
           {socialLinks.length > 0 && (
             <div class="social-links">
@@ -99,7 +99,10 @@ function isCurrentPage(item: NavItem): boolean {
               ))}
             </div>
           )}
-          
+
+          <!-- 言語セレクタースロット -->
+          <slot name="language-selector" />
+
           {showThemeToggle && <ThemeToggle />}
         </div>
         

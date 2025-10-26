@@ -1,0 +1,65 @@
+---
+/**
+ * LanguageSelector - demo-docs用言語切り替えコンポーネント
+ */
+import { Dropdown, DropdownItem } from '@docs/ui/components';
+import { loadRegistry } from '@docs/generator';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+interface Props {
+  currentLang: string;
+  version: string;
+  currentPath?: string;
+}
+
+const { currentLang, version, currentPath = '' } = Astro.props;
+
+// プロジェクトルートの絶対パスを取得
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const projectRoot = resolve(__dirname, '../../../..');
+
+// レジストリを読み込んでサポート言語を取得
+const registry = loadRegistry('registry/demo-docs.json', projectRoot);
+const project = registry.projects.find(p => p.id === 'demo-docs');
+// languages配列からcodeプロパティを抽出
+const supportedLangs = (project?.languages || []).map(lang => lang.code);
+
+// 言語表示名のマッピング
+const langNames: Record<string, string> = {
+  en: 'English',
+  ja: '日本語',
+  'zh-Hans': '简体中文',
+  'zh-Hant': '繁體中文',
+  es: 'Español',
+  'pt-BR': 'Português (Brasil)',
+  ko: '한국어',
+  de: 'Deutsch',
+  fr: 'Français',
+  ru: 'Русский',
+  ar: 'العربية',
+  id: 'Bahasa Indonesia',
+  tr: 'Türkçe',
+  hi: 'हिन्दी',
+  vi: 'Tiếng Việt',
+};
+
+// 現在の言語の表示名
+const currentLangName = langNames[currentLang] || currentLang;
+
+// 現在のパスから言語部分を抽出してベースパスを作成
+// 例: /docs/demo-docs/v1/en/getting-started → /docs/demo-docs/v1
+const basePath = `/docs/demo-docs/${version}`;
+---
+
+<Dropdown label={currentLangName} ariaLabel="言語選択">
+  {supportedLangs.map((lang) => (
+    <DropdownItem
+      href={`${basePath}/${lang}/${currentPath}`}
+      active={lang === currentLang}
+    >
+      {langNames[lang] || lang}
+    </DropdownItem>
+  ))}
+</Dropdown>
