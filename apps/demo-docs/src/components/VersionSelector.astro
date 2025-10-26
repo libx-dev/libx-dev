@@ -1,0 +1,71 @@
+---
+/**
+ * VersionSelector - demo-docs用バージョン切り替えコンポーネント
+ */
+import { Dropdown, DropdownItem } from '@docs/ui/components';
+import { loadRegistry } from '@docs/generator';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+interface Props {
+  /** プロジェクトID */
+  projectId: string;
+  /** 現在のバージョン */
+  currentVersion: string;
+  /** 言語 */
+  lang: string;
+  /** 現在のスラッグ */
+  slug: string;
+}
+
+const { projectId, currentVersion, lang, slug } = Astro.props;
+
+// プロジェクトルートの絶対パスを取得
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const projectRoot = resolve(__dirname, '../../../..');
+
+// レジストリを読み込んでサポートバージョンを取得
+const registry = loadRegistry('registry/demo-docs.json', projectRoot);
+const project = registry.projects.find(p => p.id === projectId);
+
+if (!project) {
+  console.error(`Project not found: ${projectId}`);
+}
+
+// サポートされているバージョンリスト
+const versions = project?.versions || [];
+
+// バージョン表示名のマッピング
+const getVersionName = (version: any): string => {
+  if (typeof version.name === 'string') {
+    return version.name;
+  }
+  if (typeof version.name === 'object') {
+    return version.name[lang] || version.name['en'] || version.id;
+  }
+  return version.id;
+};
+
+// 現在のバージョンの表示名
+const currentVersionName = versions.find(v => v.id === currentVersion)
+  ? getVersionName(versions.find(v => v.id === currentVersion)!)
+  : currentVersion;
+
+// 現在のパスからバージョンを切り替えた際のパスを生成
+const basePath = `/docs/demo-docs`;
+---
+
+<Dropdown label={currentVersionName} ariaLabel="バージョン選択">
+  {versions.map((version) => (
+    <DropdownItem
+      href={`${basePath}/${version.id}/${lang}/${slug}`}
+      active={version.id === currentVersion}
+    >
+      {getVersionName(version)}
+      {version.isLatest && ' (最新)'}
+      {version.status === 'deprecated' && ' (非推奨)'}
+      {version.status === 'beta' && ' (ベータ)'}
+    </DropdownItem>
+  ))}
+</Dropdown>

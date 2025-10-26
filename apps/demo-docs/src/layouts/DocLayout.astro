@@ -5,6 +5,7 @@
  */
 import { Navigation, Sidebar, Footer } from '@docs/ui/components';
 import Search from '@docs/runtime/components/Search.astro';
+import VersionSelector from '../components/VersionSelector.astro';
 import LanguageSelector from '../components/LanguageSelector.astro';
 import '@docs/theme/css/variables.css';
 import '@docs/theme/css/base.css';
@@ -17,9 +18,10 @@ interface Props {
   docId: string;
   projectId: string;
   sidebarItems?: any[];
+  slug?: string;
 }
 
-const { title, description, lang, version, sidebarItems = [] } = Astro.props;
+const { title, description, lang, version, sidebarItems = [], slug = '' } = Astro.props;
 
 // メタデータ
 const pageTitle = `${title} | Demo Documentation`;
@@ -52,6 +54,15 @@ const pageDescription = description || 'Demo documentation site using the new ge
       items={[]}
       siteTitle="Demo Documentation"
     >
+      <!-- バージョンセレクターをスロットに渡す -->
+      <VersionSelector
+        slot="version-selector"
+        projectId="demo-docs"
+        currentVersion={version}
+        lang={lang}
+        slug={slug}
+      />
+
       <!-- 言語セレクターをスロットに渡す -->
       <LanguageSelector
         slot="language-selector"
