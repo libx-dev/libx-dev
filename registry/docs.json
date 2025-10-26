@@ -2,7 +2,8 @@
   "$schemaVersion": "1.0.0",
   "metadata": {
     "createdAt": "2025-10-16T05:07:47.247Z",
-    "createdBy": "migrate-to-registry.js"
+    "createdBy": "migrate-to-registry.js",
+    "lastModified": "2025-10-26T19:23:12.017Z"
   },
   "projects": [
     {
@@ -1313,7 +1314,7 @@
           "id": "v1",
           "name": "Version 1.0",
           "isLatest": true,
-          "status": "stable",
+          "status": "active",
           "date": "2025-10-20T00:00:00.000Z"
         }
       ],
@@ -1393,7 +1394,7 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
         },
         {
           "id": "installation",
@@ -1429,7 +1430,7 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
         },
         {
           "id": "configuration",
@@ -1461,7 +1462,7 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
         },
         {
           "id": "components",
@@ -1489,7 +1490,7 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
         },
         {
           "id": "utilities",
@@ -1517,7 +1518,7 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
         },
         {
           "id": "basic-usage",
@@ -1545,7 +1546,15 @@
               "status": "published"
             }
           },
-          "license": "MIT"
+          "license": "mit"
+        }
+      ],
+      "licenses": [
+        {
+          "id": "mit",
+          "name": "MIT License",
+          "url": "https://opensource.org/licenses/MIT",
+          "attribution": "Demo Documentation by libx-dev Team (https://github.com/libx-dev/libx-dev)"
         }
       ]
     }
@@ -1565,41 +1574,5 @@
       "enabled": true,
       "retentionDays": 14
     }
-  },
-  "glossaryTerms": [
-    {
-      "termId": "registry",
-      "term": {
-        "en": "Registry",
-        "ja": "レジストリ",
-        "ko": "레지스트리"
-      },
-      "definition": {
-        "en": "A JSON-based data structure that defines the documentation structure, including projects, versions, categories, and documents.",
-        "ja": "プロジェクト、バージョン、カテゴリ、ドキュメントを定義するJSONベースのデータ構造です。",
-        "ko": "프로젝트, 버전, 카테고리, 문서를 정의하는 JSON 기반 데이터 구조입니다."
-      },
-      "relatedDocs": [
-        "getting-started",
-        "configuration"
-      ]
-    },
-    {
-      "termId": "shared-packages",
-      "term": {
-        "en": "Shared Packages",
-        "ja": "共有パッケージ",
-        "ko": "공유 패키지"
-      },
-      "definition": {
-        "en": "Reusable packages including @docs/generator, @docs/ui, @docs/theme, @docs/i18n, and @docs/versioning that provide core functionality.",
-        "ja": "@docs/generator、@docs/ui、@docs/theme、@docs/i18n、@docs/versioningを含む、コア機能を提供する再利用可能なパッケージです。",
-        "ko": "핵심 기능을 제공하는 @docs/generator, @docs/ui, @docs/theme, @docs/i18n, @docs/versioning을 포함한 재사용 가능한 패키지입니다."
-      },
-      "relatedDocs": [
-        "installation",
-        "components"
-      ]
-    }
-  ]
+  }
 }

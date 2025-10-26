@@ -4,8 +4,6 @@
  * 新規プロジェクトをレジストリに追加
  */
 
-import fs from 'fs';
-import path from 'path';
 import inquirer from 'inquirer';
 import { createLogger, LOG_LEVELS } from '../../utils/logger.js';
 import { getConfigManager } from '../../utils/config.js';
@@ -59,7 +57,8 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
     }
 
     // 対話式でプロジェクト情報を取得
-    const projectInfo = await getProjectInfo(projectId, cmdOpts, configManager, logger);
+    // 注意: dry-runモードでも情報は取得する
+    const projectInfo = await getProjectInfo(projectId, cmdOpts, configManager, logger, globalOpts);
 
     // dry-runチェック
     if (globalOpts.dryRun) {
@@ -136,8 +135,8 @@ export default async function addProjectCommand(projectId, globalOpts, cmdOpts) 
 /**
  * プロジェクト情報を対話式で取得
  */
-async function getProjectInfo(projectId, cmdOpts, configManager, logger) {
-  const nonInteractive = configManager.isNonInteractive() || cmdOpts.yes;
+async function getProjectInfo(projectId, cmdOpts, configManager, logger, globalOpts = {}) {
+  const nonInteractive = configManager.isNonInteractive() || cmdOpts.yes || globalOpts.yes || globalOpts.dryRun;
 
   // 対話式でない場合はオプションから取得
   if (nonInteractive) {
